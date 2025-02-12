@@ -47,7 +47,7 @@ Ensure you have the following installed:
    sudo apt-get -y install maven
    ```
 
-3. **Clone the repos1itory (SSH recommended)**
+3. **Clone the repository (SSH recommended)**
    ```sh
    git clone git@github.com:fxtih61/bot-app.git
    cd bot-app
