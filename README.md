@@ -8,8 +8,6 @@ The Berufsorientierungstag App is a Spring Boot application developed using Mave
 - **Maven**
 - **Spring Boot**
 - **JavaFX**
-- **PostgreSQL** (if applicable for data storage)
-- **Docker** (optional for containerized deployment)
 
 ## 🎯 Features
 - **Student Event Selection**: Students can choose their preferred events from a predefined list.
@@ -49,7 +47,7 @@ Ensure you have the following installed:
    sudo apt-get -y install maven
    ```
 
-3. **Clone the repository (SSH recommended)**
+3. **Clone the repos1itory (SSH recommended)**
    ```sh
    git clone git@github.com:fxtih61/bot-app.git
    cd bot-app
