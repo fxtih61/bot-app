@@ -60,7 +60,7 @@ Ensure you have the following installed:
 
 5. **Run the application**
    ```sh
-   mvn spring-boot:run
+   mvn javafx:run
    ```
 
 ## 📊 Data Handling
