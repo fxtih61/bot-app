@@ -1,9 +1,11 @@
 module com.openjfx {
-    requires javafx.controls;
-    requires javafx.fxml;
-    requires org.kordamp.bootstrapfx.core;
+  requires javafx.controls;
+  requires javafx.fxml;
+  requires org.kordamp.bootstrapfx.core;
+  requires org.apache.poi.poi;
+  requires org.apache.poi.ooxml;
 
-    opens com.openjfx to javafx.fxml;
+  opens com.openjfx to javafx.fxml;
 
-    exports com.openjfx;
+  exports com.openjfx;
 }
