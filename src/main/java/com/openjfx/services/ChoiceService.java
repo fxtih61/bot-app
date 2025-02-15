@@ -47,7 +47,7 @@ public class ChoiceService extends AbstractExcelService<Choice> {
   @Override
   protected Map<String, String> getColumnPrefixes() {
     return Map.of(
-        "classRes", "klasse",
+        "classRef", "klasse",
         "firstName", "vorname",
         "lastName", "name",
         "choice1", "wahl 1",
@@ -80,9 +80,17 @@ public class ChoiceService extends AbstractExcelService<Choice> {
    */
   @Override
   protected Choice createModelFromRow(Map<String, String> row, Map<String, String> columnMappings) {
-    String classRef = row.get(columnMappings.get("classRes"));
+    String classRef = row.get(columnMappings.get("classRef"));
     String firstName = row.get(columnMappings.get("firstName"));
     String lastName = row.get(columnMappings.get("lastName"));
+
+    // Required fields check
+    if (classRef == null || firstName == null || lastName == null) {
+      System.err.println("Error creating Choice object: missing required fields" + row);
+      return null;
+    }
+
+    // Optional fields with null handling
     String choice1 = row.get(columnMappings.get("choice1"));
     String choice2 = row.get(columnMappings.get("choice2"));
     String choice3 = row.get(columnMappings.get("choice3"));
@@ -90,22 +98,17 @@ public class ChoiceService extends AbstractExcelService<Choice> {
     String choice5 = row.get(columnMappings.get("choice5"));
     String choice6 = row.get(columnMappings.get("choice6"));
 
-    if (classRef == null || firstName == null || lastName == null) {
-      System.err.println("Error creating Choice object: missing required fields" + row);
-      return null;
-    }
-
     try {
       return new Choice(
           classRef.trim(),
           firstName.trim(),
           lastName.trim(),
-          choice1.trim(),
-          choice2.trim(),
-          choice3.trim(),
-          choice4.trim(),
-          choice5.trim(),
-          choice6.trim()
+          choice1 != null ? choice1.trim() : "",
+          choice2 != null ? choice2.trim() : "",
+          choice3 != null ? choice3.trim() : "",
+          choice4 != null ? choice4.trim() : "",
+          choice5 != null ? choice5.trim() : "",
+          choice6 != null ? choice6.trim() : ""
       );
     } catch (Exception e) {
       System.err.println("Error creating Choice object: " + e.getMessage() + " - " + row);
@@ -122,15 +125,15 @@ public class ChoiceService extends AbstractExcelService<Choice> {
   @Override
   protected Map<String, Object> convertModelToRow(Choice choice) {
     return Map.of(
-        "classRes", choice.getClassRef(),
-        "firstName", choice.getFirstName(),
-        "lastName", choice.getLastName(),
-        "choice1", choice.getChoice1(),
-        "choice2", choice.getChoice2(),
-        "choice3", choice.getChoice3(),
-        "choice4", choice.getChoice4(),
-        "choice5", choice.getChoice5(),
-        "choice6", choice.getChoice6()
+        "klasse", choice.getClassRef(),
+        "vorname", choice.getFirstName(),
+        "name", choice.getLastName(),
+        "wahl 1", choice.getChoice1(),
+        "wahl 2", choice.getChoice2(),
+        "wahl 3", choice.getChoice3(),
+        "wahl 4", choice.getChoice4(),
+        "wahl 5", choice.getChoice5(),
+        "wahl 6", choice.getChoice6()
     );
   }
 }
