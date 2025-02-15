@@ -29,9 +29,9 @@ class RoomServiceTest {
         new Room("Room2", 20)
     );
 
-    roomService.saveRoomsToExcel(expectedRooms, testFile.toString());
+    roomService.saveToExcel(expectedRooms, testFile.toString());
 
-    List<Room> actualRooms = roomService.loadRoomsFromExcel(testFile.toString());
+    List<Room> actualRooms = roomService.loadFromExcel(testFile.toString());
 
     assertEquals(expectedRooms.size(), actualRooms.size());
     for (int i = 0; i < expectedRooms.size(); i++) {
@@ -44,7 +44,7 @@ class RoomServiceTest {
   void testLoadRoomsFromExcel_FileNotFound() {
     String invalidPath = "nonexistent.xlsx";
 
-    assertThrows(IOException.class, () -> roomService.loadRoomsFromExcel(invalidPath));
+    assertThrows(IOException.class, () -> roomService.loadFromExcel(invalidPath));
   }
 
   @Test
@@ -55,11 +55,11 @@ class RoomServiceTest {
         new Room("Room2", 20)
     );
 
-    roomService.saveRoomsToExcel(rooms, testFile.toString());
+    roomService.saveToExcel(rooms, testFile.toString());
 
     assertTrue(testFile.toFile().exists());
 
-    List<Room> loadedRooms = roomService.loadRoomsFromExcel(testFile.toString());
+    List<Room> loadedRooms = roomService.loadFromExcel(testFile.toString());
     assertEquals(rooms.size(), loadedRooms.size());
     for (int i = 0; i < rooms.size(); i++) {
       assertEquals(rooms.get(i).getName(), loadedRooms.get(i).getName());
@@ -75,6 +75,6 @@ class RoomServiceTest {
         new Room("Room2", 20)
     );
 
-    assertThrows(IOException.class, () -> roomService.saveRoomsToExcel(rooms, invalidPath));
+    assertThrows(IOException.class, () -> roomService.saveToExcel(rooms, invalidPath));
   }
 }

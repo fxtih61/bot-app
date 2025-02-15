@@ -1,69 +1,94 @@
 package com.openjfx.services;
 
 import com.openjfx.models.Room;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
 
 /**
- * The `RoomService` class provides methods to load and save `Room` objects from and to an Excel
- * file. It uses the `ExcelService` to perform the actual file operations.
+ * Service class for handling Room-related Excel operations. This class extends AbstractExcelService
+ * to provide specific functionality for reading and writing Room data from/to Excel files.
+ *
+ * <p>The service maps Excel columns to Room properties using German column headers:
+ * <ul>
+ *   <li>"raum" → Room name</li>
+ *   <li>"kapazität" → Room capacity</li>
+ * </ul>
+ *
+ * <p>Example usage:
+ * <pre>
+ * RoomService roomService = new RoomService(new ExcelService());
+ * List<Room> rooms = roomService.loadFromExcel("path/to/excel.xlsx");
+ * </pre>
  */
-public class RoomService {
-
-  private final ExcelService excelService;
+public class RoomService extends AbstractExcelService<Room> {
 
   /**
-   * Constructs a new `RoomService` with the specified `ExcelService`.
+   * Constructs a new RoomService with the specified Excel service.
    *
-   * @param excelService the `ExcelService` to use for file operations
+   * @param excelService the Excel service to use for file operations
    */
   public RoomService(ExcelService excelService) {
-    this.excelService = excelService;
+    super(excelService);
   }
 
   /**
-   * Loads a list of `Room` objects from the specified Excel file.
+   * Defines the mapping between internal property names and Excel column prefixes. The column
+   * prefixes are case-insensitive partial matches for Excel column headers.
    *
-   * @param path the path to the Excel file
-   * @return a list of `Room` objects loaded from the Excel file
-   * @throws IOException if an I/O error occurs
+   * @return a Map containing the property-to-column prefix mappings
    */
-  public List<Room> loadRoomsFromExcel(String path) throws IOException {
-    List<Map<String, String>> excelData = excelService.readExcelFile(path);
-    List<Room> rooms = new ArrayList<>();
-
-    for (Map<String, String> row : excelData) {
-      Room room = new Room(
-          row.get("Raum"),
-          Integer.parseInt(row.get("Kapazität"))
-      );
-      rooms.add(room);
-    }
-
-    return rooms;
+  @Override
+  protected Map<String, String> getColumnPrefixes() {
+    return Map.of(
+        "name", "raum",
+        "capacity", "kapazität"
+    );
   }
 
   /**
-   * Saves a list of `Room` objects to the specified Excel file.
+   * Creates a Room object from a row of Excel data.
    *
-   * @param rooms the list of `Room` objects to save
-   * @param path  the path to the Excel file
-   * @throws IOException if an I/O error occurs
+   * <p>Required fields are:
+   * <ul>
+   *   <li>Name (string)</li>
+   *   <li>Capacity (numeric)</li>
+   * </ul>
+   *
+   * @param row            the row data from Excel
+   * @param columnMappings the mappings between internal names and actual Excel columns
+   * @return a new Room object, or null if the row data is invalid
    */
-  public void saveRoomsToExcel(@NotNull List<Room> rooms, String path) throws IOException {
-    List<Map<String, Object>> data = new ArrayList<>();
+  @Override
+  protected Room createModelFromRow(Map<String, String> row, Map<String, String> columnMappings) {
+    String name = row.get(columnMappings.get("name"));
+    String capacityStr = row.get(columnMappings.get("capacity"));
 
-    for (Room room : rooms) {
-      Map<String, Object> row = Map.of(
-          "Raum", room.getName(),
-          "Kapazität", room.getCapacity()
-      );
-      data.add(row);
+    if (name == null || capacityStr == null) {
+      System.err.println("Skipping row due to null values: " + row);
+      return null;
     }
 
-    excelService.createExcelFile(data, path);
+    try {
+      return new Room(
+          name.trim(),
+          Integer.parseInt(capacityStr.trim())
+      );
+    } catch (NumberFormatException e) {
+      System.err.println("Error parsing row: " + row + " - " + e.getMessage());
+      return null;
+    }
+  }
+
+  /**
+   * Converts a Room object to a map of column names and values for Excel export.
+   *
+   * @param room the Room object to convert
+   * @return a Map containing the column names and values for Excel export
+   */
+  @Override
+  protected Map<String, Object> convertModelToRow(Room room) {
+    return Map.of(
+        "Raum", room.getName(),
+        "Kapazität", room.getCapacity()
+    );
   }
 }
