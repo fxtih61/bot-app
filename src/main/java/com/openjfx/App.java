@@ -1,5 +1,10 @@
 package com.openjfx;
 
+import com.openjfx.services.AssignmentService;
+import com.openjfx.services.ChoiceService;
+import com.openjfx.services.EventService;
+import com.openjfx.services.ExcelService;
+import com.openjfx.services.RoomService;
 import org.kordamp.bootstrapfx.BootstrapFX;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
 
@@ -44,6 +49,27 @@ public class App extends Application {
   }
 
   public static void main(String[] args) {
-    launch();
+    // launch();
+
+    ExcelService excelService = new ExcelService();
+    ChoiceService choiceService = new ChoiceService(excelService);
+    EventService eventService = new EventService(excelService);
+    RoomService roomService = new RoomService(excelService);
+
+    AssignmentService assignmentService = new AssignmentService(
+        choiceService,
+        eventService,
+        roomService
+    );
+
+    try {
+      assignmentService.runAssignment(
+          "daten/1 IMPORTS/IMPORT BOT2_Wahl.xlsx",
+          "daten/1 IMPORTS/IMPORT BOT1_Veranstaltungsliste.xlsx",
+          "daten/1 IMPORTS/IMPORT BOT0_Raumliste.xlsx"
+      );
+    } catch (Exception e) {
+      System.err.println("Error running assignment: " + e.getMessage());
+    }
   }
 }
