@@ -26,7 +26,6 @@ public class WelcomeController {
         try {
             App app = new App();
             app.showMainScene();
-
         } catch (IOException e) {
             e.printStackTrace();
         }

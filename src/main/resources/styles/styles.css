@@ -19,10 +19,14 @@
 }
 
 #contentPane {
-    -fx-background-color: #1f2a38;
+    background-color: #030712;
+    -fx-background-color: #030712;
 }
 
-/*
-#d1d5dc Farbe für Schrift
-#ffffff Farbe für Überschriften
-*/
+.label {
+    -fx-text-fill: #ffffff;
+    font-size: 24px;
+    -fx-font-size: 24px;
+    font-weight: bold;
+    -fx-font-weight: bold;
+}
