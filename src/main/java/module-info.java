@@ -5,6 +5,8 @@ module com.openjfx {
   requires org.apache.poi.poi;
   requires org.apache.poi.ooxml;
   requires org.jetbrains.annotations;
+  requires com.zaxxer.hikari;
+  requires java.sql;
 
   opens com.openjfx to javafx.fxml;
 
