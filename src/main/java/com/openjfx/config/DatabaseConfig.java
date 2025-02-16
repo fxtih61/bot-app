@@ -114,9 +114,34 @@ public class DatabaseConfig {
   }
 
   /**
-   * Returns a HikariConfig object with the necessary configuration for the H2 database.
+   * Creates and configures a HikariCP configuration object with optimized settings.
    *
-   * @return HikariConfig object with database configuration
+   * @return Configured HikariConfig instance
+   * @throws NullPointerException if configuration creation fails
+   *
+   * Configuration details:
+   * - Database connection:
+   *   - jdbcUrl: H2 database URL
+   *   - username: Database user
+   *   - password: Database password
+   *
+   * - Connection pool settings:
+   *   - maximumPoolSize: Maximum number of connections in the pool (10)
+   *   - minimumIdle: Minimum number of idle connections (5)
+   *   - idleTimeout: Maximum time a connection can remain idle (300000ms / 5 minutes)
+   *   - connectionTimeout: Maximum time to wait for connection (20000ms / 20 seconds)
+   *   - autoCommit: Enable automatic transaction commit
+   *
+   * - Performance optimizations:
+   *   - cachePrepStmts: Enable prepared statement caching
+   *   - prepStmtCacheSize: Number of prepared statements to cache (250)
+   *   - prepStmtCacheSqlLimit: Maximum length of SQL string to cache (2048)
+   *   - useServerPrepStmts: Use server-side prepared statements
+   *   - useLocalSessionState: Avoid unnecessary round trips to server
+   *   - rewriteBatchedStatements: Optimize batch operations
+   *   - cacheResultSetMetadata: Cache ResultSet metadata
+   *   - elideSetAutoCommits: Optimize autocommit calls
+   *   - maintainTimeStats: Disable time statistics tracking
    */
   private static @NotNull HikariConfig getHikariConfig() {
     HikariConfig config = new HikariConfig();
