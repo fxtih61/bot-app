@@ -1,5 +1,6 @@
 package com.openjfx;
 
+import com.openjfx.config.DatabaseConfig;
 import org.kordamp.bootstrapfx.BootstrapFX;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
 
@@ -45,5 +46,10 @@ public class App extends Application {
 
   public static void main(String[] args) {
     launch();
+  }
+
+  @Override
+  public void stop() {
+    DatabaseConfig.closeDataSource();
   }
 }
