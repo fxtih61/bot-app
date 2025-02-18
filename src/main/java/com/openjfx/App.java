@@ -1,16 +1,10 @@
 package com.openjfx;
 
 import com.openjfx.config.DatabaseConfig;
-import org.kordamp.bootstrapfx.BootstrapFX;
-import org.kordamp.bootstrapfx.scene.layout.Panel;
-
 import javafx.application.Application;
-import javafx.geometry.Insets;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
@@ -19,29 +13,32 @@ import javafx.stage.Stage;
 
 public class App extends Application {
 
+  private int SCENE_WIDTH = 1200;
+  private int SCENE_HEIGHT = 800;
+  private static Stage primaryStage;
+
   @Override
-  public void start(Stage stage) {
-    String javaVersion = System.getProperty("java.version");
-    String javafxVersion = System.getProperty("javafx.version");
-    Label label = new Label("Hello, JavaFX " + javafxVersion + "\nRunning on Java " + javaVersion);
-    // Scene scene = new Scene(new StackPane(label), 640, 480);
+  public void start(Stage stage) throws Exception {
+    primaryStage = stage;
+    showWelcomeScene();
+  }
 
-    Panel panel = new Panel("This is the title");
-    panel.getStyleClass().add("panel-primary");
-    BorderPane content = new BorderPane();
-    content.setPadding(new Insets(20));
-    Button button = new Button("Hello BootstrapFX");
-    button.getStyleClass().setAll("btn", "btn-danger");
-    content.setCenter(button);
-    panel.setBody(content);
+  public void showWelcomeScene() throws Exception {
+    Parent root = FXMLLoader.load(App.class.getResource("/views/welcome.fxml"));
+    Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+    String css = this.getClass().getResource("/styles/welcome.css").toExternalForm();
+    scene.getStylesheets().add(css);
+    primaryStage.setScene(scene);
+    primaryStage.show();
+  }
 
-    Scene scene = new Scene(panel);
-    scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
-
-    stage.setTitle("Hello BootstrapFX");
-    stage.setScene(scene);
-    stage.sizeToScene();
-    stage.show();
+  public void showMainScene() throws Exception {
+    Parent root = FXMLLoader.load(App.class.getResource("/views/main.fxml"));
+    Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+    String css = this.getClass().getResource("/styles/styles.css").toExternalForm();
+    scene.getStylesheets().add(css);
+    primaryStage.setScene(scene);
+    primaryStage.show();
   }
 
   public static void main(String[] args) {
