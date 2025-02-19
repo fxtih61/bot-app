@@ -1,6 +1,10 @@
 package com.openjfx.services;
 
+import com.openjfx.config.DatabaseConfig;
 import com.openjfx.models.Choice;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -135,5 +139,40 @@ public class ChoiceService extends AbstractExcelService<Choice> {
         "wahl 5", choice.getChoice5(),
         "wahl 6", choice.getChoice6()
     );
+  }
+
+  /**
+   * Saves a Choice object to the database.
+   * @param choice the Choice object to save
+   */
+
+  //saveChoice method
+  public void saveChoice(Choice choice) {
+    String sql = "INSERT INTO choices ("
+        + "class_ref, "
+        + "first_name, "
+        + "last_name, "
+        + "choice1, "
+        + "choice2, "
+        + "choice3, "
+        + "choice4, "
+        + "choice5, "
+        + "choice6) "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    try (Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      pstmt.setString(1, choice.getClassRef());
+      pstmt.setString(2, choice.getFirstName());
+      pstmt.setString(3, choice.getLastName());
+      pstmt.setString(4, choice.getChoice1());
+      pstmt.setString(5, choice.getChoice2());
+      pstmt.setString(6, choice.getChoice3());
+      pstmt.setString(7, choice.getChoice4());
+      pstmt.setString(8, choice.getChoice5());
+      pstmt.setString(9, choice.getChoice6());
+      pstmt.executeUpdate();
+    } catch (SQLException e) {
+      System.err.println("Error saving choice: " + e.getMessage());
+    }
   }
 }
