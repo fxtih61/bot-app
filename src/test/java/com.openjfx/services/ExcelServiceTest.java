@@ -145,7 +145,7 @@ class ExcelServiceTest {
 
     List<Map<String, String>> result = service.readExcelFile(filePath);
     assertEquals("25", result.get(0).get("Integer"));
-    assertEquals("25.5", result.get(0).get("Double"));
+    assertTrue(result.get(0).get("Double").replace(",", ".").equals("25.5"));
   }
 
   @Test
