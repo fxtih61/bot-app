@@ -76,4 +76,38 @@ public class ExcelService {
       return result;
     }
   }
+  public void createExcelFileCustom(List<Map<String, Object>> data, String filePath) throws IOException {
+    try (Workbook workbook = new XSSFWorkbook()) {
+      Sheet sheet = workbook.createSheet("Data");
+
+      int rowIndex = 0;
+
+      // Daten in das Excel-Blatt schreiben
+      for (Map<String, Object> rowData : data) {
+        Row row = sheet.createRow(rowIndex++);
+        int cellIndex = 0;
+
+        if (rowData.containsKey("Header")) {
+          // Allgemeine Überschrift schreiben
+          Cell cell = row.createCell(cellIndex);
+          cell.setCellValue(rowData.get("Header").toString());
+        } else {
+          // Spaltenüberschriften oder Datenzeilen schreiben
+          for (Map.Entry<String, Object> entry : rowData.entrySet()) {
+            Cell cell = row.createCell(cellIndex++);
+            if (entry.getValue() instanceof String) {
+              cell.setCellValue((String) entry.getValue());
+            } else if (entry.getValue() instanceof Number) {
+              cell.setCellValue(((Number) entry.getValue()).doubleValue());
+            }
+          }
+        }
+      }
+
+      // Datei speichern
+      try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+        workbook.write(fileOut);
+      }
+    }
+  }
 }
