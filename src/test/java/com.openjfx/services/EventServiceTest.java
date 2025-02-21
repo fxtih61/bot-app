@@ -38,10 +38,12 @@ class EventServiceTest {
       assertEquals(expectedEvents.get(i).getCompany(), actualEvents.get(i).getCompany());
       assertEquals(expectedEvents.get(i).getSubject(), actualEvents.get(i).getSubject());
       assertEquals(expectedEvents.get(i).getMaxParticipants(), actualEvents.get(i).getMaxParticipants());
-      assertEquals(expectedEvents.get(i).getMinParticipants(), actualEvents.get(i).getMinParticipants());
+      assertEquals(expectedEvents.get(i).getEvent(), actualEvents.get(i).getEvent());
       assertEquals(expectedEvents.get(i).getEarliestStart(), actualEvents.get(i).getEarliestStart());
     }
   }
+
+  //TODO: fix the row moving
 
   @Test
   void testLoadEventsFromExcel_WithOptionalFieldsEmpty(@TempDir Path tempDir) throws IOException {
@@ -58,7 +60,7 @@ class EventServiceTest {
     for (int i = 0; i < expectedEvents.size(); i++) {
       assertEquals(expectedEvents.get(i).getId(), actualEvents.get(i).getId());
       assertEquals(expectedEvents.get(i).getMaxParticipants(), actualEvents.get(i).getMaxParticipants());
-      assertEquals(expectedEvents.get(i).getMinParticipants(), actualEvents.get(i).getMinParticipants());
+      assertEquals(expectedEvents.get(i).getEvent(), actualEvents.get(i).getEvent());
       assertTrue(actualEvents.get(i).getCompany().isEmpty());
       assertTrue(actualEvents.get(i).getSubject().isEmpty());
       assertTrue(actualEvents.get(i).getEarliestStart().isEmpty());
@@ -99,7 +101,7 @@ class EventServiceTest {
     assertEquals("Company A", loadedEvent.getCompany());
     assertEquals("IT", loadedEvent.getSubject());
     assertEquals(30, loadedEvent.getMaxParticipants());
-    assertEquals(10, loadedEvent.getMinParticipants());
+    assertEquals(10, loadedEvent.getEvent());
     assertEquals("09:00", loadedEvent.getEarliestStart());
   }
 
@@ -121,7 +123,7 @@ class EventServiceTest {
       assertEquals(events.get(i).getCompany(), loadedEvents.get(i).getCompany());
       assertEquals(events.get(i).getSubject(), loadedEvents.get(i).getSubject());
       assertEquals(events.get(i).getMaxParticipants(), loadedEvents.get(i).getMaxParticipants());
-      assertEquals(events.get(i).getMinParticipants(), loadedEvents.get(i).getMinParticipants());
+      assertEquals(events.get(i).getEvent(), loadedEvents.get(i).getEvent());
       assertEquals(events.get(i).getEarliestStart(), loadedEvents.get(i).getEarliestStart());
     }
   }
