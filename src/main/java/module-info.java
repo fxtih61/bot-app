@@ -9,8 +9,9 @@ module com.openjfx {
     requires java.sql;
     requires javafx.graphics;
     requires org.apache.pdfbox;
+    requires com.h2database;
 
-  opens com.openjfx to javafx.fxml;
+    opens com.openjfx to javafx.fxml;
   opens com.openjfx.controllers to javafx.fxml;
 
   exports com.openjfx;
