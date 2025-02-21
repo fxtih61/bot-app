@@ -53,8 +53,8 @@ public class EventService extends AbstractExcelService<Event> {
   protected Map<String, String> getColumnPrefixes() {
     return Map.of(
         "id", "nr",
-        "max", "max. teilnehmer", // Match "Max. Teilnehmer"
-        "min", "min.",            // Match "Min."
+        "max", "max.",
+        "min", "min.",
         "company", "unternehmen",
         "subject", "fachrichtung",
         "time", "frühester zeitpunkt"
