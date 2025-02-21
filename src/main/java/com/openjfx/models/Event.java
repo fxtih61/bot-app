@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * The `Event` class represents an event with various attributes such as company, subject, maximum
- * and event participants, and the earliest start time.
+ * and minimum participants, and the earliest start time.
  */
 public class Event {
 
@@ -12,7 +12,7 @@ public class Event {
   private String company;
   private String subject;
   private int maxParticipants;
-  private int event;
+  private int minParticipants;
   private String earliestStart;
 
   /**
@@ -22,16 +22,16 @@ public class Event {
    * @param company         the company hosting the event
    * @param subject         the subject of the event
    * @param maxParticipants the maximum number of participants allowed
-   * @param event the minimum number of participants required
+   * @param minParticipants the minimum number of participants required
    * @param earliestStart   the earliest start time of the event
    */
-  public Event(int id, String company, String subject, int maxParticipants, int event,
+  public Event(int id, String company, String subject, int maxParticipants, int minParticipants,
       String earliestStart) {
     this.id = id;
     this.company = company;
     this.subject = subject;
     this.maxParticipants = maxParticipants;
-    this.event = event;
+    this.minParticipants = minParticipants;
     this.earliestStart = earliestStart;
   }
 
@@ -108,21 +108,21 @@ public class Event {
   }
 
   /**
-   * Returns the number of events.
+   * Returns the minimum number of participants required.
    *
-   * @return the number of events
+   * @return the minimum number of participants required
    */
-  public int getEvent() {
-    return event;
+  public int getMinParticipants() {
+    return minParticipants;
   }
 
   /**
-   * Sets the number of events.
+   * Sets the minimum number of participants required.
    *
-   * @param event the number of events
+   * @param minParticipants the new minimum number of participants required
    */
-  public void setEvent(int event) {
-    this.event = event;
+  public void setMinParticipants(int minParticipants) {
+    this.minParticipants = minParticipants;
   }
 
   /**
@@ -184,7 +184,7 @@ public class Event {
         ", company='" + company + '\'' +
         ", subject='" + subject + '\'' +
         ", maxParticipants=" + maxParticipants +
-        ", event=" + event +
+        ", minParticipants=" + minParticipants +
         ", earliestStart='" + earliestStart + '\'' +
         '}';
   }

@@ -12,7 +12,7 @@ import java.util.Map;
  * <ul>
  *   <li>"nr" → Event ID</li>
  *   <li>"max" → Maximum participants</li>
- *   <li>"event" → Event</li>
+ *   <li>"min" → Minimum participants</li>
  *   <li>"unternehmen" → Company name</li>
  *   <li>"fachrichtung" → Subject area</li>
  *   <li>"frühester zeitpunkt" → Earliest start time</li>
@@ -47,35 +47,14 @@ public class EventService extends AbstractExcelService<Event> {
   @Override
   protected Map<String, String> getColumnPrefixes() {
     return Map.of(
-        "id", "NR.",
-        "max", "Max. teilnehmer",
-        "event", "Anzahl. Veranstaltungen",
-        "company", "Unternehmen",
-        "subject", "Fachrichtung",
-        "time", "Frühester Zeitpunkt"
+        "id", "nr",
+        "max", "max",
+        "min", "min",
+        "company", "unternehmen",
+        "subject", "fachrichtung",
+        "time", "frühester zeitpunkt"
     );
   }
-
-  /**
-   * Safely parses an integer from a string, with fallback values.
-   *
-   * @param value the string to parse
-   * @param defaultValue the default value to return if parsing fails
-   * @return the parsed integer or the default value
-   */
-  private int safeParseInt(String value, int defaultValue) {
-    if (value == null || value.trim().isEmpty()) {
-      return defaultValue;
-    }
-
-    try {
-      return Integer.parseInt(value.trim());
-    } catch (NumberFormatException e) {
-      // Handle non-numeric values (like "A")
-      return defaultValue;
-    }
-  }
-
 
   /**
    * Creates an Event object from a row of Excel data.
@@ -84,7 +63,7 @@ public class EventService extends AbstractExcelService<Event> {
    * <ul>
    *   <li>ID (numeric)</li>
    *   <li>Maximum participants (numeric)</li>
-   *   <li>Event (numeric)</li>
+   *   <li>Minimum participants (numeric)</li>
    * </ul>
    *
    * <p>Optional fields are:
@@ -103,32 +82,27 @@ public class EventService extends AbstractExcelService<Event> {
   protected Event createModelFromRow(Map<String, String> row, Map<String, String> columnMappings) {
     String idStr = row.get(columnMappings.get("id"));
     String maxStr = row.get(columnMappings.get("max"));
-    String eventStr = row.get(columnMappings.get("event"));
+    String minStr = row.get(columnMappings.get("min"));
     String company = row.get(columnMappings.get("company"));
     String subject = row.get(columnMappings.get("subject"));
     String time = row.get(columnMappings.get("time"));
 
-    // Only ID is truly required
-    if (idStr == null || idStr.trim().isEmpty()) {
-      System.err.println("Skipping row due to missing ID: " + row);
+    if (idStr == null || maxStr == null || minStr == null) {
+      System.err.println("Skipping row due to null values: " + row);
       return null;
     }
 
     try {
-      int id = Integer.parseInt(idStr.trim());
-      int max = safeParseInt(maxStr, 0);
-      int event = safeParseInt(eventStr, 0);
-
       return new Event(
-          id,
+          Integer.parseInt(idStr.trim()),
           company != null ? company : "",
           subject != null ? subject : "",
-          max,
-          event,
+          Integer.parseInt(maxStr.trim()),
+          Integer.parseInt(minStr.trim()),
           time != null ? time : ""
       );
     } catch (NumberFormatException e) {
-      System.err.println("Error parsing ID in row: " + row + " - " + e.getMessage());
+      System.err.println("Error parsing row: " + row + " - " + e.getMessage());
       return null;
     }
   }
@@ -146,8 +120,8 @@ public class EventService extends AbstractExcelService<Event> {
         "NR.", event.getId(),
         "Unternehmen", event.getCompany(),
         "Fachrichtung", event.getSubject(),
-        "Max. teilnehmer", event.getMaxParticipants(),
-        "Anzahl. Veranstaltungen", event.getEvent(),
+        "Max.", event.getMaxParticipants(),
+        "Min.", event.getMinParticipants(),
         "Frühester Zeitpunkt", event.getEarliestStart()
     );
   }

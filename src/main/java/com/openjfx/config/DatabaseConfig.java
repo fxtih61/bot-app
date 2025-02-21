@@ -69,7 +69,7 @@ public class DatabaseConfig {
               "    company VARCHAR(255) NOT NULL," +
               "    subject VARCHAR(255) NOT NULL," +
               "    max_participants INTEGER NOT NULL," +
-              "    events INTEGER NOT NULL," +
+              "    min_participants INTEGER NOT NULL," +
               "    earliest_start VARCHAR(50) NOT NULL" +
               ")");
 

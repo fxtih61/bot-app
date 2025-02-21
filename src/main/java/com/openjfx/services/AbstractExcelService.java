@@ -68,7 +68,6 @@ public abstract class AbstractExcelService<T> {
    */
   public List<T> loadFromExcel(String path) throws IOException {
     List<Map<String, String>> excelData = excelService.readExcelFile(path);
-    System.out.println("Excel data: " + excelData);
     List<T> models = new ArrayList<>();
 
     if (excelData.isEmpty()) {

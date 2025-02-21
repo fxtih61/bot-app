@@ -51,14 +51,14 @@ public class DatabaseExample {
   }
 
   private static void insertEvent(Event event) throws SQLException {
-    String sql = "INSERT INTO events (id, company, subject, max_participants, event, earliest_start) VALUES (?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO events (id, company, subject, max_participants, min_participants, earliest_start) VALUES (?, ?, ?, ?, ?, ?)";
     try (Connection conn = DatabaseConfig.getConnection();
         PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setInt(1, event.getId());
       pstmt.setString(2, event.getCompany());
       pstmt.setString(3, event.getSubject());
       pstmt.setInt(4, event.getMaxParticipants());
-      pstmt.setInt(5, event.getEvent());
+      pstmt.setInt(5, event.getMinParticipants());
       pstmt.setString(6, event.getEarliestStart());
       pstmt.executeUpdate();
     }
@@ -85,7 +85,7 @@ public class DatabaseExample {
             rs.getString("company"),
             rs.getString("subject"),
             rs.getInt("max_participants"),
-            rs.getInt("event"),
+            rs.getInt("min_participants"),
             rs.getString("earliest_start"));
       }
     }

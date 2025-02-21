@@ -14,21 +14,21 @@ public class EventTest {
     assertEquals("Company", event.getCompany());
     assertEquals("Subject", event.getSubject());
     assertEquals(10, event.getMaxParticipants());
-    assertEquals(5, event.getEvent());
+    assertEquals(5, event.getMinParticipants());
     assertEquals("A", event.getEarliestStart());
 
     event.setId(2);
     event.setCompany("Company 2");
     event.setSubject("Subject 2");
     event.setMaxParticipants(20);
-    event.setEvent(10);
+    event.setMinParticipants(10);
     event.setEarliestStart("B");
 
     assertEquals(2, event.getId());
     assertEquals("Company 2", event.getCompany());
     assertEquals("Subject 2", event.getSubject());
     assertEquals(20, event.getMaxParticipants());
-    assertEquals(10, event.getEvent());
+    assertEquals(10, event.getMinParticipants());
     assertEquals("B", event.getEarliestStart());
   }
 
@@ -56,7 +56,7 @@ public class EventTest {
   void testToString() {
     Event event = new Event(1, "Company", "Subject", 10, 5, "A");
     assertEquals(
-        "Event{id=1, company='Company', subject='Subject', maxParticipants=10, event=5, earliestStart='A'}",
+        "Event{id=1, company='Company', subject='Subject', maxParticipants=10, minParticipants=5, earliestStart='A'}",
         event.toString());
   }
 }
