@@ -82,6 +82,8 @@ public class AssignmentService {
       }
     }
 
+    mapCompanies(events, choices);
+
     //TODO: generate outputs(Schedule, Attendance list, etc.)
   }
 
@@ -207,5 +209,63 @@ public class AssignmentService {
    */
   private boolean isAlreadyAssigned(Choice student, Event event) {
     return assignments.get(event.getId()).contains(student);
+  }
+
+  /**
+   * Maps companies and counts how many students are assigned to each event.
+   *
+   * @param events list of events to analyze
+   */
+  private void mapCompanies(List<Event> events, List<Choice> allChoices) {
+    System.out.println("\nEvent Choice Summary:");
+    System.out.println("-------------------");
+
+    Map<Integer, Integer> choiceCounts = new HashMap<>();
+
+    // Count all choices for each event
+    for (Choice choice : allChoices) {
+      countEventChoice(choiceCounts, choice.getChoice1());
+      countEventChoice(choiceCounts, choice.getChoice2());
+      countEventChoice(choiceCounts, choice.getChoice3());
+      countEventChoice(choiceCounts, choice.getChoice4());
+      countEventChoice(choiceCounts, choice.getChoice5());
+      countEventChoice(choiceCounts, choice.getChoice6());
+    }
+
+    // Print summary
+    for (Event event : events) {
+      int eventId = event.getId();
+      int choiceCount = choiceCounts.getOrDefault(eventId, 0);
+      int maxCapacity = event.getMaxParticipants();
+      int additionalWorkshops = calculateAdditionalWorkshops(choiceCount, maxCapacity);
+
+      System.out.printf("Event ID: %d | Company: %s | Subject: %s | Student Choices: %d | Workshops: %d%n",
+          eventId,
+          event.getCompany(),
+          event.getSubject(),
+          choiceCount,
+          additionalWorkshops
+      );
+    }
+  }
+
+  private int calculateAdditionalWorkshops(int demand, int capacity) {
+    System.out.println("Demand: " + demand + " | Capacity: " + capacity);
+    if (demand <= capacity) {
+      return 1;
+    }
+    return (int) Math.ceil((double) (demand - capacity) / capacity) + 1;
+  }
+
+  private void countEventChoice(Map<Integer, Integer> counts, String choice) {
+    if (choice == null || choice.isEmpty()) {
+      return;
+    }
+    try {
+      int eventId = Integer.parseInt(choice.replaceAll("[^0-9]", ""));
+      counts.merge(eventId, 1, Integer::sum);
+    } catch (NumberFormatException e) {
+      // Ignore invalid choices
+    }
   }
 }
