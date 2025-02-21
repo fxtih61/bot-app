@@ -59,9 +59,9 @@ class EventServiceTest {
       assertEquals(expectedEvents.get(i).getId(), actualEvents.get(i).getId());
       assertEquals(expectedEvents.get(i).getMaxParticipants(), actualEvents.get(i).getMaxParticipants());
       assertEquals(expectedEvents.get(i).getMinParticipants(), actualEvents.get(i).getMinParticipants());
-      assertTrue(actualEvents.get(i).getCompany().isEmpty());
-      assertTrue(actualEvents.get(i).getSubject().isEmpty());
-      assertTrue(actualEvents.get(i).getEarliestStart().isEmpty());
+      assertEquals("Empty", actualEvents.get(i).getCompany());
+      assertEquals("Empty", actualEvents.get(i).getSubject());
+      assertEquals("Empty", actualEvents.get(i).getEarliestStart());
     }
   }
 
