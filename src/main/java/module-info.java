@@ -11,6 +11,7 @@ module com.openjfx {
   requires org.apache.pdfbox;
   requires com.h2database;
   requires javafx.base;
+  requires java.desktop;
   opens com.openjfx.models to javafx.base;
 
   opens com.openjfx to javafx.fxml;

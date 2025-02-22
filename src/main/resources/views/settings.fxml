@@ -1,16 +1,57 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Region?>
 
-
-<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <BorderPane>
-         <top>
-            <Label alignment="CENTER" text="Einstellungen" BorderPane.alignment="CENTER" />
-         </top>
-      </BorderPane>
-   </children>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+  <StackPane
+    xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.openjfx.controllers.SettingController">
+  <children>
+    <BorderPane styleClass="border-pane">
+      <top>
+        <Label alignment="CENTER" text="Einstellungen"
+          styleClass="header-label" BorderPane.alignment="CENTER"/>
+      </top>
+      <center>
+        <VBox spacing="20.0">
+          <padding>
+            <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+          </padding>
+          <children>
+            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="settings-row">
+              <children>
+                <Label text="Open H2 Console"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="h2ConsoleButton" text="Open" styleClass="settings-button"/>
+              </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="settings-row">
+              <children>
+                <Label text="Language"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <ComboBox styleClass="settings-combo">
+                  <items>
+                    <FXCollections fx:factory="observableArrayList">
+                      <String fx:value="English" />
+                      <String fx:value="Deutsch" />
+                    </FXCollections>
+                  </items>
+                  <value>
+                    <String fx:value="English" />
+                  </value>
+                </ComboBox>
+              </children>
+            </HBox>
+          </children>
+        </VBox>
+      </center>
+    </BorderPane>
+  </children>
 </StackPane>
