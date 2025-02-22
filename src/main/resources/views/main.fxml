@@ -6,15 +6,15 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.openjfx.controllers.MainController">
+<BorderPane stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.openjfx.controllers.MainController">
    <left>
-      <VBox prefHeight="780.0" prefWidth="120.0" spacing="10.0" BorderPane.alignment="CENTER">
+      <VBox spacing="10.0" BorderPane.alignment="CENTER" alignment="TOP_CENTER" prefHeight="Infinity">
          <children>
-            <Button fx:id="homeButton" mnemonicParsing="false" onAction="#showHome" prefHeight="25.0" prefWidth="176.0"/>
-            <Button fx:id="importButton" mnemonicParsing="false" onAction="#showImport" prefHeight="25.0" prefWidth="170.0"/>
-            <Button fx:id="exportButton" mnemonicParsing="false" onAction="#showExport" prefHeight="25.0" prefWidth="171.0"/>
-            <Button fx:id="settingsButton" mnemonicParsing="false" onAction="#showSettings" prefHeight="25.0" prefWidth="176.0"/>
-            <Button fx:id="aboutButton" mnemonicParsing="false" onAction="#showAbout" prefHeight="30.0" prefWidth="123.0"/>
+            <Button fx:id="homeButton" mnemonicParsing="false" onAction="#showHome"/>
+            <Button fx:id="importButton" mnemonicParsing="false" onAction="#showImport"/>
+            <Button fx:id="exportButton" mnemonicParsing="false" onAction="#showExport"/>
+            <Button fx:id="settingsButton" mnemonicParsing="false" onAction="#showSettings"/>
+            <Button fx:id="aboutButton" mnemonicParsing="false" onAction="#showAbout"/>
          </children>
          <BorderPane.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -22,6 +22,6 @@
       </VBox>
    </left>
    <center>
-      <StackPane fx:id="contentPane" BorderPane.alignment="CENTER" prefHeight="800.0" prefWidth="1080.0"/>
+      <StackPane fx:id="contentPane" BorderPane.alignment="CENTER"/>
    </center>
 </BorderPane>

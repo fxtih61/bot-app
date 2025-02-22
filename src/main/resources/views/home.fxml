@@ -4,11 +4,11 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <BorderPane prefHeight="800.0" prefWidth="1080.0">
+      <BorderPane>
          <top>
-            <Label alignment="CENTER" prefHeight="20.0" prefWidth="1080.0" text="Home" BorderPane.alignment="CENTER" />
+            <Label alignment="CENTER" text="Home" BorderPane.alignment="CENTER" />
          </top>
       </BorderPane>
    </children>
