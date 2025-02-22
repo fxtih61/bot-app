@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -196,6 +197,24 @@ public class ChoiceService extends AbstractExcelService<Choice> {
     } catch (SQLException e) {
       // Log the database connection error message and stack trace
       System.err.println("Database connection error: " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Deletes a Choice object from the database.
+   */
+
+  public void clearChoices() {
+    String delete = "DELETE FROM choices";
+
+    try (Connection conn = DatabaseConfig.getConnection();
+        Statement stmt = conn.createStatement()) {
+      conn.setAutoCommit(false);
+      stmt.executeUpdate(delete);
+      conn.commit();
+    } catch (SQLException e) {
+      System.err.println("Error clearing events: " + e.getMessage());
       e.printStackTrace();
     }
   }

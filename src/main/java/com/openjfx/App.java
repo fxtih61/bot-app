@@ -57,6 +57,7 @@ public class App extends Application {
     }
      */
 
+    /*
     ExcelService excelService = new ExcelService();
     AssignmentService assignmentService = new AssignmentService(
         new ChoiceService(excelService),
@@ -69,6 +70,8 @@ public class App extends Application {
     } catch (Exception e) {
       System.err.println("Error running assignment: " + e.getMessage());
     }
+
+     */
   }
 
   @Override

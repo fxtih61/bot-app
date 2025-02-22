@@ -120,8 +120,6 @@ public class RoomService extends AbstractExcelService<Room> {
 
         int result = pstmt.executeUpdate();
         conn.commit();
-        System.out.println("Saved room successfully, rows affected: " + result);
-
       } catch (SQLException e) {
         conn.rollback();
         System.err.println("Error saving room, transaction rolled back: " + e.getMessage());
@@ -129,6 +127,23 @@ public class RoomService extends AbstractExcelService<Room> {
       }
     } catch (SQLException e) {
       System.err.println("Database connection error: " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Deletes all rooms from the database.
+   */
+  public void clearRooms() {
+    String delete = "DELETE FROM rooms";
+
+    try (Connection conn = DatabaseConfig.getConnection();
+      Statement stmt = conn.createStatement()) {
+      conn.setAutoCommit(false);
+      stmt.executeUpdate(delete);
+      conn.commit();
+    } catch (SQLException e) {
+      System.err.println("Error clearing events: " + e.getMessage());
       e.printStackTrace();
     }
   }

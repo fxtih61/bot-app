@@ -238,6 +238,23 @@ public class EventService extends AbstractExcelService<Event> {
   }
 
   /**
+   * Deletes an Event object from the database.
+   */
+  public void clearEvents() {
+    String delete = "DELETE FROM events";
+
+    try (Connection conn = DatabaseConfig.getConnection();
+      Statement stmt = conn.createStatement()) {
+      conn.setAutoCommit(false);
+      stmt.executeUpdate(delete);
+      conn.commit();
+    } catch (SQLException e) {
+      System.err.println("Error clearing events: " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
+
+  /**
    * Loads the events from the database
    *
    * @return a list of events
