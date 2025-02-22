@@ -21,6 +21,12 @@
 #contentPane {
     background-color: #030712;
     -fx-background-color: #030712;
+    border-style: solid;
+    border-color: white;
+    border-width: 1px;
+    -fx-border-style: solid;
+    -fx-border-color: white;
+    -fx-border-width: 1px;
 }
 
 .label {
@@ -29,4 +35,11 @@
     -fx-font-size: 24px;
     font-weight: bold;
     -fx-font-weight: bold;
+}
+
+#import_toolbar {
+    background-color: #030712;
+    -fx-background-color: #030712;
+    display: flex;
+    align-items: center;
 }
