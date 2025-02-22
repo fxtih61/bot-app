@@ -56,12 +56,23 @@ public class ImportController {
     showEventsTable(null);
   }
 
+  private void setActiveButton(Button activeButton) {
+    // Remove active class from all buttons
+    eventsButton.getStyleClass().remove("button-active");
+    choicesButton.getStyleClass().remove("button-active");
+    roomsButton.getStyleClass().remove("button-active");
+
+    // Add active class to selected button
+    activeButton.getStyleClass().add("button-active");
+  }
+
   /**
    * Displays the events table and sets up the import button for events.
    *
    * @param event the action event
    */
   private void showEventsTable(ActionEvent event) {
+    setActiveButton(eventsButton);
     setupTable(
         List.of(
             new Pair<>("ID", "id"),
@@ -88,6 +99,7 @@ public class ImportController {
    * @param event the action event
    */
   private void showChoicesTable(ActionEvent event) {
+    setActiveButton(choicesButton);
     setupTable(
         List.of(
             new Pair<>("Class", "classRef"),
@@ -102,7 +114,7 @@ public class ImportController {
         ),
         choiceService.loadChoices()
     );
-    setupImportButton("Import Events", e -> {
+    setupImportButton("Import Choices", e -> {
       try {
         importChoices(e);
       } catch (IOException ex) {
@@ -117,6 +129,7 @@ public class ImportController {
    * @param event the action event
    */
   private void showRoomsTable(ActionEvent event) {
+    setActiveButton(roomsButton);
     setupTable(
         List.of(
             new Pair<>("Room", "name"),

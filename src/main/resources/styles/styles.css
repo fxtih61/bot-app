@@ -106,3 +106,8 @@
 .table-view:focused {
     -fx-background-color: #030712;
 }
+
+.button-active {
+    -fx-background-color: #2d3a4f;
+    -fx-text-fill: #ffffff;
+}
