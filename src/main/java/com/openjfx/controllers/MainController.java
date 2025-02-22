@@ -2,6 +2,7 @@ package com.openjfx.controllers;
 
 import java.io.IOException;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,7 +16,7 @@ public class MainController {
     private StackPane contentPane;
 
     @FXML
-    private Button homeButton, importButton, exportButton, settingsButton, aboutButton;
+    private Button homeButton, importButton, exportButton, settingsButton, aboutButton, exitButton;
 
     public void initialize() {
         homeButton.setText("Home");
@@ -23,6 +24,7 @@ public class MainController {
         exportButton.setText("Export");
         settingsButton.setText("Settings");
         aboutButton.setText("About");
+        exitButton.setText("Exit");
         contentPane.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
@@ -95,6 +97,15 @@ public class MainController {
             Parent aboutView = FXMLLoader.load(getClass().getResource("/views/aboutus.fxml"));
             contentPane.getChildren().setAll(aboutView);
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void exitApp(ActionEvent event) throws Exception {
+        try {
+            Platform.exit();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
