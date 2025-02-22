@@ -202,6 +202,7 @@ public class ChoiceService extends AbstractExcelService<Choice> {
 
   /**
    * Load the choices from the database
+   * @return a list of choices
    */
 
   public List<Choice> loadChoices() {

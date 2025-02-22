@@ -37,6 +37,14 @@ public class App extends Application {
       System.err.println("Error loading choices: " + e.getMessage());
     }
 
+    // migrate events from Excel to database
+    EventService eventService = new EventService(new ExcelService());
+    try {
+      eventService.loadFromExcel("daten/1 IMPORTS/IMPORT BOT1_Veranstaltungsliste.xlsx")
+          .forEach(eventService::saveEvent);
+    } catch (Exception e) {
+      System.err.println("Error loading events: " + e.getMessage());
+    }
      */
 
     ExcelService excelService = new ExcelService();
@@ -52,13 +60,11 @@ public class App extends Application {
 
     try {
       assignmentService.runAssignment(
-          "daten/1 IMPORTS/IMPORT BOT1_Veranstaltungsliste.xlsx",
           "daten/1 IMPORTS/IMPORT BOT0_Raumliste.xlsx"
       );
     } catch (Exception e) {
       System.err.println("Error running assignment: " + e.getMessage());
     }
-
   }
 
   @Override

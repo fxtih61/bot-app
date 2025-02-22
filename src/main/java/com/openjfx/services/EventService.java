@@ -1,6 +1,14 @@
 package com.openjfx.services;
 
+import com.openjfx.config.DatabaseConfig;
 import com.openjfx.models.Event;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -119,10 +127,10 @@ public class EventService extends AbstractExcelService<Event> {
   /**
    * Helper method to get an optional string value with a default if missing.
    *
-   * @param row the row data
+   * @param row            the row data
    * @param columnMappings column mappings
-   * @param field the field name
-   * @param defaultValue default value to use if missing
+   * @param field          the field name
+   * @param defaultValue   default value to use if missing
    * @return the string value or default
    */
   private String getOptionalStringValue(Map<String, String> row, Map<String, String> columnMappings,
@@ -134,10 +142,10 @@ public class EventService extends AbstractExcelService<Event> {
   /**
    * Helper method to get an optional integer value with a default if missing.
    *
-   * @param row the row data
+   * @param row            the row data
    * @param columnMappings column mappings
-   * @param field the field name
-   * @param defaultValue default value to use if missing
+   * @param field          the field name
+   * @param defaultValue   default value to use if missing
    * @return the integer value or default
    */
   private int getOptionalIntValue(Map<String, String> row, Map<String, String> columnMappings,
@@ -171,5 +179,98 @@ public class EventService extends AbstractExcelService<Event> {
         "Min.", event.getMinParticipants(),
         "Frühester Zeitpunkt", event.getEarliestStart()
     );
+  }
+
+  /**
+   * Saves a list of Event objects to an Excel file.
+   *
+   * @param event the list of Event objects to save
+   */
+
+  /**
+   * Saves an Event object to the database.
+   *
+   * @param event the Event object to save
+   */
+  public void saveEvent(Event event) {
+    // SQL query to insert a new event into the events table
+    String sql = "INSERT INTO events ("
+        + "id, "
+        + "company, "
+        + "subject, "
+        + "max_participants, "
+        + "min_participants, "
+        + "earliest_start) "
+        + "VALUES (?, ?, ?, ?, ?, ?)";
+
+    try (Connection conn = DatabaseConfig.getConnection()) {
+      // Disable auto-commit to manage transactions manually
+      conn.setAutoCommit(false);
+
+      try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        // Set the parameters for the PreparedStatement
+        pstmt.setInt(1, event.getId());
+        pstmt.setString(2, event.getCompany());
+        pstmt.setString(3, event.getSubject());
+        pstmt.setInt(4, event.getMaxParticipants());
+        pstmt.setInt(5, event.getMinParticipants());
+        pstmt.setString(6, event.getEarliestStart());
+
+        // Execute the update and get the number of affected rows
+        int result = pstmt.executeUpdate();
+
+        // Commit the transaction
+        conn.commit();
+
+      } catch (SQLException e) {
+        // Rollback the transaction in case of an error
+        conn.rollback();
+
+        // Log the error message and stack trace
+        System.err.println("Error saving event, transaction rolled back: " + e.getMessage());
+        e.printStackTrace();
+      }
+    } catch (SQLException e) {
+      // Log the database connection error message and stack trace
+      System.err.println("Database connection error: " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Loads the events from the database
+   *
+   * @return a list of events
+   */
+  public List<Event> loadEvents() {
+    // SQL query to select all events from the events table
+    String sql = "SELECT * FROM events";
+
+    List<Event> events = new ArrayList<>();
+
+    try (Connection conn = DatabaseConfig.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql)) {
+
+      // Iterate over the result set and create Event objects
+      while (rs.next()) {
+        int id = rs.getInt("id");
+        String company = rs.getString("company");
+        String subject = rs.getString("subject");
+        int maxParticipants = rs.getInt("max_participants");
+        int minParticipants = rs.getInt("min_participants");
+        String earliestStart = rs.getString("earliest_start");
+
+        Event event = new Event(id, company, subject, maxParticipants, minParticipants,
+            earliestStart);
+        events.add(event);
+      }
+
+    } catch (SQLException e) {
+      // Log the database connection error message and stack trace
+      System.err.println("Database connection error: " + e.getMessage());
+      e.printStackTrace();
+    }
+    return events;
   }
 }
