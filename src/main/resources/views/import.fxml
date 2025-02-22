@@ -8,12 +8,9 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-  stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/23.0.1"
-  xmlns:fx="http://javafx.com/fxml/1"
-  fx:controller="com.openjfx.controllers.ImportController">
+<StackPane stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.openjfx.controllers.ImportController">
   <children>
-    <BorderPane prefHeight="800.0" prefWidth="1080.0">
+    <BorderPane>
       <bottom>
         <ToolBar fx:id="import_toolbar" nodeOrientation="RIGHT_TO_LEFT" prefHeight="40.0"
           prefWidth="200.0" BorderPane.alignment="CENTER">
