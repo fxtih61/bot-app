@@ -1,7 +1,15 @@
 package com.openjfx.services;
 
 import com.openjfx.models.Room;
+import java.sql.Statement;
 import java.util.Map;
+import com.openjfx.config.DatabaseConfig;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Service class for handling Room-related Excel operations. This class extends AbstractExcelService
@@ -91,4 +99,66 @@ public class RoomService extends AbstractExcelService<Room> {
         "Kapazität", room.getCapacity()
     );
   }
+
+  /**
+   * Saves a Room object to the database.
+   *
+   * @param room the Room object to save
+   */
+  public void saveRoom(Room room) {
+    String sql = "INSERT INTO rooms ("
+        + "name, "
+        + "capacity) "
+        + "VALUES (?, ?)";
+
+    try (Connection conn = DatabaseConfig.getConnection()) {
+      conn.setAutoCommit(false);
+
+      try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        pstmt.setString(1, room.getName());
+        pstmt.setInt(2, room.getCapacity());
+
+        int result = pstmt.executeUpdate();
+        conn.commit();
+        System.out.println("Saved room successfully, rows affected: " + result);
+
+      } catch (SQLException e) {
+        conn.rollback();
+        System.err.println("Error saving room, transaction rolled back: " + e.getMessage());
+        e.printStackTrace();
+      }
+    } catch (SQLException e) {
+      System.err.println("Database connection error: " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Loads all rooms from the database.
+   *
+   * @return a list of Room objects
+   */
+  public List<Room> loadRooms() {
+    String sql = "SELECT * FROM rooms";
+    List<Room> rooms = new ArrayList<>();
+
+    try (Connection conn = DatabaseConfig.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql)) {
+
+      while (rs.next()) {
+        String name = rs.getString("name");
+        int capacity = rs.getInt("capacity");
+
+        Room room = new Room(name, capacity);
+        rooms.add(room);
+      }
+
+    } catch (SQLException e) {
+      System.err.println("Database connection error: " + e.getMessage());
+      e.printStackTrace();
+    }
+    return rooms;
+  }
+
 }

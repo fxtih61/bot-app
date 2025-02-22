@@ -1,6 +1,13 @@
 package com.openjfx.services;
 
+import com.openjfx.config.DatabaseConfig;
 import com.openjfx.models.Choice;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -135,5 +142,98 @@ public class ChoiceService extends AbstractExcelService<Choice> {
         "wahl 5", choice.getChoice5(),
         "wahl 6", choice.getChoice6()
     );
+  }
+
+  /**
+   * Saves a Choice object to the database.
+   *
+   * @param choice the Choice object to save
+   */
+  public void saveChoice(Choice choice) {
+    // SQL query to insert a new choice into the choices table
+    String sql = "INSERT INTO choices ("
+        + "class_ref, "
+        + "first_name, "
+        + "last_name, "
+        + "choice1, "
+        + "choice2, "
+        + "choice3, "
+        + "choice4, "
+        + "choice5, "
+        + "choice6) "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    try (Connection conn = DatabaseConfig.getConnection()) {
+      // Disable auto-commit to manage transactions manually
+      conn.setAutoCommit(false);
+
+      try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        // Set the parameters for the PreparedStatement
+        pstmt.setString(1, choice.getClassRef());
+        pstmt.setString(2, choice.getFirstName());
+        pstmt.setString(3, choice.getLastName());
+        pstmt.setString(4, choice.getChoice1());
+        pstmt.setString(5, choice.getChoice2());
+        pstmt.setString(6, choice.getChoice3());
+        pstmt.setString(7, choice.getChoice4());
+        pstmt.setString(8, choice.getChoice5());
+        pstmt.setString(9, choice.getChoice6());
+
+        // Execute the update and get the number of affected rows
+        int result = pstmt.executeUpdate();
+
+        // Commit the transaction
+        conn.commit();
+
+      } catch (SQLException e) {
+        // Rollback the transaction in case of an error
+        conn.rollback();
+
+        // Log the error message and stack trace
+        System.err.println("Error saving choice, transaction rolled back: " + e.getMessage());
+        e.printStackTrace();
+      }
+    } catch (SQLException e) {
+      // Log the database connection error message and stack trace
+      System.err.println("Database connection error: " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Load the choices from the database
+   * @return a list of choices
+   */
+
+  public List<Choice> loadChoices() {
+    String sql = "SELECT * FROM choices";
+
+    List<Choice> choices = new ArrayList<>();
+
+    try (Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        ResultSet rs = pstmt.executeQuery()) {
+      // Iterate over the ResultSet and create a new Choice object for each row
+      while (rs.next()) {
+        Choice choice = new Choice(
+            rs.getString("class_ref"),
+            rs.getString("first_name"),
+            rs.getString("last_name"),
+            rs.getString("choice1"),
+            rs.getString("choice2"),
+            rs.getString("choice3"),
+            rs.getString("choice4"),
+            rs.getString("choice5"),
+            rs.getString("choice6")
+        );
+
+        // Add the Choice object to the list
+        choices.add(choice);
+      }
+    } catch (SQLException e) {
+      System.err.println("Database connection error: " + e.getMessage());
+      e.printStackTrace();
+    }
+    return choices;
   }
 }

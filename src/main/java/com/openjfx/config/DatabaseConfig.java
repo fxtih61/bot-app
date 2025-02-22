@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.h2.tools.Server;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -14,6 +15,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public class DatabaseConfig {
 
+  /**
+   * H2 TCP Server instance
+   */
+  private static Server h2TcpServer;
   /**
    * Directory where database files will be stored
    */
@@ -25,7 +30,7 @@ public class DatabaseConfig {
   /**
    * JDBC URL for H2 database connection
    */
-  private static final String DB_URL = "jdbc:h2:./" + DB_DIR + "/" + DB_NAME;
+  private static final String DB_URL = "jdbc:h2:tcp://localhost:9092/./" + DB_DIR + "/" + DB_NAME;
   /**
    * HikariCP datasource for connection pooling
    */
@@ -40,9 +45,7 @@ public class DatabaseConfig {
 
   /**
    * Initializes the database by creating necessary directories and tables. Sets up HikariCP
-   * connection pool and creates the following tables if they don't exist: - events: Stores event
-   * information - rooms: Stores room information - choices: Stores student choices - assignments:
-   * Tracks student-event assignments
+   * connection pooling and creates tables for events, rooms, choices, and assignments.
    *
    * @throws RuntimeException if database initialization fails
    */
@@ -53,71 +56,90 @@ public class DatabaseConfig {
       dbDir.mkdirs();
     }
 
-    // Configure connection pool
-    HikariConfig config = getHikariConfig();
+    try {
+      // Start TCP server only if not already running
+      h2TcpServer = Server.createTcpServer(
+          "-tcpPort", "9092",
+          "-tcpAllowOthers",
+          "-tcpDaemon",
+          "-ifNotExists"
+      ).start();
+      System.out.println("H2 TCP Server status: " + h2TcpServer.getStatus());
+    } catch (SQLException e) {
+      System.out.println("H2 TCP Server already running: " + e.getMessage());
+    }
 
+    // Configure HikariCP
+    HikariConfig config = getHikariConfig();
     dataSource = new HikariDataSource(config);
 
-    // Initialize database schema
-    try (Connection conn = getConnection();
-        Statement stmt = conn.createStatement()) {
-
-      // Events table based on Event model
-      stmt.execute(
-          "CREATE TABLE IF NOT EXISTS events (" +
-              "    id INTEGER PRIMARY KEY," +
-              "    company VARCHAR(255) NOT NULL," +
-              "    subject VARCHAR(255) NOT NULL," +
-              "    max_participants INTEGER NOT NULL," +
-              "    min_participants INTEGER NOT NULL," +
-              "    earliest_start VARCHAR(50) NOT NULL" +
-              ")");
-
-      // Rooms table based on Room model
-      stmt.execute(
-          "CREATE TABLE IF NOT EXISTS rooms (" +
-              "    name VARCHAR(255) PRIMARY KEY," +
-              "    capacity INTEGER NOT NULL" +
-              ")");
-
-      // Choices table based on Choice model
-      stmt.execute(
-          "CREATE TABLE IF NOT EXISTS choices (" +
-              "    class_ref VARCHAR(50) NOT NULL," +
-              "    first_name VARCHAR(255) NOT NULL," +
-              "    last_name VARCHAR(255) NOT NULL," +
-              "    choice1 VARCHAR(50)," +
-              "    choice2 VARCHAR(50)," +
-              "    choice3 VARCHAR(50)," +
-              "    choice4 VARCHAR(50)," +
-              "    choice5 VARCHAR(50)," +
-              "    choice6 VARCHAR(50)," +
-              "    PRIMARY KEY (class_ref)" +
-              ")");
-
-      // Assignments table for tracking student-event assignments
-      stmt.execute(
-          "CREATE TABLE IF NOT EXISTS assignments (" +
-              "    event_id INTEGER NOT NULL," +
-              "    student_id VARCHAR(50) NOT NULL," +
-              "    choice_priority INTEGER NOT NULL," +
-              "    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-              "    PRIMARY KEY (event_id, student_id)," +
-              "    FOREIGN KEY (event_id) REFERENCES events(id)," +
-              "    FOREIGN KEY (student_id) REFERENCES choices(class_ref)" +
-              ")");
-
-
+    // Initialize schema
+    try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
+      createTables(stmt);
     } catch (SQLException e) {
       throw new RuntimeException("Failed to initialize database", e);
     }
   }
 
   /**
+   * Creates tables for events, rooms, choices, and assignments.
+   *
+   * @param stmt
+   * @throws SQLException
+   */
+
+  private static void createTables(Statement stmt) throws SQLException {
+    // Events table based on Event model
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS events (" +
+            "id INTEGER PRIMARY KEY," +
+            "company VARCHAR(255) NULL," +
+            "subject VARCHAR(255) NULL," +
+            "max_participants INTEGER NULL," +
+            "min_participants INTEGER NULL," +
+            "earliest_start VARCHAR(50) NULL" +
+            ")");
+
+    // Rooms table based on Room model
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS rooms (" +
+            "name VARCHAR(255) PRIMARY KEY," +
+            "capacity INTEGER NOT NULL" +
+            ")");
+
+    // Choices table based on Choice model
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS choices (" +
+            "id INTEGER PRIMARY KEY AUTO_INCREMENT," +
+            "class_ref VARCHAR(50) NOT NULL," +
+            "first_name VARCHAR(255) NOT NULL," +
+            "last_name VARCHAR(255) NOT NULL," +
+            "choice1 VARCHAR(50)," +
+            "choice2 VARCHAR(50)," +
+            "choice3 VARCHAR(50)," +
+            "choice4 VARCHAR(50)," +
+            "choice5 VARCHAR(50)," +
+            "choice6 VARCHAR(50)" +
+            ")");
+
+    // Assignments table for tracking student-event assignments
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS assignments (" +
+            "event_id INTEGER NOT NULL," +
+            "student_id INTEGER NOT NULL," +
+            "choice_priority INTEGER NOT NULL," +
+            "assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+            "PRIMARY KEY (event_id, student_id)," +
+            "FOREIGN KEY (event_id) REFERENCES events(id)," +
+            "FOREIGN KEY (student_id) REFERENCES choices(id)" +
+            ")");
+  }
+
+  /**
    * Creates and configures a HikariCP configuration object with optimized settings.
    *
    * @return Configured HikariConfig instance
-   * @throws NullPointerException if configuration creation fails
+   * @throws RuntimeException if configuration creation fails
    *
    * Configuration details:
    * - Database connection:
@@ -182,6 +204,10 @@ public class DatabaseConfig {
   public static void closeDataSource() {
     if (dataSource != null) {
       dataSource.close();
+    }
+    if (h2TcpServer != null && h2TcpServer.isRunning(true)) {
+      h2TcpServer.stop();
+      System.out.println("H2 TCP Server stopped");
     }
   }
 }

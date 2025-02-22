@@ -68,31 +68,36 @@ public class ExcelService {
     try (InputStream inputStream = new FileInputStream(filePath);
         Workbook workbook = WorkbookFactory.create(inputStream)) {
 
-      // Get the first sheet
       Sheet sheet = workbook.getSheetAt(0);
       Iterator<Row> rowIterator = sheet.iterator();
 
-      // Get the header row
+      // Read headers
       Row headerRow = rowIterator.next();
       List<String> headers = new ArrayList<>();
       for (Cell cell : headerRow) {
-        headers.add(cell.getStringCellValue());
+        headers.add(cell.getStringCellValue().trim()); // Trim headers to avoid whitespace issues
       }
+      int numColumns = headers.size();
 
-      // Get the data rows
+      // Read data rows
       while (rowIterator.hasNext()) {
         Row row = rowIterator.next();
         Map<String, String> rowData = new HashMap<>();
-        int colNum = 0;
-        for (Cell cell : row) {
+
+        // Iterate through ALL columns (based on header count)
+        for (int colIdx = 0; colIdx < numColumns; colIdx++) {
+          Cell cell = row.getCell(colIdx, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
           DataFormatter formatter = new DataFormatter();
-          rowData.put(headers.get(colNum++), formatter.formatCellValue(cell));
+          String value = (cell != null) ? formatter.formatCellValue(cell).trim() : "";
+          rowData.put(headers.get(colIdx), value);
         }
+
         result.add(rowData);
       }
-      return result;
     }
+    return result;
   }
+
   public void createExcelFileCustom(List<Map<String, Object>> data, String filePath) throws IOException {
     try (Workbook workbook = new XSSFWorkbook()) {
       Sheet sheet = workbook.createSheet("Data");
