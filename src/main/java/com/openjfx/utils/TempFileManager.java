@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 public class TempFileManager {
-  private static final String TEMP_DIR = "temp_imports";
+  public static final String TEMP_DIR = "temp_imports";
 
   public static File createTempFile(File sourceFile) throws IOException {
     // Create temp directory if it doesn't exist
