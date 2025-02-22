@@ -111,3 +111,42 @@
     -fx-background-color: #2d3a4f;
     -fx-text-fill: #ffffff;
 }
+
+.settings-row {
+    -fx-padding: 15px 0;
+    -fx-border-color: transparent transparent #1f2a38 transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.settings-row .label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #d1d5dc;
+}
+
+.settings-button {
+    -fx-min-width: 80px;
+    -fx-max-width: 80px;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 4px;
+}
+
+.settings-combo {
+    -fx-min-width: 120px;
+    -fx-max-width: 120px;
+    -fx-background-color: #030712;
+    -fx-text-fill: #d1d5dc;
+    -fx-font-size: 14px;
+}
+
+.settings-combo .list-cell {
+    -fx-text-fill: #d1d5dc;
+    -fx-background-color: #030712;
+}
+
+.settings-combo .list-view {
+    -fx-background-color: #1f2a38;
+}
+
+.settings-combo .list-cell:hover {
+    -fx-background-color: #2d3a4f;
+}
