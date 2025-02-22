@@ -27,7 +27,8 @@ public class App extends Application {
   public void init() {
     DatabaseConfig.initializeDatabase();
 
-    //migrate choices from Excel to database, in the
+    //migrate choices from Excel to database, in the future this will be done via the GUI
+
     /*
     ChoiceService choiceService = new ChoiceService(new ExcelService());
     try {
@@ -45,23 +46,26 @@ public class App extends Application {
     } catch (Exception e) {
       System.err.println("Error loading events: " + e.getMessage());
     }
+
+    // migrate rooms from Excel to database
+    RoomService roomService = new RoomService(new ExcelService());
+    try {
+      roomService.loadFromExcel("daten/1 IMPORTS/IMPORT BOT0_Raumliste.xlsx")
+          .forEach(roomService::saveRoom);
+    } catch (Exception e) {
+      System.err.println("Error loading rooms: " + e.getMessage());
+    }
      */
 
     ExcelService excelService = new ExcelService();
-    ChoiceService choiceService = new ChoiceService(excelService);
-    EventService eventService = new EventService(excelService);
-    RoomService roomService = new RoomService(excelService);
-
     AssignmentService assignmentService = new AssignmentService(
-        choiceService,
-        eventService,
-        roomService
+        new ChoiceService(excelService),
+        new EventService(excelService),
+        new RoomService(excelService)
     );
 
     try {
-      assignmentService.runAssignment(
-          "daten/1 IMPORTS/IMPORT BOT0_Raumliste.xlsx"
-      );
+      assignmentService.runAssignment();
     } catch (Exception e) {
       System.err.println("Error running assignment: " + e.getMessage());
     }
