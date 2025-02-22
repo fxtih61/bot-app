@@ -242,8 +242,9 @@ public class EventService extends AbstractExcelService<Event> {
    */
   public void clearEvents() {
     String delete = "DELETE FROM events";
+
     try (Connection conn = DatabaseConfig.getConnection();
-        Statement stmt = conn.createStatement()) {
+      Statement stmt = conn.createStatement()) {
       conn.setAutoCommit(false);
       stmt.executeUpdate(delete);
       conn.commit();
