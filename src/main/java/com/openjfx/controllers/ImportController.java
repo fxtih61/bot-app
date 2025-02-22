@@ -1,6 +1,8 @@
 package com.openjfx.controllers;
 
+import com.openjfx.models.Choice;
 import com.openjfx.models.Event;
+import com.openjfx.models.Room;
 import com.openjfx.services.*;
 import com.openjfx.utils.TempFileManager;
 import java.io.File;
@@ -100,7 +102,13 @@ public class ImportController {
         ),
         choiceService.loadChoices()
     );
-    setupImportButton("Import Choices", this::importChoices);
+    setupImportButton("Import Events", e -> {
+      try {
+        importChoices(e);
+      } catch (IOException ex) {
+        System.err.println("Error importing events: " + ex.getMessage());
+      }
+    });
   }
 
   /**
@@ -185,8 +193,30 @@ public class ImportController {
    *
    * @param event the action event
    */
-  private void importChoices(ActionEvent event) {
-    //TODO: Implement choices import logic
+  private void importChoices(ActionEvent event) throws IOException {
+    FileSelecterService fileSelecter = new FileSelecterService();
+    Stage stage = (Stage) importButton.getScene().getWindow();
+    File selectedFile = fileSelecter.selectFile(stage);
+
+    if (selectedFile != null) {
+      File tempFile = null;
+      try {
+        tempFile = TempFileManager.createTempFile(selectedFile);
+        List<Choice> choices = choiceService.loadFromExcel(tempFile.getAbsolutePath());
+
+        // Clear existing choices before importing new ones
+        choiceService.clearChoices();
+
+        // Save new choices
+        for (Choice c : choices) {
+          choiceService.saveChoice(c);
+        }
+
+        showChoicesTable(null);
+      } finally {
+        TempFileManager.deleteTempFile(tempFile);
+      }
+    }
   }
 
   /**
@@ -195,6 +225,26 @@ public class ImportController {
    * @param event the action event
    */
   private void importRooms(ActionEvent event) {
-    //TODO: Implement rooms import logic
+    FileSelecterService fileSelecter = new FileSelecterService();
+    Stage stage = (Stage) importButton.getScene().getWindow();
+    File selectedFile = fileSelecter.selectFile(stage);
+
+    if (selectedFile != null) {
+      try {
+        List<Room> rooms = roomService.loadFromExcel(selectedFile.getAbsolutePath());
+
+        // Clear existing rooms before importing new ones
+        roomService.clearRooms();
+
+        // Save new rooms
+        for (Room r : rooms) {
+          roomService.saveRoom(r);
+        }
+
+        showRoomsTable(null);
+      } catch (IOException e) {
+        System.err.println("Error importing rooms: " + e.getMessage());
+      }
+    }
   }
 }
