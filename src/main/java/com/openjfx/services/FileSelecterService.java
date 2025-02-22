@@ -66,4 +66,13 @@ public class FileSelecterService {
   public void setTitle(String title) {
     fileChooser.setTitle(title);
   }
+
+  /**
+   * Returns the FileChooser object used by this service.
+   *
+   * @return the FileChooser object
+   */
+  public FileChooser getFileChooser() {
+    return fileChooser;
+  }
 }
