@@ -4,11 +4,9 @@ import com.openjfx.services.AssignmentService;
 import com.openjfx.services.ChoiceService;
 import com.openjfx.services.EventService;
 import com.openjfx.services.ExcelService;
-import com.openjfx.services.RoomService;
-import org.kordamp.bootstrapfx.BootstrapFX;
-import org.kordamp.bootstrapfx.scene.layout.Panel;
 
 import com.openjfx.config.DatabaseConfig;
+import com.openjfx.services.RoomService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -24,6 +22,44 @@ public class App extends Application {
   private int SCENE_WIDTH = 1200;
   private int SCENE_HEIGHT = 800;
   private static Stage primaryStage;
+
+  @Override
+  public void init() {
+    DatabaseConfig.initializeDatabase();
+
+    //migrate choices from Excel to database, in the
+    /*
+    ChoiceService choiceService = new ChoiceService(new ExcelService());
+    try {
+      choiceService.loadFromExcel("daten/1 IMPORTS/IMPORT BOT2_Wahl.xlsx")
+          .forEach(choiceService::saveChoice);
+    } catch (Exception e) {
+      System.err.println("Error loading choices: " + e.getMessage());
+    }
+
+     */
+
+    ExcelService excelService = new ExcelService();
+    ChoiceService choiceService = new ChoiceService(excelService);
+    EventService eventService = new EventService(excelService);
+    RoomService roomService = new RoomService(excelService);
+
+    AssignmentService assignmentService = new AssignmentService(
+        choiceService,
+        eventService,
+        roomService
+    );
+
+    try {
+      assignmentService.runAssignment(
+          "daten/1 IMPORTS/IMPORT BOT1_Veranstaltungsliste.xlsx",
+          "daten/1 IMPORTS/IMPORT BOT0_Raumliste.xlsx"
+      );
+    } catch (Exception e) {
+      System.err.println("Error running assignment: " + e.getMessage());
+    }
+
+  }
 
   @Override
   public void start(Stage stage) throws Exception {
@@ -50,28 +86,7 @@ public class App extends Application {
   }
 
   public static void main(String[] args) {
-    // launch();
-
-    ExcelService excelService = new ExcelService();
-    ChoiceService choiceService = new ChoiceService(excelService);
-    EventService eventService = new EventService(excelService);
-    RoomService roomService = new RoomService(excelService);
-
-    AssignmentService assignmentService = new AssignmentService(
-        choiceService,
-        eventService,
-        roomService
-    );
-
-    try {
-      assignmentService.runAssignment(
-          "daten/1 IMPORTS/IMPORT BOT2_Wahl.xlsx",
-          "daten/1 IMPORTS/IMPORT BOT1_Veranstaltungsliste.xlsx",
-          "daten/1 IMPORTS/IMPORT BOT0_Raumliste.xlsx"
-      );
-    } catch (Exception e) {
-      System.err.println("Error running assignment: " + e.getMessage());
-    }
+    launch();
   }
 
   @Override
