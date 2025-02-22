@@ -54,14 +54,13 @@ public class AssignmentService {
   /**
    * Executes the assignment process using data from the specified Excel files.
    *
-   * @param roomsPath   path to the Excel file containing room information
    * @throws IOException if there is an error reading the Excel files
    */
-  public void runAssignment(String roomsPath)
+  public void runAssignment()
       throws IOException {
     List<Choice> choices = choiceService.loadChoices();
     List<Event> events = eventService.loadEvents();
-    List<Room> rooms = roomService.loadFromExcel(roomsPath);
+    List<Room> rooms = roomService.loadRooms();
 
     // Initializes empty assignment slots for each event.
     initializeEventslots(events);
