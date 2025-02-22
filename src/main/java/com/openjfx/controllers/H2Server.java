@@ -2,14 +2,26 @@ package com.openjfx.controllers;
 import org.h2.tools.Server;
 
 public class H2Server {
+    private static Server webServer;
+
     public static void main(String[] args) {
         try {
-            // Starten des H2-Servers auf localhost:8082
-            Server server = Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082").start();
-            System.out.println("H2 Web Console started at: " + server.getURL());
+            // Only start the web console, connect to existing TCP server
+            Server webServer = Server.createWebServer(
+                "-webPort", "8082",
+                "-webAllowOthers",
+                "-webDaemon"
+            ).start();
+
+            System.out.println("H2 Console available at: http://localhost:8082");
+            System.out.println("Use these settings:");
+            System.out.println("JDBC URL: jdbc:h2:tcp://localhost:9092/./data/database");
+            System.out.println("User Name: thanos");
+
+            // Keep the process running
+            Thread.currentThread().join();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("H2 Admin error: " + e.getMessage());
         }
     }
 }
-
