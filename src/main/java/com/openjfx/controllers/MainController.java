@@ -23,10 +23,12 @@ public class MainController {
         exportButton.setText("Export");
         settingsButton.setText("Settings");
         aboutButton.setText("About");
+        contentPane.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
     /**
      * Sets the active button and updates the UI accordingly.
+     * 
      * @param activeButton
      */
     private void setActiveButton(Button activeButton) {

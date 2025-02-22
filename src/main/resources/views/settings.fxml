@@ -10,13 +10,13 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.collections.FXCollections?>
 <?import java.lang.String?>
-  <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+  <StackPane
     xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="com.openjfx.controllers.SettingController">
   <children>
-    <BorderPane prefHeight="800.0" prefWidth="1080.0" styleClass="border-pane">
+    <BorderPane styleClass="border-pane">
       <top>
-        <Label alignment="CENTER" prefHeight="40.0" prefWidth="1080.0" text="Einstellungen"
+        <Label alignment="CENTER" text="Einstellungen"
           styleClass="header-label" BorderPane.alignment="CENTER"/>
       </top>
       <center>
