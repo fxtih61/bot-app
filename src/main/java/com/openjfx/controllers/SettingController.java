@@ -57,12 +57,20 @@ package com.openjfx.controllers;
         new Thread(() -> {
           try {
             // Start server in separate thread to avoid blocking
-            Thread serverThread = new Thread(() -> H2Server.main(new String[0]));
+            Thread serverThread = new Thread(() -> {
+              try {
+                H2Server.main(new String[0]);
+              } catch (Exception e) {
+                Platform.runLater(() ->
+                    showAlert("Error", "H2 Server exception: " + e.getMessage()));
+              }
+            });
+            serverThread.setDaemon(true); // Make thread daemon so it won't prevent JVM shutdown
             serverThread.start();
 
             // Check for server startup with timeout
             int attempts = 0;
-            int maxAttempts = 10; // 5 seconds total
+            int maxAttempts = 20; // 10 seconds total
             boolean serverStarted = false;
 
             while (attempts < maxAttempts && !(serverStarted = isPortInUse(H2_PORT))) {
@@ -70,12 +78,15 @@ package com.openjfx.controllers;
               attempts++;
             }
 
-            if (serverStarted) {
-              Platform.runLater(this::openBrowserToH2Console);
-            } else {
-              Platform.runLater(() ->
-                  showAlert("Error", "H2 Console server failed to start within 5 seconds"));
-            }
+            final boolean finalStatus = serverStarted;
+            Platform.runLater(() -> {
+              if (finalStatus) {
+                openBrowserToH2Console();
+              } else {
+                showAlert("Error", "H2 Console server failed to start within 10 seconds.\n" +
+                    "Check system logs for more information.");
+              }
+            });
           } catch (Exception e) {
             Platform.runLater(() ->
                 showAlert("Error", "Failed to start H2 Console: " + e.getMessage()));
@@ -86,15 +97,41 @@ package com.openjfx.controllers;
       }
 
       /**
-       * Opens the default browser to the H2 Console URL.
-       * If desktop operations are not supported, it shows an error alert.
+       * Opens the default browser to the H2 Console URL. If desktop operations are not supported, it
+       * shows an error alert. There is a known issue with the Desktop API on Linux, where it does not
+       * run the default browser as expected. In this case, it tries to open the browser using different
+       * options.
        */
       private void openBrowserToH2Console() {
         try {
-          if (Desktop.isDesktopSupported()) {
-            Desktop.getDesktop().browse(new URI(H2_URL));
+          String url = H2_URL;
+          String os = System.getProperty("os.name").toLowerCase();
+
+          // Linux-specific handling
+          if (os.contains("linux")) {
+            // Try different browser options on Linux
+            String[] browsers = { "xdg-open", "google-chrome", "firefox", "mozilla", "konqueror", "netscape", "opera" };
+            boolean browserOpened = false;
+
+            for (String browser : browsers) {
+              try {
+                Runtime.getRuntime().exec(new String[] { browser, url });
+                browserOpened = true;
+                break;
+              } catch (Exception e) {
+                // Try next browser
+              }
+            }
+
+            if (!browserOpened) {
+              showAlert("Information", "Could not open browser automatically.\nPlease manually navigate to: " + url);
+            }
+          }
+          // Windows and Mac handling
+          else if (Desktop.isDesktopSupported()) {
+            Desktop.getDesktop().browse(new URI(url));
           } else {
-            showAlert("Error", "Desktop operations not supported");
+            showAlert("Information", "Desktop operations not supported.\nPlease manually navigate to: " + url);
           }
         } catch (Exception e) {
           showAlert("Error", "Cannot open browser: " + e.getMessage());
