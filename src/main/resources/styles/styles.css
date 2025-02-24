@@ -150,3 +150,22 @@
 .settings-combo .list-cell:hover {
     -fx-background-color: #2d3a4f;
 }
+
+#searchField {
+    -fx-background-color: #1f2a38;
+    -fx-text-fill: #d1d5dc;
+    -fx-prompt-text-fill: #6b7280;
+    -fx-min-width: 200px;
+    -fx-max-width: 200px;
+    -fx-padding: 5px 10px;
+    -fx-font-size: 14px;
+    -fx-border-color: #374151;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+
+#searchField:focused {
+    -fx-border-color: #3b82f6;
+    -fx-background-color: #1a2330;
+}
