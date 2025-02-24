@@ -142,10 +142,18 @@ public class ImportController {
     columns.forEach(pair -> {
       TableColumn<Object, Object> col = new TableColumn<>(pair.getKey());
       col.setCellValueFactory(new PropertyValueFactory<>(pair.getValue()));
+      col.setPrefWidth(tableView.getWidth() / columns.size()); // Set dynamic width
+      col.setResizable(true); // Allow resizing
       tableView.getColumns().add(col);
     });
 
     tableView.getItems().addAll(items);
+
+    // Add a listener to adjust column widths when the table is resized
+    tableView.widthProperty().addListener((obs, oldVal, newVal) -> {
+      double newWidth = newVal.doubleValue() / columns.size();
+      tableView.getColumns().forEach(column -> column.setPrefWidth(newWidth));
+    });
   }
 
   /**
