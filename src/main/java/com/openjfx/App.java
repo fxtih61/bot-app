@@ -9,77 +9,50 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
- * JavaFX App
+ * Main application class for the JavaFX application.
  */
-
 public class App extends Application {
 
-  /*
-   * Get the screen width and height to set the scene size to full screen
+  /**
+   * Screen width for setting the scene size to full screen.
    */
   double SCENE_WIDTH = Screen.getPrimary().getBounds().getWidth();
+
+  /**
+   * Screen height for setting the scene size to full screen.
+   */
   double SCENE_HEIGHT = Screen.getPrimary().getBounds().getHeight();
+
+  /**
+   * Primary stage of the application.
+   */
   private static Stage primaryStage;
 
+  /**
+   * Initializes the database configuration.
+   */
   @Override
   public void init() {
     DatabaseConfig.initializeDatabase();
-
-    // migrate choices from Excel to database, in the future this will be done via
-    // the GUI
-
-    /*
-     * ChoiceService choiceService = new ChoiceService(new ExcelService());
-     * try {
-     * choiceService.loadFromExcel("daten/1 IMPORTS/IMPORT BOT2_Wahl.xlsx")
-     * .forEach(choiceService::saveChoice);
-     * } catch (Exception e) {
-     * System.err.println("Error loading choices: " + e.getMessage());
-     * }
-     * 
-     * // migrate events from Excel to database
-     * EventService eventService = new EventService(new ExcelService());
-     * try {
-     * eventService.
-     * loadFromExcel("daten/1 IMPORTS/IMPORT BOT1_Veranstaltungsliste.xlsx")
-     * .forEach(eventService::saveEvent);
-     * } catch (Exception e) {
-     * System.err.println("Error loading events: " + e.getMessage());
-     * }
-     * 
-     * // migrate rooms from Excel to database
-     * RoomService roomService = new RoomService(new ExcelService());
-     * try {
-     * roomService.loadFromExcel("daten/1 IMPORTS/IMPORT BOT0_Raumliste.xlsx")
-     * .forEach(roomService::saveRoom);
-     * } catch (Exception e) {
-     * System.err.println("Error loading rooms: " + e.getMessage());
-     * }
-     */
-
-    /*
-     * ExcelService excelService = new ExcelService();
-     * AssignmentService assignmentService = new AssignmentService(
-     * new ChoiceService(excelService),
-     * new EventService(excelService),
-     * new RoomService(excelService)
-     * );
-     * 
-     * try {
-     * assignmentService.runAssignment();
-     * } catch (Exception e) {
-     * System.err.println("Error running assignment: " + e.getMessage());
-     * }
-     * 
-     */
   }
 
+  /**
+   * Starts the application and shows the welcome scene.
+   *
+   * @param stage the primary stage
+   * @throws Exception if the welcome scene cannot be loaded
+   */
   @Override
   public void start(Stage stage) throws Exception {
     primaryStage = stage;
     showWelcomeScene();
   }
 
+  /**
+   * Shows the welcome scene.
+   *
+   * @throws Exception if the welcome scene cannot be loaded
+   */
   public void showWelcomeScene() throws Exception {
     Parent root = FXMLLoader.load(App.class.getResource("/views/welcome.fxml"));
     Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
@@ -92,6 +65,11 @@ public class App extends Application {
     primaryStage.show();
   }
 
+  /**
+   * Shows the main scene.
+   *
+   * @throws Exception if the main scene cannot be loaded
+   */
   public void showMainScene() throws Exception {
     Parent root = FXMLLoader.load(App.class.getResource("/views/main.fxml"));
     Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
@@ -103,10 +81,18 @@ public class App extends Application {
     primaryStage.show();
   }
 
+  /**
+   * Main method to launch the application.
+   *
+   * @param args the command line arguments
+   */
   public static void main(String[] args) {
     launch();
   }
 
+  /**
+   * Closes the database connection when the application stops.
+   */
   @Override
   public void stop() {
     DatabaseConfig.closeDataSource();

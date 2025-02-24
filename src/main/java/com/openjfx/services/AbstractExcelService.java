@@ -142,4 +142,8 @@ public abstract class AbstractExcelService<T> {
    * @return a Map containing the column names and values for Excel export
    */
   protected abstract Map<String, Object> convertModelToRow(T model);
+
+  public ExcelService getExcelService() {
+    return excelService;
+  }
 }

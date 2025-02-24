@@ -1,26 +1,23 @@
 package com.openjfx.controllers;
 
-import com.openjfx.models.Choice;
-import com.openjfx.models.Event;
-import com.openjfx.models.Room;
+import com.openjfx.handlers.Import.ChoiceImportHandler;
+import com.openjfx.handlers.Import.EventImportHandler;
+import com.openjfx.handlers.Import.ImportHandler;
+import com.openjfx.handlers.Import.RoomImportHandler;
 import com.openjfx.services.*;
-import com.openjfx.utils.TempFileManager;
-import java.io.File;
-import java.io.IOException;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import javafx.util.Pair;
 
-import java.util.List;
-
 /**
- * Controller class for handling import operations and dynamic UI updates.
+ * Controller class for handling import operations in the application.
  */
 public class ImportController {
 
@@ -34,230 +31,159 @@ public class ImportController {
   private Button roomsButton;
   @FXML
   private Button importButton;
+  @FXML
+  private TextField searchField;
 
-  private EventService eventService;
-  private ChoiceService choiceService;
-  private RoomService roomService;
+  private ImportHandler<?> currentHandler;
+  private final EventImportHandler eventHandler;
+  private final ChoiceImportHandler choiceHandler;
+  private final RoomImportHandler roomHandler;
 
   /**
-   * Initializes the controller, setting up services and event handlers.
+   * Constructor initializes the import handlers with the Excel service.
    */
+  public ImportController() {
+    ExcelService excelService = new ExcelService();
+    this.eventHandler = new EventImportHandler(excelService);
+    this.choiceHandler = new ChoiceImportHandler(excelService);
+    this.roomHandler = new RoomImportHandler(excelService);
+  }
+
+  /**
+   * Initializes the controller, setting up the search field and buttons.
+   */
+  @FXML
   public void initialize() {
-    ExcelService excelService = new ExcelService(); // Shared instance
-    eventService = new EventService(excelService);
-    choiceService = new ChoiceService(excelService);
-    roomService = new RoomService(excelService);
-
-    // Use method references for event handlers
-    eventsButton.setOnAction(this::showEventsTable);
-    choicesButton.setOnAction(this::showChoicesTable);
-    roomsButton.setOnAction(this::showRoomsTable);
-
-    showEventsTable(null);
-  }
-
-  private void setActiveButton(Button activeButton) {
-    // Remove active class from all buttons
-    eventsButton.getStyleClass().remove("button-active");
-    choicesButton.getStyleClass().remove("button-active");
-    roomsButton.getStyleClass().remove("button-active");
-
-    // Add active class to selected button
-    activeButton.getStyleClass().add("button-active");
+    setupSearchField();
+    setupButtons();
+    switchHandler(eventHandler, eventsButton);
   }
 
   /**
-   * Displays the events table and sets up the import button for events.
-   *
-   * @param event the action event
+   * Sets up the search field to perform search on text change.
    */
-  private void showEventsTable(ActionEvent event) {
-    setActiveButton(eventsButton);
-    setupTable(
-        List.of(
-            new Pair<>("ID", "id"),
-            new Pair<>("Company", "company"),
-            new Pair<>("Subject", "subject"),
-            new Pair<>("Max Participants", "maxParticipants"),
-            new Pair<>("Min Participants", "minParticipants"),
-            new Pair<>("Earliest Start", "earliestStart")
-        ),
-        eventService.loadEvents()
+  private void setupSearchField() {
+    searchField.textProperty().addListener((obs, oldVal, newVal) ->
+        performSearch(newVal.trim())
     );
-    setupImportButton("Import Events", e -> {
-      try {
-        importEvents(e);
-      } catch (IOException ex) {
-        System.err.println("Error importing events: " + ex.getMessage());
-      }
-    });
   }
 
   /**
-   * Displays the choices table and sets up the import button for choices.
-   *
-   * @param event the action event
+   * Sets up the buttons to switch handlers and handle import actions.
    */
-  private void showChoicesTable(ActionEvent event) {
-    setActiveButton(choicesButton);
-    setupTable(
-        List.of(
-            new Pair<>("Class", "classRef"),
-            new Pair<>("First Name", "firstName"),
-            new Pair<>("Last Name", "lastName"),
-            new Pair<>("Choice 1", "choice1"),
-            new Pair<>("Choice 2", "choice2"),
-            new Pair<>("Choice 3", "choice3"),
-            new Pair<>("Choice 4", "choice4"),
-            new Pair<>("Choice 5", "choice5"),
-            new Pair<>("Choice 6", "choice6")
-        ),
-        choiceService.loadChoices()
-    );
-    setupImportButton("Import Choices", e -> {
-      try {
-        importChoices(e);
-      } catch (IOException ex) {
-        System.err.println("Error importing events: " + ex.getMessage());
-      }
-    });
+  private void setupButtons() {
+    eventsButton.setOnAction(e -> switchHandler(eventHandler, eventsButton));
+    choicesButton.setOnAction(e -> switchHandler(choiceHandler, choicesButton));
+    roomsButton.setOnAction(e -> switchHandler(roomHandler, roomsButton));
+    importButton.setOnAction(this::handleImport);
   }
 
   /**
-   * Displays the rooms table and sets up the import button for rooms.
+   * Switches the current import handler and refreshes the table.
    *
-   * @param event the action event
+   * @param handler      the new import handler
+   * @param activeButton the button associated with the new handler
    */
-  private void showRoomsTable(ActionEvent event) {
-    setActiveButton(roomsButton);
-    setupTable(
-        List.of(
-            new Pair<>("Room", "name"),
-            new Pair<>("Capacity", "capacity")
-        ),
-        roomService.loadRooms()
-    );
-    setupImportButton("Import Rooms", this::importRooms);
+  private void switchHandler(ImportHandler<?> handler, Button activeButton) {
+    currentHandler = handler;
+    setActiveButton(activeButton);
+    refreshTable();
   }
 
   /**
-   * Sets up the table view with the specified columns and items.
+   * Sets the active button style.
    *
-   * @param columns the list of column name and property pairs
-   * @param items   the list of items to display in the table
+   * @param button the button to set as active
+   */
+  private void setActiveButton(Button button) {
+    List.of(eventsButton, choicesButton, roomsButton).forEach(b ->
+        b.getStyleClass().remove("button-active")
+    );
+    button.getStyleClass().add("button-active");
+  }
+
+  /**
+   * Performs search on the current handler's data based on the search term.
+   *
+   * @param term the search term
+   */
+  @SuppressWarnings("unchecked")
+  private void performSearch(String term) {
+    if (term.isEmpty()) {
+      refreshTable();
+      return;
+    }
+
+    ImportHandler<Object> handler = (ImportHandler<Object>) currentHandler;
+    List<?> filtered = handler.loadData().stream()
+        .filter(item -> handler.matchesSearch(item, term))
+        .collect(Collectors.toList());
+
+    setupTable(handler.getColumns(), filtered);
+  }
+
+  /**
+   * Refreshes the table with the current handler's data.
+   */
+  private void refreshTable() {
+    setupTable(currentHandler.getColumns(), currentHandler.loadData());
+  }
+
+  /**
+   * Sets up the table columns and items.
+   *
+   * @param columns the columns to set up
+   * @param items   the items to display in the table
    */
   private void setupTable(List<Pair<String, String>> columns, List<?> items) {
     tableView.getColumns().clear();
     tableView.getItems().clear();
 
-    for (Pair<String, String> column : columns) {
-      TableColumn<Object, Object> col = new TableColumn<>(column.getKey());
-      col.setCellValueFactory(new PropertyValueFactory<>(column.getValue()));
+    columns.forEach(pair -> {
+      TableColumn<Object, Object> col = new TableColumn<>(pair.getKey());
+      col.setCellValueFactory(new PropertyValueFactory<>(pair.getValue()));
+      col.setPrefWidth(tableView.getWidth() / columns.size()); // Set dynamic width
+      col.setResizable(true); // Allow resizing
       tableView.getColumns().add(col);
-    }
+    });
 
     tableView.getItems().addAll(items);
+
+    // Add a listener to adjust column widths when the table is resized
+    tableView.widthProperty().addListener((obs, oldVal, newVal) -> {
+      double newWidth = newVal.doubleValue() / columns.size();
+      tableView.getColumns().forEach(column -> column.setPrefWidth(newWidth));
+    });
   }
 
   /**
-   * Sets up the import button with the specified text and action handler.
-   *
-   * @param text    the button text
-   * @param handler the action handler for the button
-   */
-  private void setupImportButton(String text, EventHandler<ActionEvent> handler) {
-    importButton.setText(text);
-    importButton.setOnAction(handler);
-  }
-
-  /**
-   * Handles the import of events.
+   * Handles the import action, importing data from a selected file.
    *
    * @param event the action event
    */
-  private void importEvents(ActionEvent event) throws IOException {
-    FileSelecterService fileSelecter = new FileSelecterService();
-    Stage stage = (Stage) importButton.getScene().getWindow();
-    File selectedFile = fileSelecter.selectFile(stage);
+  private void handleImport(ActionEvent event) {
+    File file = new FileSelecterService().selectFile((Stage) importButton.getScene().getWindow());
+    if (file == null) {
+      return;
+    }
 
-    if (selectedFile != null) {
-      File tempFile = null;
-      try {
-        tempFile = TempFileManager.createTempFile(selectedFile);
-        List<Event> events = eventService.loadFromExcel(tempFile.getAbsolutePath());
-
-        // Clear existing events before importing new ones
-        eventService.clearEvents();
-
-        // Save new events
-        for (Event e : events) {
-          eventService.saveEvent(e);
-        }
-
-        showEventsTable(null);
-      } finally {
-        TempFileManager.deleteTempFile(tempFile);
-      }
+    try {
+      currentHandler.importData(file);
+      refreshTable();
+    } catch (IOException ex) {
+      showError("Import Error", "Failed to import data: " + ex.getMessage());
     }
   }
 
   /**
-   * Handles the import of choices.
+   * Shows an error alert with the specified header and content.
    *
-   * @param event the action event
+   * @param header  the header text
+   * @param content the content text
    */
-  private void importChoices(ActionEvent event) throws IOException {
-    FileSelecterService fileSelecter = new FileSelecterService();
-    Stage stage = (Stage) importButton.getScene().getWindow();
-    File selectedFile = fileSelecter.selectFile(stage);
-
-    if (selectedFile != null) {
-      File tempFile = null;
-      try {
-        tempFile = TempFileManager.createTempFile(selectedFile);
-        List<Choice> choices = choiceService.loadFromExcel(tempFile.getAbsolutePath());
-
-        // Clear existing choices before importing new ones
-        choiceService.clearChoices();
-
-        // Save new choices
-        for (Choice c : choices) {
-          choiceService.saveChoice(c);
-        }
-
-        showChoicesTable(null);
-      } finally {
-        TempFileManager.deleteTempFile(tempFile);
-      }
-    }
-  }
-
-  /**
-   * Handles the import of rooms.
-   *
-   * @param event the action event
-   */
-  private void importRooms(ActionEvent event) {
-    FileSelecterService fileSelecter = new FileSelecterService();
-    Stage stage = (Stage) importButton.getScene().getWindow();
-    File selectedFile = fileSelecter.selectFile(stage);
-
-    if (selectedFile != null) {
-      try {
-        List<Room> rooms = roomService.loadFromExcel(selectedFile.getAbsolutePath());
-
-        // Clear existing rooms before importing new ones
-        roomService.clearRooms();
-
-        // Save new rooms
-        for (Room r : rooms) {
-          roomService.saveRoom(r);
-        }
-
-        showRoomsTable(null);
-      } catch (IOException e) {
-        System.err.println("Error importing rooms: " + e.getMessage());
-      }
-    }
+  private void showError(String header, String content) {
+    Alert alert = new Alert(Alert.AlertType.ERROR, content, ButtonType.OK);
+    alert.setHeaderText(header);
+    alert.showAndWait();
   }
 }
