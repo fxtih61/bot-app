@@ -190,12 +190,6 @@ public class EventService extends AbstractExcelService<Event> {
   }
 
   /**
-   * Saves a list of Event objects to an Excel file.
-   *
-   * @param event the list of Event objects to save
-   */
-
-  /**
    * Saves an Event object to the database.
    *
    * @param event the Event object to save

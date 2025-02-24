@@ -1,7 +1,6 @@
 package com.openjfx.services;
 
 import com.openjfx.models.Choice;
-import com.openjfx.models.Event;
 import java.io.File;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
