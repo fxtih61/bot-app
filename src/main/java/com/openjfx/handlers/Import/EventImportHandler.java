@@ -63,9 +63,17 @@ public class EventImportHandler implements ImportHandler<Event> {
   public void importData(File selectedFile) throws IOException {
     File tempFile = TempFileManager.createTempFile(selectedFile);
     try {
-      List<Event> events = eventService.loadFromExcel(tempFile.getAbsolutePath());
+      List<Event> events = eventService.loadFromExcel(tempFile);
+
+      if (events.isEmpty()) {
+        throw new IllegalArgumentException("No valid events found in the file");
+      }
+
+      // Clear existing events and save new ones
       clearData();
       events.forEach(eventService::saveEvent);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Failed to import events: " + e.getMessage());
     } finally {
       TempFileManager.deleteTempFile(tempFile);
     }

@@ -66,7 +66,13 @@ public class ChoiceImportHandler implements ImportHandler<Choice> {
   public void importData(File selectedFile) throws IOException {
     File tempFile = TempFileManager.createTempFile(selectedFile);
     try {
-      List<Choice> choices = choiceService.loadFromExcel(tempFile.getAbsolutePath());
+      List<Choice> choices = choiceService.loadFromExcel(new File(tempFile.getAbsolutePath()));
+
+      if (choices.isEmpty()) {
+        throw new IllegalArgumentException("The Excel file contains no data rows");
+      }
+
+      // Clear existing data before importing new data
       clearData();
       choices.forEach(choiceService::saveChoice);
     } finally {

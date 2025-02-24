@@ -39,6 +39,15 @@ public class RoomService extends AbstractExcelService<Room> {
   }
 
   /**
+   * Returns a list of required fields for the Room model.
+   *
+   * @return a list of required fields
+   */
+  @Override
+  protected List<String> getRequiredFields() {
+    return List.of("name", "capacity");
+  }
+  /**
    * Defines the mapping between internal property names and Excel column prefixes. The column
    * prefixes are case-insensitive partial matches for Excel column headers.
    *
@@ -70,9 +79,9 @@ public class RoomService extends AbstractExcelService<Room> {
     String name = row.get(columnMappings.get("name"));
     String capacityStr = row.get(columnMappings.get("capacity"));
 
+    // Throw an exception if required fields are missing
     if (name == null || capacityStr == null) {
-      System.err.println("Skipping row due to null values: " + row);
-      return null;
+      throw new IllegalArgumentException("Missing required fields: name or capacity");
     }
 
     try {

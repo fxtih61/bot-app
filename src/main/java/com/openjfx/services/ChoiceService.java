@@ -47,6 +47,16 @@ public class ChoiceService extends AbstractExcelService<Choice> {
   }
 
   /**
+   * Returns a list of required fields for the Choice model.
+   *
+   * @return a list of required fields
+   */
+  @Override
+  protected List<String> getRequiredFields() {
+    return List.of("classRef", "firstName", "lastName");
+  }
+
+  /**
    * Defines the mapping between internal property names and Excel column prefixes. The column
    * prefixes are case-insensitive partial matches for Excel column headers.
    *
@@ -92,10 +102,9 @@ public class ChoiceService extends AbstractExcelService<Choice> {
     String firstName = row.get(columnMappings.get("firstName"));
     String lastName = row.get(columnMappings.get("lastName"));
 
-    // Required fields check
+    // Throw an exception if any of the required fields are missing
     if (classRef == null || firstName == null || lastName == null) {
-      System.err.println("Error creating Choice object: missing required fields" + row);
-      return null;
+      throw new IllegalArgumentException("Missing required fields: classRef, firstName, or lastName");
     }
 
     // Optional fields with null handling

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.File;
 
 /**
  * Abstract base class for Excel-related services that handle reading and writing data models. This
@@ -53,30 +54,21 @@ public abstract class AbstractExcelService<T> {
   }
 
   /**
-   * Loads model objects from an Excel file.
+   * Imports data from an Excel file and validates required fields.
    *
-   * <p>The method:
-   * <ol>
-   *   <li>Reads the Excel file</li>
-   *   <li>Maps column headers to model properties</li>
-   *   <li>Converts each row to a model object</li>
-   * </ol>
-   *
-   * @param path the path to the Excel file
-   * @return a List of model objects
-   * @throws IOException if there's an error reading the file
+   * @param excelFile the Excel file to import
+   * @return the list of imported objects
+   * @throws IOException              if an I/O error occurs
+   * @throws IllegalArgumentException if the data is invalid or required fields are missing
    */
-  public List<T> loadFromExcel(String path) throws IOException {
-    List<Map<String, String>> excelData = excelService.readExcelFile(path);
-    List<T> models = new ArrayList<>();
-
-    if (excelData.isEmpty()) {
-      return models;
+  public List<T> loadFromExcel(File excelFile) throws IOException, IllegalArgumentException {
+    List<Map<String, String>> rows = excelService.readExcelFile(excelFile.getPath());
+    if (rows.isEmpty()) {
+      throw new IllegalArgumentException("The Excel file contains no data rows");
     }
 
-    // Extract column mappings from the first row
     Map<String, String> columnMappings = new HashMap<>();
-    Map<String, String> firstRow = excelData.get(0);
+    Map<String, String> firstRow = rows.get(0);
     Map<String, String> columnPrefixes = getColumnPrefixes();
 
     for (Map.Entry<String, String> entry : columnPrefixes.entrySet()) {
@@ -85,20 +77,60 @@ public abstract class AbstractExcelService<T> {
       columnMappings.put(key, findColumn(firstRow, prefix));
     }
 
-    // Process each row
-    for (Map<String, String> row : excelData) {
+    validateRequiredColumns(columnMappings);
+
+    List<T> importedObjects = new ArrayList<>();
+    int rowNumber = 1;
+
+    for (Map<String, String> row : rows) {
+      rowNumber++;
       try {
         T model = createModelFromRow(row, columnMappings);
         if (model != null) {
-          models.add(model);
+          importedObjects.add(model);
+        } else {
+          throw new IllegalArgumentException("Invalid data in row " + rowNumber);
         }
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException("Error in row " + rowNumber + ": " + e.getMessage());
       } catch (Exception e) {
-        System.err.println("Error processing row: " + row + " - " + e.getMessage());
+        throw new IllegalArgumentException(
+            "Error processing row " + rowNumber + ": " + e.getMessage());
       }
     }
 
-    return models;
+    return importedObjects;
   }
+
+  /**
+   * Validates that all required columns are present in the column mappings.
+   *
+   * @param columnMappings the column mappings to validate
+   * @throws IllegalArgumentException if required columns are missing
+   */
+  protected void validateRequiredColumns(Map<String, String> columnMappings)
+      throws IllegalArgumentException {
+    List<String> requiredFields = getRequiredFields();
+    List<String> missingFields = new ArrayList<>();
+
+    for (String field : requiredFields) {
+      if (!columnMappings.containsKey(field) || columnMappings.get(field).isEmpty()) {
+        missingFields.add(field);
+      }
+    }
+
+    if (!missingFields.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Missing required columns: " + String.join(", ", missingFields));
+    }
+  }
+
+  /**
+   * Gets the list of required fields for this model.
+   *
+   * @return the list of required field names
+   */
+  protected abstract List<String> getRequiredFields();
 
   /**
    * Saves a list of model objects to an Excel file.

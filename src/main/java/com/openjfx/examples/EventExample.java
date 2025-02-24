@@ -3,6 +3,7 @@ package com.openjfx.examples;
 import com.openjfx.models.Event;
 import com.openjfx.services.EventService;
 import com.openjfx.services.ExcelService;
+import java.io.File;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ public class EventExample {
     EventService eventService = new EventService(new ExcelService());
     try {
       List<Event> events = eventService.loadFromExcel(
-          "daten/1 IMPORTS/IMPORT BOT1_Veranstaltungsliste.xlsx");
+          new File("daten/1 IMPORTS/IMPORT BOT1_Veranstaltungsliste.xlsx"));
       System.out.println("Events loaded from Excel file:" + events.size());
       for (var event : events) {
         System.out.println(event);

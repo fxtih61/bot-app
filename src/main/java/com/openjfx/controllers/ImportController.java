@@ -157,22 +157,54 @@ public class ImportController {
   }
 
   /**
-   * Handles the import action, importing data from a selected file.
+   * Handles the import action, importing data from a selected file. Shows appropriate error
+   * messages for different failure scenarios.
    *
    * @param event the action event
    */
   private void handleImport(ActionEvent event) {
     File file = new FileSelecterService().selectFile((Stage) importButton.getScene().getWindow());
     if (file == null) {
-      return;
+      return; // User canceled file selection
     }
 
     try {
       currentHandler.importData(file);
       refreshTable();
+      showSuccess("Import Successful", "Data has been successfully imported.");
     } catch (IOException ex) {
-      showError("Import Error", "Failed to import data: " + ex.getMessage());
+      showError("File Error", "Could not read the file: " + ex.getMessage());
+    } catch (IllegalArgumentException ex) {
+      // This catches missing required fields exceptions
+      String message = ex.getMessage();
+
+      // Customize error message based on current handler type
+      String errorPrefix = "Invalid data format. ";
+      if (currentHandler instanceof EventImportHandler) {
+        errorPrefix = "Invalid event data. ";
+      } else if (currentHandler instanceof ChoiceImportHandler) {
+        errorPrefix = "Invalid choice data. ";
+      } else if (currentHandler instanceof RoomImportHandler) {
+        errorPrefix = "Invalid room data. ";
+      }
+
+      showError("Import Error", errorPrefix + message);
+    } catch (Exception ex) {
+      // Catch all other exceptions
+      showError("Import Failed", "An unexpected error occurred during import: " + ex.getMessage());
     }
+  }
+
+  /**
+   * Shows a success alert with the specified header and content.
+   *
+   * @param header  the header text
+   * @param content the content text
+   */
+  private void showSuccess(String header, String content) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION, content, ButtonType.OK);
+    alert.setHeaderText(header);
+    alert.showAndWait();
   }
 
   /**

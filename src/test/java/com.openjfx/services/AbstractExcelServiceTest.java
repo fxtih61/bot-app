@@ -1,8 +1,10 @@
 package com.openjfx.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,9 +43,11 @@ class AbstractExcelServiceTest {
     );
 
     testService.excelService.createExcelFile(invalidData, testFile.toString());
-    List<TestModel> result = testService.loadFromExcel(testFile.toString());
 
-    assertTrue(result.isEmpty());
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+        testService.loadFromExcel(new File(testFile.toString()))
+    );
+    assertTrue(exception.getMessage().contains("Error in row 2"));
   }
 
   @Test
@@ -55,7 +59,7 @@ class AbstractExcelServiceTest {
     );
 
     testService.saveToExcel(models, testFile.toString());
-    List<TestModel> result = testService.loadFromExcel(testFile.toString());
+    List<TestModel> result = testService.loadFromExcel(new File(testFile.toString()));
 
     assertEquals(models.size(), result.size());
     for (int i = 0; i < models.size(); i++) {
@@ -68,6 +72,11 @@ class AbstractExcelServiceTest {
 
     public TestModelService(ExcelService excelService) {
       super(excelService);
+    }
+
+    @Override
+    protected List<String> getRequiredFields() {
+      return List.of();
     }
 
     @Override
