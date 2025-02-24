@@ -50,6 +50,15 @@ public class EventService extends AbstractExcelService<Event> {
   public EventService(ExcelService excelService) {
     super(excelService);
   }
+  /**
+   * Defines the required fields for an Event object.
+   *
+   * @return a List of required field names
+   */
+  @Override
+  protected List<String> getRequiredFields() {
+    return List.of("id");
+  }
 
   /**
    * Defines the mapping between internal property names and Excel column prefixes. The column
@@ -96,10 +105,9 @@ public class EventService extends AbstractExcelService<Event> {
     // Get the ID (the only truly required field)
     String idStr = row.get(columnMappings.get("id"));
 
-    // If ID is missing, skip this row
+    // Throw an exception if the ID is missing
     if (idStr == null || idStr.trim().isEmpty()) {
-      System.err.println("Skipping row due to missing ID: " + row);
-      return null;
+      throw new IllegalArgumentException("Missing required field: id");
     }
 
     try {
@@ -180,12 +188,6 @@ public class EventService extends AbstractExcelService<Event> {
         "Frühester Zeitpunkt", event.getEarliestStart()
     );
   }
-
-  /**
-   * Saves a list of Event objects to an Excel file.
-   *
-   * @param event the list of Event objects to save
-   */
 
   /**
    * Saves an Event object to the database.
@@ -290,4 +292,6 @@ public class EventService extends AbstractExcelService<Event> {
     }
     return events;
   }
+
+
 }

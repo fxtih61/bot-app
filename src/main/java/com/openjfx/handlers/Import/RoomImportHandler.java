@@ -59,7 +59,13 @@ public class RoomImportHandler implements ImportHandler<Room> {
   public void importData(File selectedFile) throws IOException {
     File tempFile = TempFileManager.createTempFile(selectedFile);
     try {
-      List<Room> rooms = roomService.loadFromExcel(tempFile.getAbsolutePath());
+      List<Room> rooms = roomService.loadFromExcel(new File(tempFile.getAbsolutePath()));
+
+      if (rooms.isEmpty()) {
+        throw new IOException("No rooms found in Excel file");
+      }
+
+      // Clear existing room data before importing new data
       clearData();
       rooms.forEach(roomService::saveRoom);
     } finally {
