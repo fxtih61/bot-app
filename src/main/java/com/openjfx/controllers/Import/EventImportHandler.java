@@ -9,13 +9,28 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Handler for importing Event data from an Excel file.
+ */
 public class EventImportHandler implements ImportHandler<Event> {
+
   private final EventService eventService;
 
+  /**
+   * Constructs an EventImportHandler with the specified ExcelService.
+   *
+   * @param excelService the Excel service to use for importing data
+   */
   public EventImportHandler(ExcelService excelService) {
     this.eventService = new EventService(excelService);
   }
 
+  /**
+   * Gets the columns to be displayed in the table.
+   *
+   * @return a list of pairs where each pair contains the column name and the corresponding property
+   * name
+   */
   @Override
   public List<Pair<String, String>> getColumns() {
     return List.of(
@@ -28,11 +43,22 @@ public class EventImportHandler implements ImportHandler<Event> {
     );
   }
 
+  /**
+   * Loads the event data to be displayed in the table.
+   *
+   * @return a list of event data items
+   */
   @Override
   public List<Event> loadData() {
     return eventService.loadEvents();
   }
 
+  /**
+   * Imports event data from the specified file.
+   *
+   * @param selectedFile the file to import data from
+   * @throws IOException if an I/O error occurs during import
+   */
   @Override
   public void importData(File selectedFile) throws IOException {
     File tempFile = TempFileManager.createTempFile(selectedFile);
@@ -45,6 +71,13 @@ public class EventImportHandler implements ImportHandler<Event> {
     }
   }
 
+  /**
+   * Checks if the given event matches the search term.
+   *
+   * @param event      the event to check
+   * @param searchTerm the search term to match against
+   * @return true if the event matches the search term, false otherwise
+   */
   @Override
   public boolean matchesSearch(Event event, String searchTerm) {
     String lowerTerm = searchTerm.toLowerCase();
@@ -53,16 +86,29 @@ public class EventImportHandler implements ImportHandler<Event> {
         event.getSubject().toLowerCase().contains(lowerTerm);
   }
 
+  /**
+   * Gets the text to be displayed on the import button.
+   *
+   * @return the import button text
+   */
   @Override
   public String getImportButtonText() {
     return "Import Events";
   }
 
+  /**
+   * Clears the existing event data.
+   */
   @Override
   public void clearData() {
     eventService.clearEvents();
   }
 
+  /**
+   * Gets the Excel service used for import operations.
+   *
+   * @return the Excel service
+   */
   @Override
   public ExcelService getExcelService() {
     return eventService.getExcelService();
