@@ -1,6 +1,5 @@
-package com.openjfx.controllers.Import;
+package com.openjfx.handlers.Import;
 
-import com.openjfx.handlers.ImportHandler;
 import com.openjfx.models.Room;
 import com.openjfx.services.ExcelService;
 import com.openjfx.services.RoomService;

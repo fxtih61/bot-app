@@ -1,6 +1,5 @@
-package com.openjfx.controllers.Import;
+package com.openjfx.handlers.Import;
 
-import com.openjfx.handlers.ImportHandler;
 import com.openjfx.models.Choice;
 import com.openjfx.services.ChoiceService;
 import com.openjfx.services.ExcelService;

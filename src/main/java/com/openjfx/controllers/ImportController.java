@@ -1,6 +1,9 @@
-package com.openjfx.controllers.Import;
+package com.openjfx.controllers;
 
-import com.openjfx.handlers.ImportHandler;
+import com.openjfx.handlers.Import.ChoiceImportHandler;
+import com.openjfx.handlers.Import.EventImportHandler;
+import com.openjfx.handlers.Import.ImportHandler;
+import com.openjfx.handlers.Import.RoomImportHandler;
 import com.openjfx.services.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

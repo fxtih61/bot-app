@@ -1,6 +1,5 @@
-package com.openjfx.controllers.Import;
+package com.openjfx.handlers.Import;
 
-import com.openjfx.handlers.ImportHandler;
 import com.openjfx.models.Event;
 import com.openjfx.services.EventService;
 import com.openjfx.services.ExcelService;
