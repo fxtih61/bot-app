@@ -19,4 +19,5 @@ module com.openjfx {
 
   exports com.openjfx;
   opens com.openjfx.controllers.Import to javafx.fxml;
+  opens com.openjfx.handlers to javafx.fxml;
 }
