@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Text?>
 
-
-<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <BorderPane>
          <top>
             <Label alignment="CENTER" text="Über uns" BorderPane.alignment="CENTER" />
          </top>
+         <bottom>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Text fill="#f6f5f5" strokeType="OUTSIDE" strokeWidth="0.0" text="GitHub Links" />
+                  <Button mnemonicParsing="false" text="Fatih" />
+                  <Button mnemonicParsing="false" text="Mian" />
+                  <Button mnemonicParsing="false" text="Leon" />
+                  <Button mnemonicParsing="false" text="Batuhan" />
+               </children>
+               <BorderPane.margin>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </BorderPane.margin>
+            </HBox>
+         </bottom>
+         <center>
+            <TextArea fx:id="aboutUsTextArea" prefHeight="200.0" prefWidth="200.0" text="Wir sind vier angehende Fachinformatiker für Anwendungsentwicklung im dritten Lehrjahr und entwickeln im Rahmen unseres Schulprojekts eine Applikation für den Berufsorientierungstag.&#10;&#10;Unsere Schule, das Berufskolleg Wirtschaft und Verwaltung (BWV) in Aachen, bietet uns die Möglichkeit, praxisnahe Projekte zu realisieren und unser Wissen in der Softwareentwicklung anzuwenden.&#10;&#10;Mit unserer App möchten wir den Berufsorientierungstag effizienter und moderner gestalten, um sowohl Schülern als auch Lehrern eine bessere Planung und Organisation zu ermöglichen.&#10;&#10;Unser Team besteht aus:&#10;🖥 Fatih Tolip&#10;🖥 Mian Gohar Ehsan&#10;🖥 Leon Kinderreich&#10;🖥 Batuhan Kücükcongar" BorderPane.alignment="CENTER" />
+         </center>
       </BorderPane>
    </children>
 </StackPane>
