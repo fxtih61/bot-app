@@ -5,16 +5,50 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <BorderPane>
-         <bottom>
-            <ToolBar nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER">
-              <items>
-                <Button mnemonicParsing="false" text="Export" />
-              </items>
-            </ToolBar>
-         </bottom>
-      </BorderPane>
-   </children>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+
+<StackPane stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.openjfx.controllers.ExportController">
+  <children>
+    <BorderPane>
+      <bottom>
+        <ToolBar fx:id="export_toolbar" nodeOrientation="RIGHT_TO_LEFT" prefHeight="40.0"
+          prefWidth="200.0" BorderPane.alignment="CENTER">
+          <items>
+            <Button fx:id="export_button" mnemonicParsing="false" text="Export"/>
+          </items>
+          <BorderPane.margin>
+            <Insets right="15.0"/>
+          </BorderPane.margin>
+        </ToolBar>
+      </bottom>
+      <top>
+        <VBox spacing="10">
+          <ToolBar fx:id="export_toolbar_top">
+            <items>
+              <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                <Button fx:id="room_time_plan" text="Raum und Zeitplan"/>
+                <Button fx:id="presence_list" text="Anwesenheit"/>
+                <Button fx:id="route_slip" text="Laufzettel"/>
+              </HBox>
+              <TextField fx:id="searchField" promptText="Search..."/>
+            </items>
+          </ToolBar>
+        </VBox>
+      </top>
+      <center>
+        <TableView fx:id="tableView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+          <columns>
+            <TableColumn prefWidth="75.0" text="C1"/>
+            <TableColumn prefWidth="75.0" text="C2"/>
+          </columns>
+        </TableView>
+      </center>
+    </BorderPane>
+  </children>
 </StackPane>
