@@ -12,9 +12,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.sql.ResultSet;
+import java.util.Set;
 
 /**
  * Service class responsible for assigning students to events based on their choices and priorities.
@@ -81,6 +83,8 @@ public class AssignmentService {
 
     // Maps companies and counts how many students are assigned to each event.
     mapCompanies(events, choices);
+
+    createTimetable(events, rooms, timeSlots, choices);
 
     //TODO: generate outputs(Schedule, Attendance list, etc.)
   }
@@ -224,10 +228,7 @@ public class AssignmentService {
    *
    * @param events list of events to analyze
    */
-  private void mapCompanies(List<Event> events, List<Choice> allChoices) {
-    System.out.println("\nEvent Choice Summary:");
-    System.out.println("-------------------");
-
+  private int mapCompanies(List<Event> events, List<Choice> allChoices) {
     Map<Integer, Integer> choiceCounts = new HashMap<>();
 
     // Count all choices for each event
@@ -240,26 +241,20 @@ public class AssignmentService {
       countEventChoice(choiceCounts, choice.getChoice6());
     }
 
-    // Print summary
+    int totalWorkshops = 0;
+
+    // Calculate total workshops needed
     for (Event event : events) {
       int eventId = event.getId();
       int choiceCount = choiceCounts.getOrDefault(eventId, 0);
       int maxCapacity = event.getMaxParticipants();
-      int additionalWorkshops = calculateAdditionalWorkshops(choiceCount, maxCapacity);
-
-      System.out.printf(
-          "Event ID: %d | Company: %s | Subject: %s | Student Choices: %d | Workshops: %d%n",
-          eventId,
-          event.getCompany(),
-          event.getSubject(),
-          choiceCount,
-          additionalWorkshops
-      );
+      totalWorkshops += calculateAdditionalWorkshops(choiceCount, maxCapacity);
     }
+
+    return totalWorkshops;
   }
 
   private int calculateAdditionalWorkshops(int demand, int capacity) {
-    System.out.println("Demand: " + demand + " | Capacity: " + capacity);
     if (demand <= capacity) {
       return 1;
     }
@@ -300,5 +295,157 @@ public class AssignmentService {
       e.printStackTrace();
     }
     return timeSlots;
+  }
+
+  private void createTimetable(List<Event> events, List<Room> rooms, List<TimeSlot> timeSlots, List<Choice> allChoices) {
+      Map<Integer, Integer> workshopsNeeded = new HashMap<>();
+      Map<String, List<EventRoomAssignment>> timeSlotAssignments = new HashMap<>();
+      Map<Integer, Room> companyRooms = new HashMap<>();
+
+      // Initialize time slot assignments
+      for (TimeSlot slot : timeSlots) {
+          timeSlotAssignments.put(slot.getSlot(), new ArrayList<>());
+      }
+
+      // Calculate workshops needed for each event
+      for (Event event : events) {
+          int eventId = event.getId();
+          int choiceCount = countChoicesForEvent(allChoices, eventId);
+          int workshopCount = calculateAdditionalWorkshops(choiceCount, event.getMaxParticipants());
+          workshopsNeeded.put(eventId, workshopCount);
+      }
+
+      // Print workshops needed
+      System.out.println("\nWORKSHOPS NEEDED:");
+      System.out.println("=================");
+      workshopsNeeded.entrySet().stream()
+          .sorted(Map.Entry.comparingByKey())
+          .forEach(entry -> System.out.printf("Event %d: %d workshops\n", entry.getKey(), entry.getValue()));
+
+      // Create a list of events that need workshops, sorted by workshop count
+      List<Event> eventsNeedingRooms = events.stream()
+          .filter(e -> workshopsNeeded.get(e.getId()) > 0)
+          .sorted((e1, e2) -> workshopsNeeded.get(e2.getId()).compareTo(workshopsNeeded.get(e1.getId())))
+          .collect(java.util.stream.Collectors.toList());
+
+      // Assign rooms using round-robin approach
+      List<Room> availableRooms = new ArrayList<>(rooms);
+      int currentRoomIndex = 0;
+
+      for (Event event : eventsNeedingRooms) {
+          if (availableRooms.isEmpty()) {
+              break;
+          }
+          companyRooms.put(event.getId(), availableRooms.get(currentRoomIndex));
+          currentRoomIndex = (currentRoomIndex + 1) % availableRooms.size();
+      }
+
+      // For each time slot, schedule workshops for events that still need them
+      Map<Integer, Integer> remainingWorkshops = new HashMap<>(workshopsNeeded);
+
+      for (TimeSlot slot : timeSlots) {
+          List<EventRoomAssignment> currentSlotAssignments = timeSlotAssignments.get(slot.getSlot());
+          Set<Room> usedRoomsInSlot = new HashSet<>();
+
+          // Schedule workshops for events that still need them
+          for (Event event : events) {
+              int eventId = event.getId();
+              Room assignedRoom = companyRooms.get(eventId);
+
+              if (assignedRoom != null && remainingWorkshops.get(eventId) > 0
+                  && !usedRoomsInSlot.contains(assignedRoom)) {
+                  currentSlotAssignments.add(new EventRoomAssignment(event, assignedRoom));
+                  remainingWorkshops.put(eventId, remainingWorkshops.get(eventId) - 1);
+                  usedRoomsInSlot.add(assignedRoom);
+              }
+          }
+      }
+
+      // Print timetable
+      System.out.println("\nTIMETABLE:");
+      System.out.println("==========");
+
+      for (TimeSlot slot : timeSlots) {
+          System.out.printf("\nTime Slot %s (%s - %s):\n",
+              slot.getSlot(), slot.getStartTime(), slot.getEndTime());
+          System.out.println("----------------------------");
+
+          List<EventRoomAssignment> assignments = timeSlotAssignments.get(slot.getSlot());
+          if (assignments.isEmpty()) {
+              System.out.println("No events scheduled");
+          } else {
+              assignments.sort((a, b) -> a.room.getName().compareTo(b.room.getName()));
+              for (EventRoomAssignment assignment : assignments) {
+                  System.out.printf("Room %-15s : Event %d - %s (%s)\n",
+                      assignment.room.getName(),
+                      assignment.event.getId(),
+                      assignment.event.getCompany(),
+                      assignment.event.getSubject());
+              }
+          }
+      }
+  }
+
+  private Room findAvailableRoom(List<Room> rooms, int requiredCapacity,
+                               List<EventRoomAssignment> currentAssignments) {
+      return rooms.stream()
+          .filter(room -> room.getCapacity() >= requiredCapacity)
+          .filter(room -> currentAssignments.stream()
+              .noneMatch(assignment -> assignment.room.equals(room)))
+          .findFirst()
+          .orElse(null);
+  }
+
+  private static class EventRoomAssignment {
+      final Event event;
+      final Room room;
+
+      EventRoomAssignment(Event event, Room room) {
+          this.event = event;
+          this.room = room;
+      }
+  }
+
+  private void saveTimeTableAssignments(Map<String, List<Integer>> timeSlotAssignments,
+      Map<Integer, Room> companyRooms) {
+    String sql = "INSERT INTO timetable (event_id, room_id, time_slot) VALUES (?, ?, ?)";
+
+    try (Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+      conn.setAutoCommit(false);
+
+      for (Map.Entry<String, List<Integer>> entry : timeSlotAssignments.entrySet()) {
+        String timeSlot = entry.getKey();
+        for (Integer eventId : entry.getValue()) {
+          Room room = companyRooms.get(eventId);
+          if (room != null) {
+            pstmt.setInt(1, eventId);
+            pstmt.setString(2, room.getName());
+            pstmt.setString(3, timeSlot);
+            pstmt.addBatch();
+          }
+        }
+      }
+
+      pstmt.executeBatch();
+      conn.commit();
+    } catch (SQLException e) {
+      System.err.println("Error saving timetable assignments: " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
+
+  private int countChoicesForEvent(List<Choice> choices, int eventId) {
+    Map<Integer, Integer> counts = new HashMap<>();
+    for (Choice choice : choices) {
+      countEventChoice(counts, choice.getChoice1());
+      countEventChoice(counts, choice.getChoice2());
+      countEventChoice(counts, choice.getChoice3());
+      countEventChoice(counts, choice.getChoice4());
+      countEventChoice(counts, choice.getChoice5());
+      countEventChoice(counts, choice.getChoice6());
+    }
+    return counts.getOrDefault(eventId, 0);
   }
 }
