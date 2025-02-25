@@ -34,24 +34,24 @@
     -fx-font-weight: bold;
 }
 
-#import_toolbar {
+#import_toolbar, #export_toolbar {
     background-color: #030712;
     -fx-background-color: #030712;
 }
 
-#import_toolbar .button {
+#import_toolbar .button, #export_toolbar .button {
     -fx-min-width: 80;
     -fx-max-width: 160;
 }
 
-#import_toolbar_top {
+#import_toolbar_top, #export_toolbar_top {
     background-color: #030712;
     -fx-background-color: #030712;
     -fx-alignment: CENTER;
     -fx-spacing: 5;
 }
 
-#import_toolbar_top .button {
+#import_toolbar_top .button, #export_toolbar_top .button {
     -fx-min-width: 80;
     -fx-max-width: 80;
 }
