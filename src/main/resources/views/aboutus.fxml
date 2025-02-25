@@ -30,7 +30,7 @@
             </HBox>
          </bottom>
          <center>
-            <TextArea fx:id="aboutUsTextArea" prefHeight="200.0" prefWidth="200.0" text="Wir sind vier angehende Fachinformatiker für Anwendungsentwicklung im dritten Lehrjahr und entwickeln im Rahmen unseres Schulprojekts eine Applikation für den Berufsorientierungstag.&#10;&#10;Unsere Schule, das Berufskolleg Wirtschaft und Verwaltung (BWV) in Aachen, bietet uns die Möglichkeit, praxisnahe Projekte zu realisieren und unser Wissen in der Softwareentwicklung anzuwenden.&#10;&#10;Mit unserer App möchten wir den Berufsorientierungstag effizienter und moderner gestalten, um sowohl Schülern als auch Lehrern eine bessere Planung und Organisation zu ermöglichen.&#10;&#10;Unser Team besteht aus:&#10;🖥 Fatih Tolip&#10;🖥 Mian Gohar Ehsan&#10;🖥 Leon Kinderreich&#10;🖥 Batuhan Kücükcongar" BorderPane.alignment="CENTER" />
+            <Label fx:id="aboutUsTextArea" wrapText="true" text="Wir sind vier angehende Fachinformatiker für Anwendungsentwicklung im dritten Lehrjahr und entwickeln im Rahmen unseres Schulprojekts eine Applikation für den Berufsorientierungstag.&#10;&#10;Unsere Schule, das Berufskolleg Wirtschaft und Verwaltung (BWV) in Aachen, bietet uns die Möglichkeit, praxisnahe Projekte zu realisieren und unser Wissen in der Softwareentwicklung anzuwenden.&#10;&#10;Mit unserer App möchten wir den Berufsorientierungstag effizienter und moderner gestalten, um sowohl Schülern als auch Lehrern eine bessere Planung und Organisation zu ermöglichen.&#10;&#10;Unser Team besteht aus:&#10;🖥 Fatih Tolip&#10;🖥 Mian Gohar Ehsan&#10;🖥 Leon Kinderreich&#10;🖥 Batuhan Kücükcongar" BorderPane.alignment="CENTER" />
          </center>
       </BorderPane>
    </children>

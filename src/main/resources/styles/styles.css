@@ -106,7 +106,7 @@
     -fx-border-width: 0 0 2px 0;
 }
 
-.table-view > .virtual-flow > .clipped-container > .sheet > .empty-table {
+.table-view>.virtual-flow>.clipped-container>.sheet>.empty-table {
     -fx-background-color: #030712;
 }
 
@@ -195,4 +195,15 @@
 .table-view .virtual-flow .clipped-container .sheet .scroll-bar:horizontal {
     -fx-opacity: 0;
     -fx-max-height: 0;
+}
+
+#aboutUsTextArea {
+    background-color: #030712;
+    -fx-background-color: #030712;
+    -fx-text-fill: #6b7280;
+    font-size: 14px;
+    -fx-font-size: 14px;
+    padding: 10px;
+    -fx-padding: 10px;
+    -fx-alignment: center;
 }
