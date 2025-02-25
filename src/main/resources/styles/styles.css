@@ -200,7 +200,7 @@
 #aboutUsTextArea {
     background-color: #030712;
     -fx-background-color: #030712;
-    -fx-text-fill: #6b7280;
+    -fx-text-fill: white;
     font-size: 14px;
     -fx-font-size: 14px;
     padding: 10px;
