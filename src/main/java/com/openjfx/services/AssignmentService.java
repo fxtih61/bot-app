@@ -1,13 +1,20 @@
 package com.openjfx.services;
 
+import com.openjfx.config.DatabaseConfig;
 import com.openjfx.models.Choice;
 import com.openjfx.models.Event;
 import com.openjfx.models.Room;
+import com.openjfx.models.TimeSlot;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.sql.ResultSet;
 
 /**
  * Service class responsible for assigning students to events based on their choices and priorities.
@@ -61,6 +68,7 @@ public class AssignmentService {
     List<Choice> choices = choiceService.loadChoices();
     List<Event> events = eventService.loadEvents();
     List<Room> rooms = roomService.loadRooms();
+    List<TimeSlot> timeSlots = loadTimeSlots();
 
     // Initializes empty assignment slots for each event.
     initializeEventslots(events);
@@ -71,17 +79,20 @@ public class AssignmentService {
     // Assigns remaining students to their subsequent choices (2-6) if space is available.
     assignRemainingChoices(choices, events);
 
-    //print the assignments
-    for (Map.Entry<Integer, List<Choice>> entry : assignments.entrySet()) {
-      System.out.println("Event ID: " + entry.getKey());
-      for (Choice choice : entry.getValue()) {
-        System.out.println(choice);
-      }
-    }
-
+    // Maps companies and counts how many students are assigned to each event.
     mapCompanies(events, choices);
 
     //TODO: generate outputs(Schedule, Attendance list, etc.)
+  }
+  /**
+   * Finds a suitable room that hasn't been assigned yet and meets capacity requirements.
+   */
+  private Room findSuitableRoom(List<Room> rooms, int requiredCapacity, Collection<Room> assignedRooms) {
+    return rooms.stream()
+        .filter(room -> room.getCapacity() >= requiredCapacity)
+        .filter(room -> !assignedRooms.contains(room))
+        .findFirst()
+        .orElse(null);
   }
 
   /**
@@ -236,7 +247,8 @@ public class AssignmentService {
       int maxCapacity = event.getMaxParticipants();
       int additionalWorkshops = calculateAdditionalWorkshops(choiceCount, maxCapacity);
 
-      System.out.printf("Event ID: %d | Company: %s | Subject: %s | Student Choices: %d | Workshops: %d%n",
+      System.out.printf(
+          "Event ID: %d | Company: %s | Subject: %s | Student Choices: %d | Workshops: %d%n",
           eventId,
           event.getCompany(),
           event.getSubject(),
@@ -264,5 +276,29 @@ public class AssignmentService {
     } catch (NumberFormatException e) {
       // Ignore invalid choices
     }
+  }
+
+  private List<TimeSlot> loadTimeSlots() {
+    String sql = "SELECT * FROM timeslots";
+    List<TimeSlot> timeSlots = new ArrayList<>();
+
+    try (Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        ResultSet rs = pstmt.executeQuery()) {
+
+      while (rs.next()) {
+        TimeSlot slot = new TimeSlot(
+            rs.getInt("id"),
+            rs.getString("start_time"),
+            rs.getString("end_time"),
+            rs.getString("slot")
+        );
+        timeSlots.add(slot);
+      }
+    } catch (SQLException e) {
+      System.err.println("Error loading time slots: " + e.getMessage());
+      e.printStackTrace();
+    }
+    return timeSlots;
   }
 }

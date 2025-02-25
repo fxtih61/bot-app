@@ -9,6 +9,8 @@ import java.util.List;
 /**
  * The `EventExample` class demonstrates how to use the `EventService` to load events from an Excel
  * file.
+ *
+ * @author mian
  */
 
 public class EventExample {
@@ -17,6 +19,7 @@ public class EventExample {
    * The main method that runs the example.
    *
    * @param args the command line arguments
+   * @author mian
    */
   public static void main(String[] args) {
     EventService eventService = new EventService(new ExcelService());

@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Handler for importing Choice data from an Excel file.
  */
-public class ChoiceImportHandler implements ImportHandler<Choice> {
+public class ChoiceHandler implements Handler<Choice> {
 
   private final ChoiceService choiceService;
 
@@ -21,7 +21,7 @@ public class ChoiceImportHandler implements ImportHandler<Choice> {
    *
    * @param excelService the Excel service to use for importing data
    */
-  public ChoiceImportHandler(ExcelService excelService) {
+  public ChoiceHandler(ExcelService excelService) {
     this.choiceService = new ChoiceService(excelService);
   }
 

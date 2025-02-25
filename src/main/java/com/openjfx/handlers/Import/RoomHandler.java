@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Handler for importing Room data from an Excel file.
  */
-public class RoomImportHandler implements ImportHandler<Room> {
+public class RoomHandler implements Handler<Room> {
 
   private final RoomService roomService;
 
@@ -21,7 +21,7 @@ public class RoomImportHandler implements ImportHandler<Room> {
    *
    * @param excelService the Excel service to use for importing data
    */
-  public RoomImportHandler(ExcelService excelService) {
+  public RoomHandler(ExcelService excelService) {
     this.roomService = new RoomService(excelService);
   }
 

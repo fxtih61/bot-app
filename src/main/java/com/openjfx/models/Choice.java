@@ -5,9 +5,12 @@ import java.util.Objects;
 /**
  * Represents a Choice with various attributes such as class reference, first name, last name, and
  * multiple choices.
+ *
+ * @author mian
  */
 public class Choice {
 
+  private int id;
   private String classRef;
   private String firstName;
   private String lastName;
@@ -30,9 +33,11 @@ public class Choice {
    * @param choice4   the fourth choice of the student
    * @param choice5   the fifth choice of the student
    * @param choice6   the sixth choice (Least preferred) of the student
+   * @author mian
    */
 
-  public Choice(String classRef, String firstName, String lastName, String choice1, String choice2,
+  public Choice(String classRef, String firstName, String lastName, String choice1,
+      String choice2,
       String choice3, String choice4, String choice5, String choice6) {
     this.classRef = classRef;
     this.firstName = firstName;
@@ -43,6 +48,35 @@ public class Choice {
     this.choice4 = choice4;
     this.choice5 = choice5;
     this.choice6 = choice6;
+  }
+
+  public Choice(int id, String classRef, String firstName, String lastName, String choice1,
+      String choice2,
+      String choice3, String choice4, String choice5, String choice6) {
+    this.id = id;
+    this.classRef = classRef;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.choice1 = choice1;
+    this.choice2 = choice2;
+    this.choice3 = choice3;
+    this.choice4 = choice4;
+    this.choice5 = choice5;
+    this.choice6 = choice6;
+  }
+
+  /**
+   * Gets the id
+   */
+  public int getId() {
+    return id;
+  }
+
+  /**
+   * Sets the id.
+   */
+  public void setId(int id) {
+    this.id = id;
   }
 
   /**

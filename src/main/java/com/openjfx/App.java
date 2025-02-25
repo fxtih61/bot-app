@@ -1,6 +1,12 @@
 package com.openjfx;
 
 import com.openjfx.config.DatabaseConfig;
+import com.openjfx.services.AssignmentService;
+import com.openjfx.services.ChoiceService;
+import com.openjfx.services.EventService;
+import com.openjfx.services.ExcelService;
+import com.openjfx.services.RoomService;
+import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -69,8 +75,20 @@ public class App extends Application {
    *
    * @param args the command line arguments
    */
-  public static void main(String[] args) {
-    launch();
+  public static void main(String[] args) throws IOException {
+    //launch();
+
+    //run assignment temporary
+
+    ExcelService excelService = new ExcelService();
+    ChoiceService choiceService = new ChoiceService(excelService);
+    EventService eventService = new EventService(excelService);
+    RoomService roomService = new RoomService(excelService);
+
+    AssignmentService assignmentService = new AssignmentService(choiceService, eventService,
+        roomService);
+
+     assignmentService.runAssignment();
   }
 
   /**
