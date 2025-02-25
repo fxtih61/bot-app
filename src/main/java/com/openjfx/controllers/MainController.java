@@ -16,10 +16,9 @@ public class MainController {
     private StackPane contentPane;
 
     @FXML
-    private Button homeButton, importButton, exportButton, settingsButton, aboutButton, exitButton;
+    private Button importButton, exportButton, settingsButton, aboutButton, exitButton;
 
     public void initialize() {
-        homeButton.setText("Home");
         importButton.setText("Import");
         exportButton.setText("Export");
         settingsButton.setText("Settings");
@@ -35,7 +34,6 @@ public class MainController {
      */
     private void setActiveButton(Button activeButton) {
         // Remove active class from all buttons
-        homeButton.getStyleClass().remove("button-active");
         importButton.getStyleClass().remove("button-active");
         exportButton.getStyleClass().remove("button-active");
         settingsButton.getStyleClass().remove("button-active");
@@ -43,17 +41,6 @@ public class MainController {
 
         // Add active class to selected button
         activeButton.getStyleClass().add("button-active");
-    }
-
-    @FXML
-    public void showHome(ActionEvent event) throws Exception {
-        try {
-            setActiveButton(homeButton);
-            Parent homeView = FXMLLoader.load(getClass().getResource("/views/home.fxml"));
-            contentPane.getChildren().setAll(homeView);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @FXML

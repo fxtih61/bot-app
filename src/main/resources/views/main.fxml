@@ -10,7 +10,6 @@
    <left>
       <VBox spacing="10.0" BorderPane.alignment="CENTER" alignment="TOP_CENTER" prefHeight="Infinity">
          <children>
-            <Button fx:id="homeButton" mnemonicParsing="false" onAction="#showHome"/>
             <Button fx:id="importButton" mnemonicParsing="false" onAction="#showImport"/>
             <Button fx:id="exportButton" mnemonicParsing="false" onAction="#showExport"/>
             <Button fx:id="settingsButton" mnemonicParsing="false" onAction="#showSettings"/>

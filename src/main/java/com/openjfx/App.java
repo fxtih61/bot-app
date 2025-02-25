@@ -45,24 +45,7 @@ public class App extends Application {
   @Override
   public void start(Stage stage) throws Exception {
     primaryStage = stage;
-    showWelcomeScene();
-  }
-
-  /**
-   * Shows the welcome scene.
-   *
-   * @throws Exception if the welcome scene cannot be loaded
-   */
-  public void showWelcomeScene() throws Exception {
-    Parent root = FXMLLoader.load(App.class.getResource("/views/welcome.fxml"));
-    Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
-    String css = this.getClass().getResource("/styles/welcome.css").toExternalForm();
-    scene.getStylesheets().add(css);
-    primaryStage.setScene(scene);
-    primaryStage.setFullScreen(true);
-    primaryStage.setMaximized(true);
-    primaryStage.setTitle("Berufsorientierungstag-Programm");
-    primaryStage.show();
+    showMainScene();
   }
 
   /**
