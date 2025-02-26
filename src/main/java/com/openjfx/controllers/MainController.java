@@ -1,6 +1,8 @@
 package com.openjfx.controllers;
 
 import java.io.IOException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -18,13 +20,15 @@ public class MainController {
     @FXML
     private Button importButton, exportButton, settingsButton, aboutButton, exitButton;
 
+    public String lang;
+
     public void initialize() {
-        importButton.setText("Import");
-        exportButton.setText("Export");
-        settingsButton.setText("Settings");
-        aboutButton.setText("About");
-        exitButton.setText("Exit");
-        contentPane.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        try {
+            SettingController settingsController = new SettingController();
+            lang = settingsController.getLanguage();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -47,7 +51,9 @@ public class MainController {
     public void showImport(ActionEvent event) throws Exception {
         try {
             setActiveButton(importButton);
-            Parent importView = FXMLLoader.load(getClass().getResource("/views/import.fxml"));
+            Locale locale = new Locale(lang);
+            ResourceBundle bundle = ResourceBundle.getBundle("lang", locale);
+            Parent importView = FXMLLoader.load(getClass().getResource("/views/import.fxml"), bundle);
             contentPane.getChildren().setAll(importView);
         } catch (IOException e) {
             e.printStackTrace();
@@ -58,7 +64,9 @@ public class MainController {
     public void showExport(ActionEvent event) throws Exception {
         try {
             setActiveButton(exportButton);
-            Parent exportView = FXMLLoader.load(getClass().getResource("/views/export.fxml"));
+            Locale locale = new Locale(lang);
+            ResourceBundle bundle = ResourceBundle.getBundle("lang", locale);
+            Parent exportView = FXMLLoader.load(getClass().getResource("/views/export.fxml"), bundle);
             contentPane.getChildren().setAll(exportView);
         } catch (IOException e) {
             e.printStackTrace();
@@ -69,7 +77,9 @@ public class MainController {
     public void showSettings(ActionEvent event) throws Exception {
         try {
             setActiveButton(settingsButton);
-            Parent settingsView = FXMLLoader.load(getClass().getResource("/views/settings.fxml"));
+            Locale locale = new Locale(lang);
+            ResourceBundle bundle = ResourceBundle.getBundle("lang", locale);
+            Parent settingsView = FXMLLoader.load(getClass().getResource("/views/settings.fxml"), bundle);
             contentPane.getChildren().setAll(settingsView);
         } catch (IOException e) {
             e.printStackTrace();
@@ -81,7 +91,9 @@ public class MainController {
     public void showAbout(ActionEvent event) throws Exception {
         try {
             setActiveButton(aboutButton);
-            Parent aboutView = FXMLLoader.load(getClass().getResource("/views/aboutus.fxml"));
+            Locale locale = new Locale(lang);
+            ResourceBundle bundle = ResourceBundle.getBundle("lang", locale);
+            Parent aboutView = FXMLLoader.load(getClass().getResource("/views/aboutus.fxml"), bundle);
             contentPane.getChildren().setAll(aboutView);
         } catch (IOException e) {
             e.printStackTrace();
