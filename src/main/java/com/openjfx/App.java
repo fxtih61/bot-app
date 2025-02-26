@@ -1,5 +1,10 @@
 package com.openjfx;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.ResourceBundle;
 import com.openjfx.config.DatabaseConfig;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -54,10 +59,26 @@ public class App extends Application {
    * @throws Exception if the main scene cannot be loaded
    */
   public void showMainScene() throws Exception {
-    Parent root = FXMLLoader.load(App.class.getResource("/views/main.fxml"));
+
+    Properties props = new Properties();
+    boolean isDarkMode;
+    try (FileInputStream in = new FileInputStream("settings.properties")) {
+      props.load(in);
+      isDarkMode = Boolean.parseBoolean(props.getProperty("darkMode", "true"));
+    } catch (IOException e) {
+      isDarkMode = true;
+    }
+    String lang = props.getProperty("language", "de");
+    Locale locale = new Locale(lang);
+    ResourceBundle bundle = ResourceBundle.getBundle("lang", locale);
+
+    Parent root = FXMLLoader.load(App.class.getResource("/views/main.fxml"), bundle);
     Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
-    String css = this.getClass().getResource("/styles/styles.css").toExternalForm();
-    scene.getStylesheets().add(css);
+
+    // Das richtige Theme setzen
+    String theme = isDarkMode ? "/styles/styles.css" : "/styles/light-styles.css";
+    scene.getStylesheets().add(this.getClass().getResource(theme).toExternalForm());
+
     primaryStage.setScene(scene);
     primaryStage.setFullScreen(true);
     primaryStage.setMaximized(true);
