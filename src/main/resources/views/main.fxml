@@ -1,3 +1,30 @@
+<!--
+
+This FXML file defines the layout for the main view of the application using JavaFX. 
+It uses a BorderPane as the root layout with a VBox on the left and a StackPane in the center.
+
+Components:
+- BorderPane: The root layout container.
+   - left (VBox): Contains a vertical box with buttons for various actions.
+      - Buttons:
+         - importButton: Triggers the import action.
+         - exportButton: Triggers the export action.
+         - settingsButton: Opens the settings view.
+         - aboutButton: Opens the about view.
+         - exitButton: Exits the application.
+      - Insets: Adds padding around the VBox.
+   - center (StackPane): A placeholder for the main content area.
+
+Attributes:
+- xmlns: XML namespace for JavaFX.
+- xmlns:fx: XML namespace for FXML.
+- fx:controller: Specifies the controller class for handling user interactions.
+
+Event Handlers:
+- onAction: Specifies the method to call in the controller when the button is clicked.
+
+@Author: Fatih Tolip
+-->
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
