@@ -54,9 +54,17 @@ public class App extends Application {
   }
 
   /**
-   * Shows the main scene.
+   * Displays the main scene of the application.
    *
-   * @throws Exception if the main scene cannot be loaded
+   * This method loads application settings from a properties file, including
+   * the theme (dark mode or light mode) and the language for localization.
+   * It then sets up the main scene with the appropriate styles and language
+   * resources, and displays it in full screen and maximized mode.
+   *
+   * @throws Exception if there is an error loading the FXML file or other
+   *                   resources.
+   * 
+   * @author Fatih Tolip
    */
   public void showMainScene() throws Exception {
 

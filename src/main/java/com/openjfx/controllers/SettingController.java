@@ -74,6 +74,13 @@ public class SettingController {
     });
   }
 
+  /**
+   * Changes the application's language setting and updates the main scene.
+   *
+   * @param lang the language code to change to (e.g., "en" for English, "de" for
+   *             German)
+   * @author Fatih Tolip
+   */
   private void changeLanguage(String lang) {
     saveSettings(isDarkMode, lang);
     try {
@@ -82,9 +89,16 @@ public class SettingController {
     } catch (Exception e) {
       e.printStackTrace();
     }
-
   }
 
+  /**
+   * Retrieves the language setting from the properties file.
+   *
+   * @return the language setting as a string. If the setting is not found or an
+   *         error occurs,
+   *         the default language "de" is returned.
+   * @author Fatih Tolip
+   */
   public String getLanguage() {
     Properties props = new Properties();
     try (FileInputStream in = new FileInputStream(SETTINGS_FILE)) {
@@ -96,11 +110,25 @@ public class SettingController {
     }
   }
 
+  /**
+   * Sets the scene for the controller and applies the current theme.
+   *
+   * @param scene the Scene object to be set
+   * @author Fatih Tolip
+   */
   public void setScene(Scene scene) {
     this.scene = scene;
     applyTheme();
   }
 
+  /**
+   * Toggles the application's theme between dark mode and light mode.
+   * Applies the selected theme and saves the settings.
+   * 
+   * @throws Exception if an error occurs while applying the theme or saving the
+   *                   settings.
+   * @author Fatih Tolip
+   */
   private void toggleTheme() {
     try {
       isDarkMode = !isDarkMode;
@@ -109,9 +137,18 @@ public class SettingController {
     } catch (Exception e) {
       e.printStackTrace();
     }
-
   }
 
+  /**
+   * Applies the selected theme to the current scene.
+   * This method runs on the JavaFX Application Thread.
+   * It clears the current stylesheets and adds the appropriate stylesheet
+   * based on the value of the isDarkMode flag.
+   * It also updates the text of the theme toggle button to reflect the current
+   * theme.
+   * 
+   * @author Fatih Tolip
+   */
   private void applyTheme() {
     Platform.runLater(() -> {
       if (scene == null) {
@@ -124,6 +161,15 @@ public class SettingController {
     });
   }
 
+  /**
+   * Saves the application settings to a properties file.
+   * The settings include the dark mode setting and the language setting.
+   *
+   * @param isDarkMode a boolean indicating whether dark mode is enabled
+   * @param language   the language setting to be saved
+   * 
+   * @author Fatih Tolip
+   */
   public void saveSettings(boolean isDarkMode, String language) {
     Properties props = new Properties();
 
@@ -146,6 +192,24 @@ public class SettingController {
     }
   }
 
+  /**
+   * Loads the application settings from a properties file.
+   * This method reads the settings from the specified properties file and applies
+   * them to the application.
+   * It loads the dark mode setting and the language setting. If the properties
+   * file cannot be read,
+   * it defaults to dark mode being enabled.
+   * The dark mode setting is read from the property "darkMode" and defaults to
+   * "true" if not specified.
+   * The language setting is read from the property "language" and defaults to
+   * "de" (German) if not specified.
+   * The language setting is then applied to a combo box with values "Englisch"
+   * for English and "Deutsch" for German.
+   * 
+   * @throws IOException if an I/O error occurs when reading the properties file
+   * 
+   * @author Fatih Tolip
+   */
   public void loadSettings() {
     Properties props = new Properties();
     try (FileInputStream in = new FileInputStream(SETTINGS_FILE)) {

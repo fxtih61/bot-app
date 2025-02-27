@@ -1,3 +1,15 @@
+<!--
+
+This FXML file defines the layout for the import view of the application. It uses a StackPane as the root element and includes a BorderPane with the following structure:
+
+- Bottom: A ToolBar with an import button aligned to the right.
+- Top: A VBox containing a ToolBar with three buttons (events, choices, rooms) aligned to the right and a search field.
+- Center: A TableView with two columns (C1 and C2).
+
+The layout is controlled by the ImportController class.
+
+@Author: Fatih Tolip
+-->
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>

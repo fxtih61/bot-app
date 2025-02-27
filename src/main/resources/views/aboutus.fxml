@@ -1,3 +1,36 @@
+<!--
+
+This FXML file defines the layout for the "About Us" page of the application.
+
+Root Element:
+- StackPane: The root container for the layout.
+
+Children:
+- BorderPane: The main layout container with top, bottom, and center sections.
+
+Top Section:
+- Label: Displays the title of the "About Us" page, aligned to the center.
+
+Bottom Section:
+- HBox: A horizontal box containing buttons for GitHub links, aligned to the center.
+   - Text: A label indicating "GitHub Links:".
+   - Button (fatihButton): Opens Fatih's GitHub profile.
+   - Button (mianButton): Opens Mian's GitHub profile.
+   - Button (leonButton): Opens Leon's GitHub profile.
+   - Button (batuhanButton): Opens Batuhan's GitHub profile.
+   - Insets: Adds padding around the HBox.
+
+Center Section:
+- Label (aboutUsTextArea): Displays the "About Us" text, with text wrapping enabled, aligned to the center.
+
+FXML Annotations:
+- fx:controller: Specifies the controller class for handling user interactions.
+- fx:id: Assigns unique identifiers to elements for reference in the controller.
+- onAction: Defines the method to be called when a button is clicked.
+
+@Author: Fatih Tolip
+-->
+
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
