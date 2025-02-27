@@ -13,3 +13,5 @@ hs_err_pid*
 data/*.db
 data/*.db.trace.db
 data/*.lock.db
+
+settings.properties

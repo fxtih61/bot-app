@@ -1,16 +1,16 @@
-/* This is the CSS Style class for Dark Mode
+/* This is the CSS Style class for Light Mode
     @author: Fatih Tolip, Mian 
 */
 
 .root {
-    background-color: #030712;
-    -fx-background-color: #030712;
+    background-color: #f9fafb;
+    -fx-background-color: #f9fafb;
 }
 
 .button {
-    background-color: #030712;
-    -fx-background-color: #030712;
-    -fx-text-fill: #d1d5dc;
+    background-color: #e5e7eb;
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #374151;
     font-size: 14px;
     -fx-font-size: 14px;
     font-weight: bold;
@@ -18,14 +18,14 @@
 }
 
 .button:hover {
-    background-color: #1f2a38;
-    -fx-background-color: #1f2a38;
+    background-color: #d1d5db;
+    -fx-background-color: #d1d5db;
 }
 
 #themeToggle {
-    background-color: #030712;
-    -fx-background-color: #030712;
-    -fx-text-fill: #d1d5dc;
+    background-color: #e5e7eb;
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #374151;
     font-size: 14px;
     -fx-font-size: 14px;
     font-weight: bold;
@@ -33,20 +33,20 @@
 }
 
 #themeToggle:hover {
-    background-color: #1f2a38;
-    -fx-background-color: #1f2a38;
+    background-color: #d1d5db;
+    -fx-background-color: #d1d5db;
 }
 
 #contentPane {
-    background-color: #030712;
-    -fx-background-color: #030712;
+    background-color: #ffffff;
+    -fx-background-color: #ffffff;
     -fx-border-style: solid;
-    -fx-border-color: #1f2a38;
+    -fx-border-color: #d1d5db;
     -fx-border-width: 1px;
 }
 
 .label {
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: #111827;
     font-size: 24px;
     -fx-font-size: 24px;
     font-weight: bold;
@@ -55,8 +55,8 @@
 
 #import_toolbar,
 #export_toolbar {
-    background-color: #030712;
-    -fx-background-color: #030712;
+    background-color: #f9fafb;
+    -fx-background-color: #f9fafb;
 }
 
 #import_toolbar .button,
@@ -67,8 +67,8 @@
 
 #import_toolbar_top,
 #export_toolbar_top {
-    background-color: #030712;
-    -fx-background-color: #030712;
+    background-color: #f9fafb;
+    -fx-background-color: #f9fafb;
     -fx-alignment: CENTER;
     -fx-spacing: 5;
 }
@@ -80,78 +80,78 @@
 }
 
 .border-pane {
-    -fx-background-color: #030712;
-    -fx-border-color: #1f2a38;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d1d5db;
     -fx-border-width: 1px;
 }
 
 .table-view {
-    -fx-background-color: #030712;
-    -fx-border-color: #1f2a38;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d1d5db;
     -fx-border-width: 1px;
 }
 
 .table-view .column-header-background {
-    -fx-background-color: #1f2a38;
+    -fx-background-color: #e5e7eb;
 }
 
 .table-view .column-header,
 .table-view .column-header .label {
     -fx-alignment: CENTER_LEFT;
     -fx-background-color: transparent;
-    -fx-text-fill: #d1d5dc;
+    -fx-text-fill: #374151;
     -fx-border-width: 0;
 }
 
 .table-view .table-cell {
-    -fx-text-fill: #d1d5dc;
-    -fx-background-color: #1f2a38;
+    -fx-text-fill: #374151;
+    -fx-background-color: #f3f4f6;
     -fx-border-width: 0;
 }
 
 .table-row-cell {
-    -fx-background-color: #1f2a38;
-    -fx-border-color: #2d3a4f;
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #d1d5db;
     -fx-border-width: 0 0 1px 0;
 }
 
 .table-row-cell:odd {
-    -fx-background-color: #1a2330;
+    -fx-background-color: #e5e7eb;
 }
 
 .table-row-cell:selected {
-    -fx-background-color: #2d3a4f;
+    -fx-background-color: #93c5fd;
 }
 
 .table-view .column-header-background {
-    -fx-background-color: #1f2a38;
-    -fx-border-color: #374151;
+    -fx-background-color: #e5e7eb;
+    -fx-border-color: #9ca3af;
     -fx-border-width: 0 0 2px 0;
 }
 
 .table-view>.virtual-flow>.clipped-container>.sheet>.empty-table {
-    -fx-background-color: #030712;
+    -fx-background-color: #ffffff;
 }
 
 .table-view:focused {
-    -fx-background-color: #030712;
+    -fx-background-color: #ffffff;
 }
 
 .button:pressed,
 .button-active {
-    -fx-background-color: #615FFF;
+    -fx-background-color: #3b82f6;
     -fx-text-fill: #ffffff;
 }
 
 .settings-row {
     -fx-padding: 15px 0;
-    -fx-border-color: transparent transparent #1f2a38 transparent;
+    -fx-border-color: transparent transparent #d1d5db transparent;
     -fx-border-width: 0 0 1px 0;
 }
 
 .settings-row .label {
     -fx-font-size: 16px;
-    -fx-text-fill: #d1d5dc;
+    -fx-text-fill: #374151;
 }
 
 .settings-button {
@@ -164,33 +164,33 @@
 .settings-combo {
     -fx-min-width: 120px;
     -fx-max-width: 120px;
-    -fx-background-color: #030712;
-    -fx-text-fill: #d1d5dc;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #374151;
     -fx-font-size: 14px;
 }
 
 .settings-combo .list-cell {
-    -fx-text-fill: #d1d5dc;
-    -fx-background-color: #030712;
+    -fx-text-fill: #374151;
+    -fx-background-color: #ffffff;
 }
 
 .settings-combo .list-view {
-    -fx-background-color: #1f2a38;
+    -fx-background-color: #e5e7eb;
 }
 
 .settings-combo .list-cell:hover {
-    -fx-background-color: #2d3a4f;
+    -fx-background-color: #d1d5db;
 }
 
 #searchField {
-    -fx-background-color: #1f2a38;
-    -fx-text-fill: #d1d5dc;
-    -fx-prompt-text-fill: #6b7280;
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #374151;
+    -fx-prompt-text-fill: #9ca3af;
     -fx-min-width: 200px;
     -fx-max-width: 200px;
     -fx-padding: 5px 10px;
     -fx-font-size: 14px;
-    -fx-border-color: #374151;
+    -fx-border-color: #9ca3af;
     -fx-border-width: 1px;
     -fx-border-radius: 4px;
     -fx-background-radius: 4px;
@@ -198,7 +198,7 @@
 
 #searchField:focused {
     -fx-border-color: #3b82f6;
-    -fx-background-color: #1a2330;
+    -fx-background-color: #ffffff;
 }
 
 .table-view .virtual-flow .clipped-container {
@@ -221,9 +221,9 @@
 }
 
 #aboutUsTextArea {
-    background-color: #030712;
-    -fx-background-color: #030712;
-    -fx-text-fill: white;
+    background-color: #ffffff;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #374151;
     font-size: 14px;
     -fx-font-size: 14px;
     padding: 10px;

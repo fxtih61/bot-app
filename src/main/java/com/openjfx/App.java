@@ -1,5 +1,10 @@
 package com.openjfx;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.ResourceBundle;
 import com.openjfx.config.DatabaseConfig;
 import com.openjfx.services.AssignmentService;
 import com.openjfx.services.ChoiceService;
@@ -60,15 +65,39 @@ public class App extends Application {
   }
 
   /**
-   * Shows the main scene.
+   * Displays the main scene of the application.
    *
-   * @throws Exception if the main scene cannot be loaded
+   * This method loads application settings from a properties file, including
+   * the theme (dark mode or light mode) and the language for localization.
+   * It then sets up the main scene with the appropriate styles and language
+   * resources, and displays it in full screen and maximized mode.
+   *
+   * @throws Exception if there is an error loading the FXML file or other
+   *                   resources.
+   * 
+   * @author Fatih Tolip
    */
   public void showMainScene() throws Exception {
-    Parent root = FXMLLoader.load(App.class.getResource("/views/main.fxml"));
+
+    Properties props = new Properties();
+    boolean isDarkMode;
+    try (FileInputStream in = new FileInputStream("settings.properties")) {
+      props.load(in);
+      isDarkMode = Boolean.parseBoolean(props.getProperty("darkMode", "true"));
+    } catch (IOException e) {
+      isDarkMode = true;
+    }
+    String lang = props.getProperty("language", "de");
+    Locale locale = new Locale(lang);
+    ResourceBundle bundle = ResourceBundle.getBundle("lang", locale);
+
+    Parent root = FXMLLoader.load(App.class.getResource("/views/main.fxml"), bundle);
     Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
-    String css = this.getClass().getResource("/styles/styles.css").toExternalForm();
-    scene.getStylesheets().add(css);
+
+    // Das richtige Theme setzen
+    String theme = isDarkMode ? "/styles/styles.css" : "/styles/light-styles.css";
+    scene.getStylesheets().add(this.getClass().getResource(theme).toExternalForm());
+
     primaryStage.setScene(scene);
     primaryStage.setFullScreen(true);
     primaryStage.setMaximized(true);
