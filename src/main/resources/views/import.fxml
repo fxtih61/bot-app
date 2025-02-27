@@ -11,14 +11,14 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
-<StackPane stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.openjfx.controllers.ImportController">
+<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.openjfx.controllers.ImportController">
   <children>
     <BorderPane>
       <bottom>
         <ToolBar fx:id="import_toolbar" nodeOrientation="RIGHT_TO_LEFT" prefHeight="40.0"
           prefWidth="200.0" BorderPane.alignment="CENTER">
           <items>
-            <Button fx:id="importButton" mnemonicParsing="false" text="Import"/>
+            <Button fx:id="importButton" mnemonicParsing="false" text="%importButton"/>
           </items>
           <BorderPane.margin>
             <Insets right="15.0"/>
@@ -30,11 +30,11 @@
           <ToolBar fx:id="import_toolbar_top">
             <items>
               <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                <Button fx:id="eventsButton" text="Events"/>
-                <Button fx:id="choicesButton" text="Choices"/>
-                <Button fx:id="roomsButton" text="Rooms"/>
+                <Button fx:id="eventsButton" text="%eventsButtoninImport"/>
+                <Button fx:id="choicesButton" text="%choicesButtoninImport"/>
+                <Button fx:id="roomsButton" text="%roomsButtoninImport"/>
               </HBox>
-              <TextField fx:id="searchField" promptText="Search..."/>
+              <TextField fx:id="searchField" promptText="%searchfield"/>
             </items>
           </ToolBar>
         </VBox>
