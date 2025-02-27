@@ -1,36 +1,3 @@
-<!--
-
-This FXML file defines the layout for the settings view of the application. It uses various JavaFX components to create a user interface for application settings.
-
-Root Element:
-- StackPane: The root container for the layout.
-
-Imports:
-- JavaFX layout containers: StackPane, HBox, VBox, BorderPane, Region
-- JavaFX controls: Button, Label, ToggleButton, ComboBox
-- JavaFX utilities: Insets, FXCollections
-- JavaFX data types: String
-
-Structure:
-- BorderPane: Main layout container with a top and center section.
-  - Top: Contains a Label with the text "%settingsheader" and a style class "header-label".
-  - Center: Contains a VBox with spacing and padding.
-    - VBox Children:
-      - HBox: Contains a Label, a Region for spacing, and a Button. The HBox has a style class "settings-row".
-      - HBox: Contains a ComboBox for language selection with items "Deutsch" and "Englisch".
-      - ToggleButton: A toggle button for switching themes with the text "%lightmodebutton".
-
-Controller:
-- fx:controller="com.openjfx.controllers.SettingController": Specifies the controller class for handling user interactions.
-
-Style Classes:
-- border-pane: Applied to the BorderPane.
-- header-label: Applied to the top Label.
-- settings-row: Applied to the HBox containing the Label and Button.
-- settings-button: Applied to the Button.
-
-@Author: Fatih Tolip
--->
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>

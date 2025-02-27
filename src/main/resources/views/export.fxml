@@ -1,16 +1,3 @@
-<!--
-
-This FXML file defines the layout for the export view in a JavaFX application. 
-It uses a StackPane as the root element and includes a BorderPane with the following components:
-
-1. Bottom: A ToolBar with an export button aligned to the right.
-2. Top: A VBox containing a ToolBar with three buttons (room_time_plan, presence_list, route_slip) and a search TextField.
-3. Center: A TableView with two columns (C1 and C2).
-
-The controller for this view is specified as "com.openjfx.controllers.ExportController".
-
-@Author: Fatih Tolip
--->
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
