@@ -110,6 +110,8 @@ public class SettingController {
    * shows an error alert. There is a known issue with the Desktop API on Linux, where it does not
    * run the default browser as expected. In this case, it tries to open the browser using different
    * options.
+   *
+   * @author mian
    */
   private void openBrowserToH2Console() {
     try {
@@ -155,6 +157,7 @@ public class SettingController {
    *
    * @param port the port number to check
    * @return true if the port is in use, false otherwise
+   * @author mian
    */
   private boolean isPortInUse(int port) {
     try (Socket socket = new Socket("localhost", port)) {
@@ -169,6 +172,7 @@ public class SettingController {
    *
    * @param title   the title of the alert
    * @param content the content of the alert
+   * @author mian
    */
   private void showAlert(String title, String content) {
     Alert alert = new Alert(AlertType.INFORMATION);

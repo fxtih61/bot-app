@@ -4,6 +4,8 @@ import com.openjfx.services.EventService;
 
 /**
  * Handler for exporting RoomTime data to an Excel file.
+ *
+ * @author mian
  */
 public class RoomTimeHandler {
 
@@ -13,6 +15,7 @@ public class RoomTimeHandler {
    * Constructs a RoomTimeHandler with the specified EventService.
    *
    * @param eventService the Event service to use for exporting data
+   * @author mian
    */
   public RoomTimeHandler(EventService eventService) {
     this.eventService = eventService;
@@ -23,6 +26,7 @@ public class RoomTimeHandler {
    *
    * @return a list of pairs where each pair contains the column name and the corresponding property
    * name
+   * @author mian
    */
 
 }

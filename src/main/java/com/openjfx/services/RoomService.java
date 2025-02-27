@@ -26,6 +26,8 @@ import java.util.List;
  * RoomService roomService = new RoomService(new ExcelService());
  * List<Room> rooms = roomService.loadFromExcel("path/to/excel.xlsx");
  * </pre>
+ *
+ * @author mian
  */
 public class RoomService extends AbstractExcelService<Room> {
 
@@ -33,6 +35,7 @@ public class RoomService extends AbstractExcelService<Room> {
    * Constructs a new RoomService with the specified Excel service.
    *
    * @param excelService the Excel service to use for file operations
+   * @author mian
    */
   public RoomService(ExcelService excelService) {
     super(excelService);
@@ -42,16 +45,19 @@ public class RoomService extends AbstractExcelService<Room> {
    * Returns a list of required fields for the Room model.
    *
    * @return a list of required fields
+   * @author mian
    */
   @Override
   protected List<String> getRequiredFields() {
     return List.of("name", "capacity");
   }
+
   /**
    * Defines the mapping between internal property names and Excel column prefixes. The column
    * prefixes are case-insensitive partial matches for Excel column headers.
    *
    * @return a Map containing the property-to-column prefix mappings
+   * @author mian
    */
   @Override
   protected Map<String, String> getColumnPrefixes() {
@@ -73,6 +79,7 @@ public class RoomService extends AbstractExcelService<Room> {
    * @param row            the row data from Excel
    * @param columnMappings the mappings between internal names and actual Excel columns
    * @return a new Room object, or null if the row data is invalid
+   * @author mian
    */
   @Override
   protected Room createModelFromRow(Map<String, String> row, Map<String, String> columnMappings) {
@@ -100,6 +107,7 @@ public class RoomService extends AbstractExcelService<Room> {
    *
    * @param room the Room object to convert
    * @return a Map containing the column names and values for Excel export
+   * @author mian
    */
   @Override
   protected Map<String, Object> convertModelToRow(Room room) {
@@ -113,6 +121,7 @@ public class RoomService extends AbstractExcelService<Room> {
    * Saves a Room object to the database.
    *
    * @param room the Room object to save
+   * @author mian
    */
   public void saveRoom(Room room) {
     String sql = "INSERT INTO rooms ("
@@ -142,12 +151,14 @@ public class RoomService extends AbstractExcelService<Room> {
 
   /**
    * Deletes all rooms from the database.
+   *
+   * @author mian
    */
   public void clearRooms() {
     String delete = "DELETE FROM rooms";
 
     try (Connection conn = DatabaseConfig.getConnection();
-      Statement stmt = conn.createStatement()) {
+        Statement stmt = conn.createStatement()) {
       conn.setAutoCommit(false);
       stmt.executeUpdate(delete);
       conn.commit();
@@ -161,6 +172,7 @@ public class RoomService extends AbstractExcelService<Room> {
    * Loads all rooms from the database.
    *
    * @return a list of Room objects
+   * @author mian
    */
   public List<Room> loadRooms() {
     String sql = "SELECT * FROM rooms";

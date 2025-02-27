@@ -20,12 +20,15 @@ import java.io.File;
  * </ul>
  *
  * @param <T> the type of model this service handles
+ * @author mian
  */
 
 public abstract class AbstractExcelService<T> {
 
   /**
    * The Excel service used for low-level file operations.
+   *
+   * @author mian
    */
   protected final ExcelService excelService;
 
@@ -33,6 +36,7 @@ public abstract class AbstractExcelService<T> {
    * Constructs a new AbstractExcelService with the specified Excel service.
    *
    * @param excelService the Excel service to use for file operations
+   * @author mian
    */
   public AbstractExcelService(ExcelService excelService) {
     this.excelService = excelService;
@@ -45,6 +49,7 @@ public abstract class AbstractExcelService<T> {
    * @param row          the row data containing column names
    * @param columnPrefix the prefix to match against column names
    * @return the matched column name, or an empty string if no match is found
+   * @author mian
    */
   protected String findColumn(Map<String, String> row, String columnPrefix) {
     return row.keySet().stream()
@@ -60,6 +65,7 @@ public abstract class AbstractExcelService<T> {
    * @return the list of imported objects
    * @throws IOException              if an I/O error occurs
    * @throws IllegalArgumentException if the data is invalid or required fields are missing
+   * @author mian
    */
   public List<T> loadFromExcel(File excelFile) throws IOException, IllegalArgumentException {
     List<Map<String, String>> rows = excelService.readExcelFile(excelFile.getPath());
@@ -107,6 +113,7 @@ public abstract class AbstractExcelService<T> {
    *
    * @param columnMappings the column mappings to validate
    * @throws IllegalArgumentException if required columns are missing
+   * @author mian
    */
   protected void validateRequiredColumns(Map<String, String> columnMappings)
       throws IllegalArgumentException {
@@ -129,6 +136,7 @@ public abstract class AbstractExcelService<T> {
    * Gets the list of required fields for this model.
    *
    * @return the list of required field names
+   * @author mian
    */
   protected abstract List<String> getRequiredFields();
 
@@ -138,6 +146,7 @@ public abstract class AbstractExcelService<T> {
    * @param models the list of model objects to save
    * @param path   the path where the Excel file should be saved
    * @throws IOException if there's an error writing the file
+   * @author mian
    */
   public void saveToExcel(List<T> models, String path) throws IOException {
     List<Map<String, Object>> data = new ArrayList<>();
@@ -152,6 +161,7 @@ public abstract class AbstractExcelService<T> {
    * subclasses to specify their column mappings.
    *
    * @return a Map where keys are property names and values are column prefixes
+   * @author mian
    */
   protected abstract Map<String, String> getColumnPrefixes();
 
@@ -162,6 +172,7 @@ public abstract class AbstractExcelService<T> {
    * @param row            the row data from Excel
    * @param columnMappings the mappings between property names and Excel columns
    * @return a new model object, or null if the row data is invalid
+   * @author mian
    */
   protected abstract T createModelFromRow(Map<String, String> row,
       Map<String, String> columnMappings);
@@ -172,6 +183,7 @@ public abstract class AbstractExcelService<T> {
    *
    * @param model the model object to convert
    * @return a Map containing the column names and values for Excel export
+   * @author mian
    */
   protected abstract Map<String, Object> convertModelToRow(T model);
 

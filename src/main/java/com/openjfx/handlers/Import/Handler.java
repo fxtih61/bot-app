@@ -10,6 +10,7 @@ import java.util.List;
  * Interface for handling import operations for different types of data.
  *
  * @param <T> the type of data to be imported
+ * @author mian
  */
 public interface Handler<T> {
 
@@ -18,6 +19,7 @@ public interface Handler<T> {
    *
    * @return a list of pairs where each pair contains the column name and the corresponding property
    * name
+   * @author mian
    */
   List<Pair<String, String>> getColumns();
 
@@ -25,6 +27,7 @@ public interface Handler<T> {
    * Loads the data to be displayed in the table.
    *
    * @return a list of data items
+   * @author mian
    */
   List<T> loadData();
 
@@ -33,6 +36,7 @@ public interface Handler<T> {
    *
    * @param selectedFile the file to import data from
    * @throws IOException if an I/O error occurs during import
+   * @author mian
    */
   void importData(File selectedFile) throws IOException;
 
@@ -42,6 +46,7 @@ public interface Handler<T> {
    * @param item       the item to check
    * @param searchTerm the search term to match against
    * @return true if the item matches the search term, false otherwise
+   * @author mian
    */
   boolean matchesSearch(T item, String searchTerm);
 
@@ -49,11 +54,14 @@ public interface Handler<T> {
    * Gets the text to be displayed on the import button.
    *
    * @return the import button text
+   * @author mian
    */
   String getImportButtonText();
 
   /**
    * Clears the existing data.
+   *
+   * @author mian
    */
   void clearData();
 
@@ -61,6 +69,7 @@ public interface Handler<T> {
    * Gets the Excel service used for import operations.
    *
    * @return the Excel service
+   * @author mian
    */
   ExcelService getExcelService();
 }

@@ -6,6 +6,8 @@ import java.io.File;
 
 /**
  * Service for handling file selection using the system's native file chooser.
+ *
+ * @author mian
  */
 public class FileSelecterService {
 
@@ -13,6 +15,8 @@ public class FileSelecterService {
 
   /**
    * Constructs a new FileSelecterService with default settings.
+   *
+   * @author mian
    */
   public FileSelecterService() {
     fileChooser = new FileChooser();
@@ -21,6 +25,8 @@ public class FileSelecterService {
 
   /**
    * Configures the file chooser with default settings and Excel file filter.
+   *
+   * @author mian
    */
   private void configureFileChooser() {
     fileChooser.setTitle("Select Excel File");
@@ -42,6 +48,7 @@ public class FileSelecterService {
    *
    * @param stage the parent window for the file chooser
    * @return the selected File object, or null if no file was selected
+   * @author mian
    */
   public File selectFile(Stage stage) {
     return fileChooser.showOpenDialog(stage);
@@ -51,6 +58,7 @@ public class FileSelecterService {
    * Sets the initial directory for the file chooser.
    *
    * @param directory the directory to start in
+   * @author mian
    */
   public void setInitialDirectory(File directory) {
     if (directory != null && directory.exists()) {
@@ -62,6 +70,7 @@ public class FileSelecterService {
    * Sets the title of the file chooser dialog.
    *
    * @param title the title to display
+   * @author mian
    */
   public void setTitle(String title) {
     fileChooser.setTitle(title);
@@ -71,6 +80,7 @@ public class FileSelecterService {
    * Returns the FileChooser object used by this service.
    *
    * @return the FileChooser object
+   * @author mian
    */
   public FileChooser getFileChooser() {
     return fileChooser;

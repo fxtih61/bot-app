@@ -11,6 +11,8 @@ import java.util.List;
 
 /**
  * Handler for importing Choice data from an Excel file.
+ *
+ * @author mian
  */
 public class ChoiceHandler implements Handler<Choice> {
 
@@ -20,6 +22,7 @@ public class ChoiceHandler implements Handler<Choice> {
    * Constructs a ChoiceImportHandler with the specified ExcelService.
    *
    * @param excelService the Excel service to use for importing data
+   * @author mian
    */
   public ChoiceHandler(ExcelService excelService) {
     this.choiceService = new ChoiceService(excelService);
@@ -30,6 +33,7 @@ public class ChoiceHandler implements Handler<Choice> {
    *
    * @return a list of pairs where each pair contains the column name and the corresponding property
    * name
+   * @author mian
    */
   @Override
   public List<Pair<String, String>> getColumns() {
@@ -50,6 +54,7 @@ public class ChoiceHandler implements Handler<Choice> {
    * Loads the choice data to be displayed in the table.
    *
    * @return a list of choice data items
+   * @author mian
    */
   @Override
   public List<Choice> loadData() {
@@ -61,6 +66,7 @@ public class ChoiceHandler implements Handler<Choice> {
    *
    * @param selectedFile the file to import data from
    * @throws IOException if an I/O error occurs during import
+   * @author mian
    */
   @Override
   public void importData(File selectedFile) throws IOException {
@@ -86,6 +92,7 @@ public class ChoiceHandler implements Handler<Choice> {
    * @param choice     the choice to check
    * @param searchTerm the search term to match against
    * @return true if the choice matches the search term, false otherwise
+   * @author mian
    */
   @Override
   public boolean matchesSearch(Choice choice, String searchTerm) {
@@ -102,6 +109,7 @@ public class ChoiceHandler implements Handler<Choice> {
    * @param choice     the choice to check
    * @param searchTerm the search term to match against
    * @return true if any choice number matches the search term, false otherwise
+   * @author mian
    */
   private boolean matchesChoiceNumber(Choice choice, String searchTerm) {
     return choice.getChoice1().toLowerCase().contains(searchTerm) ||
@@ -116,6 +124,7 @@ public class ChoiceHandler implements Handler<Choice> {
    * Gets the text to be displayed on the import button.
    *
    * @return the import button text
+   * @author mian
    */
   @Override
   public String getImportButtonText() {
@@ -124,6 +133,8 @@ public class ChoiceHandler implements Handler<Choice> {
 
   /**
    * Clears the existing choice data.
+   *
+   * @author mian
    */
   @Override
   public void clearData() {
@@ -134,6 +145,7 @@ public class ChoiceHandler implements Handler<Choice> {
    * Gets the Excel service used for import operations.
    *
    * @return the Excel service
+   * @author mian
    */
   @Override
   public ExcelService getExcelService() {

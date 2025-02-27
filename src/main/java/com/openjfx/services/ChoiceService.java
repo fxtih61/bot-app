@@ -34,6 +34,8 @@ import java.util.Map;
  * ChoiceService choiceService = new ChoiceService(new ExcelService());
  * List<Choice> choices = choiceService.loadFromExcel("path/to/excel.xlsx");
  * </pre>
+ *
+ * @author mian
  */
 public class ChoiceService extends AbstractExcelService<Choice> {
 
@@ -41,6 +43,7 @@ public class ChoiceService extends AbstractExcelService<Choice> {
    * Constructs a new ChoiceService with the specified Excel service.
    *
    * @param excelService the Excel service to use for file operations
+   * @author mian
    */
   public ChoiceService(ExcelService excelService) {
     super(excelService);
@@ -50,6 +53,7 @@ public class ChoiceService extends AbstractExcelService<Choice> {
    * Returns a list of required fields for the Choice model.
    *
    * @return a list of required fields
+   * @author mian
    */
   @Override
   protected List<String> getRequiredFields() {
@@ -61,6 +65,7 @@ public class ChoiceService extends AbstractExcelService<Choice> {
    * prefixes are case-insensitive partial matches for Excel column headers.
    *
    * @return a Map containing the property-to-column prefix mappings
+   * @author mian
    */
   @Override
   protected Map<String, String> getColumnPrefixes() {
@@ -95,6 +100,7 @@ public class ChoiceService extends AbstractExcelService<Choice> {
    * @param row            the row data from Excel
    * @param columnMappings the mappings between internal names and actual Excel columns
    * @return a new Choice object, or null if the row data is invalid
+   * @author mian
    */
   @Override
   protected Choice createModelFromRow(Map<String, String> row, Map<String, String> columnMappings) {
@@ -104,7 +110,8 @@ public class ChoiceService extends AbstractExcelService<Choice> {
 
     // Throw an exception if any of the required fields are missing
     if (classRef == null || firstName == null || lastName == null) {
-      throw new IllegalArgumentException("Missing required fields: classRef, firstName, or lastName");
+      throw new IllegalArgumentException(
+          "Missing required fields: classRef, firstName, or lastName");
     }
 
     // Optional fields with null handling
@@ -138,6 +145,7 @@ public class ChoiceService extends AbstractExcelService<Choice> {
    *
    * @param choice the Choice object to convert
    * @return a Map containing the column names and values for Excel export
+   * @author mian
    */
   @Override
   protected Map<String, Object> convertModelToRow(Choice choice) {
@@ -158,6 +166,7 @@ public class ChoiceService extends AbstractExcelService<Choice> {
    * Saves a Choice object to the database.
    *
    * @param choice the Choice object to save
+   * @author mian
    */
   public void saveChoice(Choice choice) {
     // SQL query to insert a new choice into the choices table
@@ -212,6 +221,8 @@ public class ChoiceService extends AbstractExcelService<Choice> {
 
   /**
    * Deletes a Choice object from the database.
+   *
+   * @author mian
    */
 
   public void clearChoices() {
@@ -230,7 +241,9 @@ public class ChoiceService extends AbstractExcelService<Choice> {
 
   /**
    * Load the choices from the database
+   *
    * @return a list of choices
+   * @author mian
    */
 
   public List<Choice> loadChoices() {
