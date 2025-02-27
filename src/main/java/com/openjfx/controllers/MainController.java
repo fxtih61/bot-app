@@ -96,6 +96,7 @@ public class MainController {
      * Sets the active button and updates the UI accordingly.
      * 
      * @param activeButton
+     * @author mian
      */
     private void setActiveButton(Button activeButton) {
         // Remove active class from all buttons

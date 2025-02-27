@@ -13,14 +13,15 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 
-<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.openjfx.controllers.ExportController">
+<?import javafx.scene.chart.BubbleChart?>
+<StackPane stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.openjfx.controllers.ExportController">
   <children>
     <BorderPane>
       <bottom>
         <ToolBar fx:id="export_toolbar" nodeOrientation="RIGHT_TO_LEFT" prefHeight="40.0"
           prefWidth="200.0" BorderPane.alignment="CENTER">
           <items>
-            <Button fx:id="export_button" mnemonicParsing="false" text="%exportButton"/>
+            <Button fx:id="ExportButton" mnemonicParsing="false" text="%exportButton"/>
           </items>
           <BorderPane.margin>
             <Insets right="15.0"/>
@@ -32,9 +33,10 @@
           <ToolBar fx:id="export_toolbar_top">
             <items>
               <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                <Button fx:id="room_time_plan" text="%rommandtimeplanbutton"/>
-                <Button fx:id="presence_list" text="%presencebutton"/>
-                <Button fx:id="route_slip" text="%routebutton"/>
+                <Button fx:id="RoomTimePlanButton" text="%rommandtimeplanbutton"/>
+                <Button fx:id="PresenceListButton" text="%presencebutton"/>
+                <Button fx:id="RouteSlipButton" text="%routebutton"/>
+                <Button fx:id="AssignmentButton" text="Zuweisung"/>
               </HBox>
               <TextField fx:id="searchField" promptText="%searchfield"/>
             </items>

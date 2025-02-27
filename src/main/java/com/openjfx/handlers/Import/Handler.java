@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @param <T> the type of data to be imported
  */
-public interface ImportHandler<T> {
+public interface Handler<T> {
 
   /**
    * Gets the columns to be displayed in the table.

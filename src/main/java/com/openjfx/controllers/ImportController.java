@@ -1,9 +1,9 @@
 package com.openjfx.controllers;
 
-import com.openjfx.handlers.Import.ChoiceImportHandler;
-import com.openjfx.handlers.Import.EventImportHandler;
-import com.openjfx.handlers.Import.ImportHandler;
-import com.openjfx.handlers.Import.RoomImportHandler;
+import com.openjfx.handlers.Import.ChoiceHandler;
+import com.openjfx.handlers.Import.EventHandler;
+import com.openjfx.handlers.Import.Handler;
+import com.openjfx.handlers.Import.RoomHandler;
 import com.openjfx.services.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,6 +18,8 @@ import javafx.util.Pair;
 
 /**
  * Controller class for handling import operations in the application.
+ *
+ * @author mian
  */
 public class ImportController {
 
@@ -34,23 +36,27 @@ public class ImportController {
   @FXML
   private TextField searchField;
 
-  private ImportHandler<?> currentHandler;
-  private final EventImportHandler eventHandler;
-  private final ChoiceImportHandler choiceHandler;
-  private final RoomImportHandler roomHandler;
+  private Handler<?> currentHandler;
+  private final EventHandler eventHandler;
+  private final ChoiceHandler choiceHandler;
+  private final RoomHandler roomHandler;
 
   /**
    * Constructor initializes the import handlers with the Excel service.
+   *
+   * @author mian
    */
   public ImportController() {
     ExcelService excelService = new ExcelService();
-    this.eventHandler = new EventImportHandler(excelService);
-    this.choiceHandler = new ChoiceImportHandler(excelService);
-    this.roomHandler = new RoomImportHandler(excelService);
+    this.eventHandler = new EventHandler(excelService);
+    this.choiceHandler = new ChoiceHandler(excelService);
+    this.roomHandler = new RoomHandler(excelService);
   }
 
   /**
    * Initializes the controller, setting up the search field and buttons.
+   *
+   * @author mian
    */
   @FXML
   public void initialize() {
@@ -61,6 +67,8 @@ public class ImportController {
 
   /**
    * Sets up the search field to perform search on text change.
+   *
+   * @author mian
    */
   private void setupSearchField() {
     searchField.textProperty().addListener((obs, oldVal, newVal) ->
@@ -70,6 +78,8 @@ public class ImportController {
 
   /**
    * Sets up the buttons to switch handlers and handle import actions.
+   *
+   * @author mian
    */
   private void setupButtons() {
     eventsButton.setOnAction(e -> switchHandler(eventHandler, eventsButton));
@@ -83,8 +93,9 @@ public class ImportController {
    *
    * @param handler      the new import handler
    * @param activeButton the button associated with the new handler
+   * @author mian
    */
-  private void switchHandler(ImportHandler<?> handler, Button activeButton) {
+  private void switchHandler(Handler<?> handler, Button activeButton) {
     currentHandler = handler;
     setActiveButton(activeButton);
     refreshTable();
@@ -94,6 +105,7 @@ public class ImportController {
    * Sets the active button style.
    *
    * @param button the button to set as active
+   * @author mian
    */
   private void setActiveButton(Button button) {
     List.of(eventsButton, choicesButton, roomsButton).forEach(b ->
@@ -106,6 +118,7 @@ public class ImportController {
    * Performs search on the current handler's data based on the search term.
    *
    * @param term the search term
+   * @author mian
    */
   @SuppressWarnings("unchecked")
   private void performSearch(String term) {
@@ -114,7 +127,7 @@ public class ImportController {
       return;
     }
 
-    ImportHandler<Object> handler = (ImportHandler<Object>) currentHandler;
+    Handler<Object> handler = (Handler<Object>) currentHandler;
     List<?> filtered = handler.loadData().stream()
         .filter(item -> handler.matchesSearch(item, term))
         .collect(Collectors.toList());
@@ -124,6 +137,8 @@ public class ImportController {
 
   /**
    * Refreshes the table with the current handler's data.
+   *
+   * @author mian
    */
   private void refreshTable() {
     setupTable(currentHandler.getColumns(), currentHandler.loadData());
@@ -134,6 +149,7 @@ public class ImportController {
    *
    * @param columns the columns to set up
    * @param items   the items to display in the table
+   * @author mian
    */
   private void setupTable(List<Pair<String, String>> columns, List<?> items) {
     tableView.getColumns().clear();
@@ -161,6 +177,7 @@ public class ImportController {
    * messages for different failure scenarios.
    *
    * @param event the action event
+   * @author mian
    */
   private void handleImport(ActionEvent event) {
     File file = new FileSelecterService().selectFile((Stage) importButton.getScene().getWindow());
@@ -180,11 +197,11 @@ public class ImportController {
 
       // Customize error message based on current handler type
       String errorPrefix = "Invalid data format. ";
-      if (currentHandler instanceof EventImportHandler) {
+      if (currentHandler instanceof EventHandler) {
         errorPrefix = "Invalid event data. ";
-      } else if (currentHandler instanceof ChoiceImportHandler) {
+      } else if (currentHandler instanceof ChoiceHandler) {
         errorPrefix = "Invalid choice data. ";
-      } else if (currentHandler instanceof RoomImportHandler) {
+      } else if (currentHandler instanceof RoomHandler) {
         errorPrefix = "Invalid room data. ";
       }
 
@@ -200,6 +217,7 @@ public class ImportController {
    *
    * @param header  the header text
    * @param content the content text
+   * @author mian
    */
   private void showSuccess(String header, String content) {
     Alert alert = new Alert(Alert.AlertType.INFORMATION, content, ButtonType.OK);
@@ -212,6 +230,7 @@ public class ImportController {
    *
    * @param header  the header text
    * @param content the content text
+   * @author mian
    */
   private void showError(String header, String content) {
     Alert alert = new Alert(Alert.AlertType.ERROR, content, ButtonType.OK);

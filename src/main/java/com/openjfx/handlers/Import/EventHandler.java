@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Handler for importing Event data from an Excel file.
  */
-public class EventImportHandler implements ImportHandler<Event> {
+public class EventHandler implements Handler<Event> {
 
   private final EventService eventService;
 
@@ -21,7 +21,7 @@ public class EventImportHandler implements ImportHandler<Event> {
    *
    * @param excelService the Excel service to use for importing data
    */
-  public EventImportHandler(ExcelService excelService) {
+  public EventHandler(ExcelService excelService) {
     this.eventService = new EventService(excelService);
   }
 

@@ -3,32 +3,39 @@ package com.openjfx.controllers;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import java.awt.Desktop;
 import java.net.URI;
 import java.net.Socket;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.io.FileInputStream;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.Scene;
+import com.openjfx.App;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.openjfx.App;
-
 /**
- * Controller class for handling the settings view.
- * This class manages the H2 Console button and starts the H2 server when the
- * button is clicked.
+ * Controller class for handling the settings view. This class manages the H2 Console button and
+ * starts the H2 server when the button is clicked.
+ *
+ * @author mian
  */
 public class SettingController {
 
   @FXML
   private Button h2ConsoleButton;
 
+  private static final int H2_PORT = 8082;
+  private static final String H2_URL = "http://localhost:" + H2_PORT;
+  private static final AtomicBoolean isServerStarting = new AtomicBoolean(false);
   @FXML
   private ToggleButton themeToggle;
 
@@ -38,10 +45,6 @@ public class SettingController {
   private Scene scene;
   private boolean isDarkMode;
   private static final String SETTINGS_FILE = "settings.properties";
-
-  private static final int H2_PORT = 8082;
-  private static final String H2_URL = "http://localhost:" + H2_PORT;
-  private static final AtomicBoolean isServerStarting = new AtomicBoolean(false);
 
   /**
    * Initializes the controller class. This method is automatically called after
@@ -124,7 +127,7 @@ public class SettingController {
   /**
    * Toggles the application's theme between dark mode and light mode.
    * Applies the selected theme and saves the settings.
-   * 
+   *
    * @throws Exception if an error occurs while applying the theme or saving the
    *                   settings.
    * @author Fatih Tolip
@@ -146,7 +149,7 @@ public class SettingController {
    * based on the value of the isDarkMode flag.
    * It also updates the text of the theme toggle button to reflect the current
    * theme.
-   * 
+   *
    * @author Fatih Tolip
    */
   private void applyTheme() {
@@ -167,7 +170,7 @@ public class SettingController {
    *
    * @param isDarkMode a boolean indicating whether dark mode is enabled
    * @param language   the language setting to be saved
-   * 
+   *
    * @author Fatih Tolip
    */
   public void saveSettings(boolean isDarkMode, String language) {
@@ -205,9 +208,9 @@ public class SettingController {
    * "de" (German) if not specified.
    * The language setting is then applied to a combo box with values "Englisch"
    * for English and "Deutsch" for German.
-   * 
+   *
    * @throws IOException if an I/O error occurs when reading the properties file
-   * 
+   *
    * @author Fatih Tolip
    */
   public void loadSettings() {
@@ -233,11 +236,11 @@ public class SettingController {
   }
 
   /**
-   * Handles the action of opening the H2 Console.
-   * If the H2 server is already running, it opens the browser to the H2 Console
-   * URL.
-   * If the server is not running, it starts the server and then opens the
-   * browser.
+   * Handles the action of opening the H2 Console. If the H2 server is already running, it opens the
+   * browser to the H2 Console URL. If the server is not running, it starts the server and then
+   * opens the browser.
+   *
+   * @author mian
    */
   private void openH2Console() {
     if (isPortInUse(H2_PORT)) {
@@ -251,12 +254,11 @@ public class SettingController {
   }
 
   /**
-   * Starts the H2 server in a separate thread and waits for it to become
-   * available.
-   * If the server starts successfully, it opens the browser to the H2 Console
-   * URL.
-   * If the server fails to start within the timeout period, it shows an error
-   * alert.
+   * Starts the H2 server in a separate thread and waits for it to become available. If the server
+   * starts successfully, it opens the browser to the H2 Console URL. If the server fails to start
+   * within the timeout period, it shows an error alert.
+   *
+   * @author mian
    */
   private void startH2Server() {
     new Thread(() -> {
@@ -266,7 +268,8 @@ public class SettingController {
           try {
             H2Server.main(new String[0]);
           } catch (Exception e) {
-            Platform.runLater(() -> showAlert("Error", "H2 Server exception: " + e.getMessage()));
+            Platform.runLater(() ->
+                showAlert("Error", "H2 Server exception: " + e.getMessage()));
           }
         });
         serverThread.setDaemon(true); // Make thread daemon so it won't prevent JVM shutdown
@@ -292,7 +295,8 @@ public class SettingController {
           }
         });
       } catch (Exception e) {
-        Platform.runLater(() -> showAlert("Error", "Failed to start H2 Console: " + e.getMessage()));
+        Platform.runLater(() ->
+            showAlert("Error", "Failed to start H2 Console: " + e.getMessage()));
       } finally {
         isServerStarting.set(false);
       }
@@ -300,12 +304,9 @@ public class SettingController {
   }
 
   /**
-   * Opens the default browser to the H2 Console URL. If desktop operations are
-   * not supported, it
-   * shows an error alert. There is a known issue with the Desktop API on Linux,
-   * where it does not
-   * run the default browser as expected. In this case, it tries to open the
-   * browser using different
+   * Opens the default browser to the H2 Console URL. If desktop operations are not supported, it
+   * shows an error alert. There is a known issue with the Desktop API on Linux, where it does not
+   * run the default browser as expected. In this case, it tries to open the browser using different
    * options.
    */
   private void openBrowserToH2Console() {
@@ -316,12 +317,13 @@ public class SettingController {
       // Linux-specific handling
       if (os.contains("linux")) {
         // Try different browser options on Linux
-        String[] browsers = { "xdg-open", "google-chrome", "firefox", "mozilla", "konqueror", "netscape", "opera" };
+        String[] browsers = {"xdg-open", "google-chrome", "firefox", "mozilla", "konqueror",
+            "netscape", "opera"};
         boolean browserOpened = false;
 
         for (String browser : browsers) {
           try {
-            Runtime.getRuntime().exec(new String[] { browser, url });
+            Runtime.getRuntime().exec(new String[]{browser, url});
             browserOpened = true;
             break;
           } catch (Exception e) {
@@ -330,14 +332,16 @@ public class SettingController {
         }
 
         if (!browserOpened) {
-          showAlert("Information", "Could not open browser automatically.\nPlease manually navigate to: " + url);
+          showAlert("Information",
+              "Could not open browser automatically.\nPlease manually navigate to: " + url);
         }
       }
       // Windows and Mac handling
       else if (Desktop.isDesktopSupported()) {
         Desktop.getDesktop().browse(new URI(url));
       } else {
-        showAlert("Information", "Desktop operations not supported.\nPlease manually navigate to: " + url);
+        showAlert("Information",
+            "Desktop operations not supported.\nPlease manually navigate to: " + url);
       }
     } catch (Exception e) {
       showAlert("Error", "Cannot open browser: " + e.getMessage());

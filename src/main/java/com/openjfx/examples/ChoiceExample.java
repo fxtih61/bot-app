@@ -9,6 +9,8 @@ import java.util.List;
 /**
  * The `ChoiceExample` class demonstrates how to use the `ChoiceService` to load choices from an
  * Excel file.
+ *
+ * @author mian
  */
 public class ChoiceExample {
 
@@ -16,6 +18,7 @@ public class ChoiceExample {
    * The main method that runs the example.
    *
    * @param args the command line arguments
+   * @author mian
    */
   public static void main(String[] args) {
     ChoiceService choiceService = new ChoiceService(new ExcelService());
