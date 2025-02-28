@@ -5,6 +5,8 @@ import java.util.Objects;
 /**
  * The `Room` class represents a room with a name and capacity. It is used to model rooms in an
  * application. The `name` field is used as the primary key for identifying rooms.
+ *
+ * @author mian
  */
 public class Room {
 
@@ -16,6 +18,7 @@ public class Room {
    *
    * @param name     the name of the room
    * @param capacity the capacity of the room
+   * @author mian
    */
   public Room(String name, int capacity) {
     this.name = name;
@@ -26,6 +29,7 @@ public class Room {
    * Returns the name of the room.
    *
    * @return the name of the room
+   * @author mian
    */
   public String getName() {
     return name;
@@ -35,6 +39,7 @@ public class Room {
    * Sets the name of the room.
    *
    * @param name the new name of the room
+   * @author mian
    */
   public void setName(String name) {
     this.name = name;
@@ -44,6 +49,7 @@ public class Room {
    * Returns the capacity of the room.
    *
    * @return the capacity of the room
+   * @author mian
    */
   public int getCapacity() {
     return capacity;
@@ -53,6 +59,7 @@ public class Room {
    * Sets the capacity of the room.
    *
    * @param capacity the new capacity of the room
+   * @author mian
    */
   public void setCapacity(int capacity) {
     this.capacity = capacity;
@@ -64,6 +71,7 @@ public class Room {
    *
    * @param o the reference object with which to compare
    * @return `true` if this object is the same as the obj argument; `false` otherwise
+   * @author mian
    */
   @Override
   public boolean equals(Object o) {
@@ -82,6 +90,7 @@ public class Room {
    * code.
    *
    * @return a hash code value for this object
+   * @author mian
    */
   @Override
   public int hashCode() {
@@ -92,6 +101,7 @@ public class Room {
    * Returns a string representation of the object.
    *
    * @return a string representation of the object
+   * @author mian
    */
   @Override
   public String toString() {

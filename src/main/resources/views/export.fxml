@@ -14,7 +14,8 @@
 <?import javafx.scene.layout.HBox?>
 
 <?import javafx.scene.chart.BubbleChart?>
-<StackPane stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.openjfx.controllers.ExportController">
+<StackPane stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/23.0.1"
+  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.openjfx.controllers.ExportController">
   <children>
     <BorderPane>
       <bottom>
@@ -32,11 +33,11 @@
         <VBox spacing="10">
           <ToolBar fx:id="export_toolbar_top">
             <items>
-              <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                <Button fx:id="RoomTimePlanButton" text="Create Room Plan"/>
-                <Button fx:id="PresenceListButton" text="%presencebutton"/>
-                <Button fx:id="RouteSlipButton" text="%routebutton"/>
-                <Button fx:id="AssignmentButton" text="Zuweisung"/>
+              <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" spacing="5">
+                <Button fx:id="RoomTimePlanButton" text="%roomPlanButton" styleClass="export-button"/>
+                <Button fx:id="PresenceListButton" text="%presencebutton" styleClass="export-button"/>
+                <Button fx:id="RouteSlipButton" text="%routebutton" styleClass="export-button"/>
+                <Button fx:id="AssignmentButton" text="Zuweisung" styleClass="export-button"/>
               </HBox>
               <TextField fx:id="searchField" promptText="%searchfield"/>
             </items>
@@ -44,12 +45,14 @@
         </VBox>
       </top>
       <center>
-        <TableView fx:id="tableView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-          <columns>
-            <TableColumn prefWidth="75.0" text="C1"/>
-            <TableColumn prefWidth="75.0" text="C2"/>
-          </columns>
-        </TableView>
+        <StackPane fx:id="tableContainer" BorderPane.alignment="CENTER">
+          <TableView fx:id="tableView" prefHeight="200.0" prefWidth="200.0">
+            <columns>
+              <TableColumn prefWidth="75.0" text="C1"/>
+              <TableColumn prefWidth="75.0" text="C2"/>
+            </columns>
+          </TableView>
+        </StackPane>
       </center>
     </BorderPane>
   </children>

@@ -5,6 +5,7 @@ import com.openjfx.handlers.Import.Handler;
 import com.openjfx.services.ExcelService;
 import com.openjfx.services.TimetableService;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -12,6 +13,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
 import javafx.util.Pair;
 
 /**
@@ -39,6 +41,10 @@ public class ExportController {
 
   private Handler<?> currentHandler;
   private final RoomPlanHandler roomPlanHandler;
+  @FXML
+  private Button generateTimetableButton;
+  @FXML
+  private StackPane tableContainer;
 
   /**
    * Constructor initializes the export handlers with the Excel service.
@@ -60,6 +66,9 @@ public class ExportController {
   public void initialize() {
     setupSearchField();
     setupButtons();
+
+    // Set RoomTimePlanButton as default selection
+    RoomTimePlanButton.fire();
   }
 
   /**
@@ -75,12 +84,21 @@ public class ExportController {
 
   /**
    * Sets up the buttons to switch handlers and handle import actions.
+   *
    * @author mian
-  private void setupButtons() {
-  AssignmentButton.setOnAction(e -> switchHandler(AssignmentHandler, AssignmentButton));
-  }
    */
+  private void setupButtons() {
+    RoomTimePlanButton.setOnAction(e -> switchHandler(roomPlanHandler, RoomTimePlanButton));
 
+    // Create generate timetable button
+    generateTimetableButton = new Button("Generate Timetable");
+    generateTimetableButton.getStyleClass().add("generate-button");
+    generateTimetableButton.setOnAction(e -> {
+      roomPlanHandler.generateTimetable();
+      checkAndDisplayTimetableData();
+    });
+
+  }
 
   /**
    * Performs search on the current handler's data based on the search term.
@@ -91,16 +109,35 @@ public class ExportController {
   @SuppressWarnings("unchecked")
   private void performSearch(String term) {
     if (term.isEmpty()) {
-      refreshTable();
+      if (currentHandler instanceof RoomPlanHandler) {
+        checkAndDisplayTimetableData();
+      } else {
+        refreshTable();
+      }
       return;
     }
 
-    Handler<Object> handler = (Handler<Object>) currentHandler;
-    List<?> filtered = handler.loadData().stream()
-        .filter(item -> handler.matchesSearch(item, term))
-        .collect(Collectors.toList());
+    if (currentHandler instanceof RoomPlanHandler) {
+      // Special handling for RoomPlanHandler which uses Map data
+      List<Map<String, String>> allData = ((RoomPlanHandler) currentHandler).loadData();
+      List<Map<String, String>> filteredData = allData.stream()
+          .filter(item -> ((RoomPlanHandler) currentHandler).matchesSearch(item, term))
+          .collect(Collectors.toList());
 
-    setupTable(handler.getColumns(), filtered);
+      // Use the specialized setup method
+      TableView<Map<String, String>> mapTableView =
+          (TableView<Map<String, String>>) (TableView<?>) tableView;
+      mapTableView.getItems().clear();
+      mapTableView.getItems().addAll(filteredData);
+    } else {
+      // Normal handling for other handlers
+      Handler<Object> handler = (Handler<Object>) currentHandler;
+      List<?> filtered = handler.loadData().stream()
+          .filter(item -> handler.matchesSearch(item, term))
+          .collect(Collectors.toList());
+
+      setupTable(handler.getColumns(), filtered);
+    }
   }
 
   /**
@@ -164,11 +201,38 @@ public class ExportController {
   private void switchHandler(Handler<?> handler, Button activeButton) {
     currentHandler = handler;
     setActiveButton(activeButton);
-    refreshTable();
+
+    if (handler instanceof RoomPlanHandler) {
+      checkAndDisplayTimetableData();
+    } else {
+      // Use the generic setup for other handlers
+      refreshTable();
+    }
   }
 
-  private void setupButtons() {
-    RoomTimePlanButton.setOnAction(e -> switchHandler(roomPlanHandler, RoomTimePlanButton));
-    // ... other button setups
+  /**
+   * Checks if timetable data exists and either displays it or shows the generate button
+   * accordingly.
+   *
+   * @author mian
+   */
+  private void checkAndDisplayTimetableData() {
+    if (roomPlanHandler.hasTimetableData()) {
+      // Show table with data
+      tableView.setVisible(true);
+      if (tableContainer.getChildren().contains(generateTimetableButton)) {
+        tableContainer.getChildren().remove(generateTimetableButton);
+      }
+
+      // Use the specialized setup method for RoomPlanHandler
+      ((RoomPlanHandler) currentHandler).setupTableWithMapData(
+          (TableView<Map<String, String>>) (TableView<?>) tableView);
+    } else {
+      // Show generate button
+      tableView.setVisible(false);
+      if (!tableContainer.getChildren().contains(generateTimetableButton)) {
+        tableContainer.getChildren().add(generateTimetableButton);
+      }
+    }
   }
 }

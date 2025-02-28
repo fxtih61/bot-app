@@ -5,6 +5,7 @@ import com.openjfx.models.Event;
 import com.openjfx.models.EventRoomAssignment;
 import com.openjfx.models.Room;
 import com.openjfx.models.TimeSlot;
+import com.openjfx.models.TimetableRow;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -235,5 +236,29 @@ public class TimetableService {
       e.printStackTrace();
     }
     return assignments;
+  }
+
+  /**
+   * Converts EventRoomAssignment objects to TimetableRow objects for display.
+   *
+   * @return List of TimetableRow objects
+   * @author mian
+   */
+  public List<TimetableRow> getTimetableRowsForDisplay() {
+    List<EventRoomAssignment> assignments = loadTimeTableAssignments();
+    List<TimetableRow> rows = new ArrayList<>();
+
+    for (EventRoomAssignment assignment : assignments) {
+      rows.add(new TimetableRow(
+          assignment.getTimeSlot(),
+          assignment.getRoom().getName(),
+          assignment.getRoom().getCapacity(),
+          assignment.getEvent().getId(),
+          assignment.getEvent().getCompany(),
+          assignment.getEvent().getSubject()
+      ));
+    }
+
+    return rows;
   }
 }
