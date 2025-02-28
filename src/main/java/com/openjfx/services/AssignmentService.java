@@ -23,11 +23,13 @@ public class AssignmentService {
   private final TimetableService timetableService;
   private final WorkshopDemandService workshopDemandService;
 
-  /**
-   * Constructs a new AssignmentService with the required dependencies.
-   *
-   * @author mian
-   */
+  private List<Choice> choices;
+  private List<Event> events;
+  private List<Room> rooms;
+  private List<TimeSlot> timeSlots;
+  private Map<Integer, List<Choice>> studentAssignments;
+  private Map<Integer, Integer> workshopDemand;
+
   public AssignmentService(
       ChoiceService choiceService,
       EventService eventService,
@@ -46,29 +48,61 @@ public class AssignmentService {
   }
 
   /**
-   * Executes the assignment process using data from the database.
+   * Main orchestration method that executes the assignment process in order.
    *
    * @throws IOException if there is an error reading data
    * @author mian
    */
   public void runAssignment() throws IOException {
-    // Load all required data
-    List<Choice> choices = choiceService.loadChoices();
-    List<Event> events = eventService.loadEvents();
-    List<Room> rooms = roomService.loadRooms();
-    List<TimeSlot> timeSlots = timeSlotService.loadTimeSlots();
+    loadAllData();
+    assignStudents();
+    calculateWorkshopDemand();
+    createTimetable();
+  }
 
-    // Assign students to events based on their choices
-    Map<Integer, List<Choice>> assignments = studentAssignmentService.assignStudentsToEvents(
-        choices, events);
+  /**
+   * Loads all required data from various services.
+   *
+   * @throws IOException if there is an error reading data
+   * @author mian
+   */
+  private void loadAllData() throws IOException {
+    this.choices = choiceService.loadChoices();
+    this.events = eventService.loadEvents();
+    this.rooms = roomService.loadRooms();
+    this.timeSlots = timeSlotService.loadTimeSlots();
+  }
 
-    // Calculate workshop demand based on student choices
-    Map<Integer, Integer> workshopsNeeded = workshopDemandService.calculateWorkshopsNeeded(events,
-        choices);
+  /**
+   * Assigns students to events based on their choices.
+   * @author mian
+   */
+  private void assignStudents() {
+    this.studentAssignments = studentAssignmentService.assignStudentsToEvents(choices, events);
+  }
 
-    // Create and save timetable
-    timetableService.createAndSaveTimetable(events, rooms, timeSlots, workshopsNeeded);
+  /**
+   * Calculates workshop demand based on student choices.
+   * @author mian
+   */
+  private void calculateWorkshopDemand() {
+    this.workshopDemand = workshopDemandService.calculateWorkshopsNeeded(events, choices);
+  }
 
-    // TODO: Generate outputs (Schedule, Attendance list, etc.)
+  /**
+   * Creates and saves the timetable based on calculated data.
+   * @author mian
+   */
+  private void createTimetable() {
+    timetableService.createAndSaveTimetable(events, rooms, timeSlots, workshopDemand);
+  }
+
+  // Getter methods for the processed data
+  public Map<Integer, List<Choice>> getStudentAssignments() {
+    return studentAssignments;
+  }
+
+  public Map<Integer, Integer> getWorkshopDemand() {
+    return workshopDemand;
   }
 }

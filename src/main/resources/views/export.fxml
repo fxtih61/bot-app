@@ -33,7 +33,7 @@
           <ToolBar fx:id="export_toolbar_top">
             <items>
               <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                <Button fx:id="RoomTimePlanButton" text="%rommandtimeplanbutton"/>
+                <Button fx:id="RoomTimePlanButton" text="Create Room Plan"/>
                 <Button fx:id="PresenceListButton" text="%presencebutton"/>
                 <Button fx:id="RouteSlipButton" text="%routebutton"/>
                 <Button fx:id="AssignmentButton" text="Zuweisung"/>

@@ -1,8 +1,9 @@
 package com.openjfx.controllers;
 
+import com.openjfx.handlers.Export.RoomPlanHandler;
 import com.openjfx.handlers.Import.Handler;
-import com.openjfx.handlers.Export.RoomTimeHandler;
 import com.openjfx.services.ExcelService;
+import com.openjfx.services.TimetableService;
 import java.util.List;
 import java.util.stream.Collectors;
 import javafx.fxml.FXML;
@@ -37,6 +38,7 @@ public class ExportController {
   private TextField searchField;
 
   private Handler<?> currentHandler;
+  private final RoomPlanHandler roomPlanHandler;
 
   /**
    * Constructor initializes the export handlers with the Excel service.
@@ -44,8 +46,9 @@ public class ExportController {
    * @author mian
    */
   public ExportController() {
+    TimetableService timetableService = new TimetableService();
     ExcelService excelService = new ExcelService();
-
+    roomPlanHandler = new RoomPlanHandler(timetableService, excelService);
   }
 
   /**
@@ -56,8 +59,7 @@ public class ExportController {
   @FXML
   public void initialize() {
     setupSearchField();
-    // setupButtons();
-    // switchHandler(eventHandler, eventsButton);
+    setupButtons();
   }
 
   /**
@@ -163,5 +165,10 @@ public class ExportController {
     currentHandler = handler;
     setActiveButton(activeButton);
     refreshTable();
+  }
+
+  private void setupButtons() {
+    RoomTimePlanButton.setOnAction(e -> switchHandler(roomPlanHandler, RoomTimePlanButton));
+    // ... other button setups
   }
 }

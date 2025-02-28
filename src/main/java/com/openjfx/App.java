@@ -46,6 +46,7 @@ public class App extends Application {
 
   /**
    * Initializes the database configuration.
+   * @author mian
    */
   @Override
   public void init() {
@@ -57,6 +58,7 @@ public class App extends Application {
    *
    * @param stage the primary stage
    * @throws Exception if the welcome scene cannot be loaded
+   * @author mian|Fatih Tolip
    */
   @Override
   public void start(Stage stage) throws Exception {
@@ -108,11 +110,13 @@ public class App extends Application {
    * Main method to launch the application.
    *
    * @param args the command line arguments
+   * @author mian
    */
   public static void main(String[] args) throws IOException {
-    //launch();
+    launch();
     //run assignment temporary
 
+    /*
     ExcelService excelService = new ExcelService();
     ChoiceService choiceService = new ChoiceService(excelService);
     EventService eventService = new EventService(excelService);
@@ -127,6 +131,8 @@ public class App extends Application {
       System.err.println("Error during assignment process: " + e.getMessage());
       e.printStackTrace();
     }
+
+     */
   }
 
   private static @NotNull AssignmentService getAssignmentService(ExcelService excelService,
@@ -152,6 +158,7 @@ public class App extends Application {
 
   /**
    * Closes the database connection when the application stops.
+   * @author mian
    */
   @Override
   public void stop() {

@@ -2,10 +2,12 @@ package com.openjfx.services;
 
 import com.openjfx.config.DatabaseConfig;
 import com.openjfx.models.Event;
+import com.openjfx.models.EventRoomAssignment;
 import com.openjfx.models.Room;
 import com.openjfx.models.TimeSlot;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -192,26 +194,46 @@ public class TimetableService {
   }
 
   /**
-   * Class representing an event-room assignment in a time slot.
+   * Loads timetable assignments from the database.
    *
+   * @return List of event-room assignments
    * @author mian
    */
-  public static class EventRoomAssignment {
+  public List<EventRoomAssignment> loadTimeTableAssignments() {
+    List<EventRoomAssignment> assignments = new ArrayList<>();
+    String sql = "SELECT t.event_id, t.room_id, t.time_slot, " +
+        "e.company, e.subject, e.max_participants, e.min_participants, e.earliest_start, " +
+        "r.capacity " +
+        "FROM timetable_assignments t " +
+        "JOIN events e ON t.event_id = e.id " +
+        "JOIN rooms r ON t.room_id = r.name " +
+        "ORDER BY t.time_slot, t.room_id";
 
-    private final Event event;
-    private final Room room;
+    try (Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        ResultSet rs = pstmt.executeQuery()) {
 
-    public EventRoomAssignment(Event event, Room room) {
-      this.event = event;
-      this.room = room;
+      while (rs.next()) {
+        Event event = new Event(
+            rs.getInt("event_id"),
+            rs.getString("company"),
+            rs.getString("subject"),
+            rs.getInt("max_participants"),
+            rs.getInt("min_participants"),
+            rs.getString("earliest_start")
+        );
+        Room room = new Room(
+            rs.getString("room_id"),
+            rs.getInt("capacity")
+        );
+        EventRoomAssignment assignment = new EventRoomAssignment(event, room);
+        assignment.setTimeSlot(rs.getString("time_slot"));
+        assignments.add(assignment);
+      }
+    } catch (SQLException e) {
+      System.err.println("Error loading timetable assignments: " + e.getMessage());
+      e.printStackTrace();
     }
-
-    public Event getEvent() {
-      return event;
-    }
-
-    public Room getRoom() {
-      return room;
-    }
+    return assignments;
   }
 }
