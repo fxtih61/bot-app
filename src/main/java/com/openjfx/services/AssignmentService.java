@@ -97,11 +97,20 @@ public class AssignmentService {
     timetableService.createAndSaveTimetable(events, rooms, timeSlots, workshopDemand);
   }
 
-  // Getter methods for the processed data
+  /**
+   * Returns the student assignments.
+   * @return a map of student IDs to their assigned choices
+   * @author mian
+   */
   public Map<Integer, List<Choice>> getStudentAssignments() {
     return studentAssignments;
   }
 
+  /**
+   * Returns the workshop demand.
+   * @return a map of event IDs to the number of students assigned to each event
+   * @author mian
+   */
   public Map<Integer, Integer> getWorkshopDemand() {
     return workshopDemand;
   }
