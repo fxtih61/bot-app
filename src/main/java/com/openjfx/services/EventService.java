@@ -33,6 +33,8 @@ import java.util.Map;
  * EventService eventService = new EventService(new ExcelService());
  * List<Event> events = eventService.loadFromExcel("path/to/excel.xlsx");
  * </pre>
+ *
+ * @author mian
  */
 
 public class EventService extends AbstractExcelService<Event> {
@@ -46,14 +48,17 @@ public class EventService extends AbstractExcelService<Event> {
    * Constructs a new EventService with the specified Excel service.
    *
    * @param excelService the Excel service to use for file operations
+   * @author mian
    */
   public EventService(ExcelService excelService) {
     super(excelService);
   }
+
   /**
    * Defines the required fields for an Event object.
    *
    * @return a List of required field names
+   * @author mian
    */
   @Override
   protected List<String> getRequiredFields() {
@@ -65,6 +70,7 @@ public class EventService extends AbstractExcelService<Event> {
    * prefixes are case-insensitive partial matches for Excel column headers.
    *
    * @return a Map containing the property-to-column prefix mappings
+   * @author mian
    */
   @Override
   protected Map<String, String> getColumnPrefixes() {
@@ -99,6 +105,7 @@ public class EventService extends AbstractExcelService<Event> {
    * @param row            the row data from Excel
    * @param columnMappings the mappings between internal names and actual Excel columns
    * @return a new Event object, or null if the ID is missing or invalid
+   * @author mian
    */
   @Override
   protected Event createModelFromRow(Map<String, String> row, Map<String, String> columnMappings) {
@@ -140,6 +147,7 @@ public class EventService extends AbstractExcelService<Event> {
    * @param field          the field name
    * @param defaultValue   default value to use if missing
    * @return the string value or default
+   * @author mian
    */
   private String getOptionalStringValue(Map<String, String> row, Map<String, String> columnMappings,
       String field, String defaultValue) {
@@ -155,6 +163,7 @@ public class EventService extends AbstractExcelService<Event> {
    * @param field          the field name
    * @param defaultValue   default value to use if missing
    * @return the integer value or default
+   * @author mian
    */
   private int getOptionalIntValue(Map<String, String> row, Map<String, String> columnMappings,
       String field, int defaultValue) {
@@ -176,6 +185,7 @@ public class EventService extends AbstractExcelService<Event> {
    *
    * @param event the Event object to convert
    * @return a Map containing the column names and values for Excel export
+   * @author mian
    */
   @Override
   protected Map<String, Object> convertModelToRow(Event event) {
@@ -193,6 +203,7 @@ public class EventService extends AbstractExcelService<Event> {
    * Saves an Event object to the database.
    *
    * @param event the Event object to save
+   * @author mian
    */
   public void saveEvent(Event event) {
     // SQL query to insert a new event into the events table
@@ -241,12 +252,14 @@ public class EventService extends AbstractExcelService<Event> {
 
   /**
    * Deletes an Event object from the database.
+   *
+   * @author mian
    */
   public void clearEvents() {
     String delete = "DELETE FROM events";
 
     try (Connection conn = DatabaseConfig.getConnection();
-      Statement stmt = conn.createStatement()) {
+        Statement stmt = conn.createStatement()) {
       conn.setAutoCommit(false);
       stmt.executeUpdate(delete);
       conn.commit();
@@ -260,6 +273,7 @@ public class EventService extends AbstractExcelService<Event> {
    * Loads the events from the database
    *
    * @return a list of events
+   * @author mian
    */
   public List<Event> loadEvents() {
     // SQL query to select all events from the events table

@@ -7,6 +7,8 @@ import java.util.*;
 /**
  * The `ExcelExample` class demonstrates how to use the `ExcelService` to create and read an Excel
  * file.
+ *
+ * @author mian
  */
 public class ExcelExample {
 
@@ -14,6 +16,7 @@ public class ExcelExample {
    * The main method that runs the example.
    *
    * @param args the command line arguments
+   * @author mian
    */
   public static void main(String[] args) {
     ExcelService excelService = new ExcelService();

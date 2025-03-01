@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Configuration class for database connection and schema initialization. Uses H2 database with
  * HikariCP connection pooling.
+ * @author mian
  */
 public class DatabaseConfig {
 
@@ -38,6 +39,7 @@ public class DatabaseConfig {
 
   /**
    * Static initializer block that calls initializeDatabase() when the class is loaded
+   * @author mian
    */
   static {
     initializeDatabase();
@@ -48,6 +50,7 @@ public class DatabaseConfig {
    * connection pooling and creates tables for events, rooms, choices, and assignments.
    *
    * @throws RuntimeException if database initialization fails
+   * @author mian
    */
   public static void initializeDatabase() {
     // Create data directory if it doesn't exist
@@ -76,6 +79,9 @@ public class DatabaseConfig {
     // Initialize schema
     try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
       createTables(stmt);
+
+      // Initialize time slots
+      TimeSlotInitializer.getInstance().initialize();
     } catch (SQLException e) {
       throw new RuntimeException("Failed to initialize database", e);
     }
@@ -86,8 +92,8 @@ public class DatabaseConfig {
    *
    * @param stmt
    * @throws SQLException
+   * @author mian
    */
-
   private static void createTables(Statement stmt) throws SQLException {
     // Events table based on Event model
     stmt.execute(
@@ -122,16 +128,32 @@ public class DatabaseConfig {
             "choice6 VARCHAR(50)" +
             ")");
 
+    // Save the time slots in the database
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS timeslots (" +
+            "id INTEGER PRIMARY KEY AUTO_INCREMENT," +
+            "start_time VARCHAR(50) NOT NULL," +
+            "end_time VARCHAR(50) NOT NULL," +
+            "slot VARCHAR(50) NOT NULL" +
+            ")");
+
+
     // Assignments table for tracking student-event assignments
     stmt.execute(
         "CREATE TABLE IF NOT EXISTS assignments (" +
             "event_id INTEGER NOT NULL," +
-            "student_id INTEGER NOT NULL," +
-            "choice_priority INTEGER NOT NULL," +
-            "assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-            "PRIMARY KEY (event_id, student_id)," +
+            "choice_id INTEGER NOT NULL" +
+            ")");
+
+    // Timetable assignments table for tracking event-room-time slot assignments
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS timetable_assignments (" +
+            "id INTEGER PRIMARY KEY AUTO_INCREMENT," +
+            "event_id INTEGER NOT NULL," +
+            "room_id VARCHAR(255) NOT NULL," +
+            "time_slot VARCHAR(50) NOT NULL," +
             "FOREIGN KEY (event_id) REFERENCES events(id)," +
-            "FOREIGN KEY (student_id) REFERENCES choices(id)" +
+            "FOREIGN KEY (room_id) REFERENCES rooms(name)" +
             ")");
   }
 
@@ -164,6 +186,7 @@ public class DatabaseConfig {
    *   - cacheResultSetMetadata: Cache ResultSet metadata
    *   - elideSetAutoCommits: Optimize autocommit calls
    *   - maintainTimeStats: Disable time statistics tracking
+   *   @author mian
    */
   private static @NotNull HikariConfig getHikariConfig() {
     HikariConfig config = new HikariConfig();
@@ -192,6 +215,7 @@ public class DatabaseConfig {
    *
    * @return Connection object from the pool
    * @throws SQLException if a database access error occurs
+   * @author mian
    */
   public static Connection getConnection() throws SQLException {
     return dataSource.getConnection();
@@ -200,6 +224,7 @@ public class DatabaseConfig {
   /**
    * Closes the datasource and releases all resources. Should be called when shutting down the
    * application.
+   * @author mian
    */
   public static void closeDataSource() {
     if (dataSource != null) {

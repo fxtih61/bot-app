@@ -11,8 +11,10 @@ import java.util.List;
 
 /**
  * Handler for importing Event data from an Excel file.
+ *
+ * @author mian
  */
-public class EventImportHandler implements ImportHandler<Event> {
+public class EventHandler implements Handler<Event> {
 
   private final EventService eventService;
 
@@ -20,8 +22,9 @@ public class EventImportHandler implements ImportHandler<Event> {
    * Constructs an EventImportHandler with the specified ExcelService.
    *
    * @param excelService the Excel service to use for importing data
+   * @author mian
    */
-  public EventImportHandler(ExcelService excelService) {
+  public EventHandler(ExcelService excelService) {
     this.eventService = new EventService(excelService);
   }
 
@@ -30,6 +33,7 @@ public class EventImportHandler implements ImportHandler<Event> {
    *
    * @return a list of pairs where each pair contains the column name and the corresponding property
    * name
+   * @author mian
    */
   @Override
   public List<Pair<String, String>> getColumns() {
@@ -47,6 +51,7 @@ public class EventImportHandler implements ImportHandler<Event> {
    * Loads the event data to be displayed in the table.
    *
    * @return a list of event data items
+   * @author mian
    */
   @Override
   public List<Event> loadData() {
@@ -58,6 +63,7 @@ public class EventImportHandler implements ImportHandler<Event> {
    *
    * @param selectedFile the file to import data from
    * @throws IOException if an I/O error occurs during import
+   * @author mian
    */
   @Override
   public void importData(File selectedFile) throws IOException {
@@ -85,6 +91,7 @@ public class EventImportHandler implements ImportHandler<Event> {
    * @param event      the event to check
    * @param searchTerm the search term to match against
    * @return true if the event matches the search term, false otherwise
+   * @author mian
    */
   @Override
   public boolean matchesSearch(Event event, String searchTerm) {
@@ -98,6 +105,7 @@ public class EventImportHandler implements ImportHandler<Event> {
    * Gets the text to be displayed on the import button.
    *
    * @return the import button text
+   * @author mian
    */
   @Override
   public String getImportButtonText() {
@@ -106,6 +114,8 @@ public class EventImportHandler implements ImportHandler<Event> {
 
   /**
    * Clears the existing event data.
+   *
+   * @author mian
    */
   @Override
   public void clearData() {
@@ -116,6 +126,7 @@ public class EventImportHandler implements ImportHandler<Event> {
    * Gets the Excel service used for import operations.
    *
    * @return the Excel service
+   * @author mian
    */
   @Override
   public ExcelService getExcelService() {

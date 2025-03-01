@@ -1,6 +1,7 @@
 package com.openjfx.config;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
@@ -25,6 +26,9 @@ public class DatabaseConfigTest {
       assertTrue(stmt.execute("SELECT 1 FROM rooms"));
       assertTrue(stmt.execute("SELECT 1 FROM choices"));
       assertTrue(stmt.execute("SELECT 1 FROM assignments"));
+      assertTrue(stmt.execute("SELECT 1 FROM timeslots"));
+      assertTrue(stmt.execute("SELECT 1 FROM timetable_assignments"));
+
     }
   }
 

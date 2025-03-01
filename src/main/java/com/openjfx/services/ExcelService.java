@@ -9,15 +9,18 @@ import java.util.*;
 /**
  * The `ExcelService` class provides methods to create and read Excel files. It uses Apache POI
  * library to handle Excel file operations.
+ *
+ * @author mian
  */
 public class ExcelService {
 
   /**
    * Creates an Excel file with the given data and saves it to the specified file path.
    *
-   * @param data the data to be written to the Excel file
+   * @param data     the data to be written to the Excel file
    * @param filePath the path where the Excel file will be saved
    * @throws IOException if an I/O error occurs
+   * @author mian
    */
   public void createExcelFile(List<Map<String, Object>> data, String filePath) throws IOException {
     try (Workbook workbook = new XSSFWorkbook()) {
@@ -61,6 +64,7 @@ public class ExcelService {
    * @param filePath the path to the Excel file
    * @return a list of maps representing the data in the Excel file
    * @throws IOException if an I/O error occurs
+   * @author mian
    */
   public List<Map<String, String>> readExcelFile(String filePath) throws IOException {
     List<Map<String, String>> result = new ArrayList<>();
@@ -98,7 +102,8 @@ public class ExcelService {
     return result;
   }
 
-  public void createExcelFileCustom(List<Map<String, Object>> data, String filePath) throws IOException {
+  public void createExcelFileCustom(List<Map<String, Object>> data, String filePath)
+      throws IOException {
     try (Workbook workbook = new XSSFWorkbook()) {
       Sheet sheet = workbook.createSheet("Data");
 
