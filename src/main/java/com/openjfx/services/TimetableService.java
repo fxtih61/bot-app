@@ -35,9 +35,26 @@ public class TimetableService {
    * @return a map of time slots to the list of event-room assignments
    * @author mian
    */
+  /**
+   * Creates and saves a timetable for events based on room availability and time slots.
+   *
+   * @param events          list of events
+   * @param rooms           list of rooms
+   * @param timeSlots       list of time slots
+   * @param workshopsNeeded map of event IDs to the number of workshops needed (can be null)
+   * @return a map of time slots to the list of event-room assignments
+   * @author mian
+   */
   public Map<String, List<EventRoomAssignment>> createAndSaveTimetable(
       List<Event> events, List<Room> rooms, List<TimeSlot> timeSlots,
       Map<Integer, Integer> workshopsNeeded) {
+
+    // If no workshop demand data is provided, load it from the database
+    if (workshopsNeeded == null || workshopsNeeded.isEmpty()) {
+      WorkshopDemandService demandService = new WorkshopDemandService();
+      workshopsNeeded = demandService.loadDemandFromDatabase();
+      System.out.println("Loaded workshop demand data from database");
+    }
 
     Map<String, List<EventRoomAssignment>> timeSlotAssignments = createTimetable(events, rooms,
         timeSlots, workshopsNeeded);
@@ -102,6 +119,7 @@ public class TimetableService {
       for (Event event : events) {
         int eventId = event.getId();
         Room assignedRoom = companyRooms.get(eventId);
+
 
         if (assignedRoom != null
             && remainingWorkshops.getOrDefault(eventId, 0) > 0
