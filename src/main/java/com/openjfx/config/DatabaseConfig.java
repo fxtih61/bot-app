@@ -137,23 +137,31 @@ public class DatabaseConfig {
             "slot VARCHAR(50) NOT NULL" +
             ")");
 
-
-    // Assignments table for tracking student-event assignments
-    stmt.execute(
-        "CREATE TABLE IF NOT EXISTS assignments (" +
-            "event_id INTEGER NOT NULL," +
-            "choice_id INTEGER NOT NULL" +
-            ")");
-
     // Timetable assignments table for tracking event-room-time slot assignments
     stmt.execute(
         "CREATE TABLE IF NOT EXISTS timetable_assignments (" +
             "id INTEGER PRIMARY KEY AUTO_INCREMENT," +
             "event_id INTEGER NOT NULL," +
             "room_id VARCHAR(255) NOT NULL," +
-            "time_slot VARCHAR(50) NOT NULL," +
-            "FOREIGN KEY (event_id) REFERENCES events(id)," +
-            "FOREIGN KEY (room_id) REFERENCES rooms(name)" +
+            "time_slot VARCHAR(50) NOT NULL" +
+            ")");
+
+    // Student assignments table for tracking student-event assignments
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS student_assignments (" +
+            "id INTEGER PRIMARY KEY AUTO_INCREMENT," +
+            "event_id INTEGER NOT NULL," +
+            "first_name VARCHAR(255) NOT NULL," +
+            "last_name VARCHAR(255) NOT NULL," +
+            "class_ref VARCHAR(50) NOT NULL" +
+            ")");
+
+    // Workshop demand table for tracking workshop demand per event
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS workshop_demand (" +
+            "event_id INTEGER PRIMARY KEY," +
+            "demand INTEGER NOT NULL," +
+            "FOREIGN KEY (event_id) REFERENCES events(id)" +
             ")");
   }
 

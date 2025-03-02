@@ -74,19 +74,34 @@ public class AssignmentService {
   }
 
   /**
-   * Assigns students to events based on their choices.
+   * Assigns students to events based on their choices and saves the assignments to the database.
    * @author mian
    */
   private void assignStudents() {
     this.studentAssignments = studentAssignmentService.assignStudentsToEvents(choices, events);
+    // Save assignments to the database
+    boolean saved = studentAssignmentService.saveAssignmentsToDatabase(studentAssignments);
+    if (saved) {
+      System.out.println("Student assignments saved to database successfully.");
+    } else {
+      System.err.println("Failed to save student assignments to database.");
+    }
   }
 
   /**
-   * Calculates workshop demand based on student choices.
+   * Calculates workshop demand based on student choices and saves to database.
    * @author mian
    */
   private void calculateWorkshopDemand() {
     this.workshopDemand = workshopDemandService.calculateWorkshopsNeeded(events, choices);
+
+    // Save workshop demand to database
+    boolean saved = workshopDemandService.saveDemandToDatabase(workshopDemand);
+    if (saved) {
+      System.out.println("Workshop demand saved to database successfully.");
+    } else {
+      System.err.println("Failed to save workshop demand to database.");
+    }
   }
 
   /**
@@ -111,7 +126,8 @@ public class AssignmentService {
    * @return a map of event IDs to the number of students assigned to each event
    * @author mian
    */
-  public Map<Integer, Integer> getWorkshopDemand() {
-    return workshopDemand;
+  public Map<Integer, Integer> loadWorkshopDemand() {
+    this.workshopDemand = workshopDemandService.loadDemandFromDatabase();
+    return this.workshopDemand;
   }
 }

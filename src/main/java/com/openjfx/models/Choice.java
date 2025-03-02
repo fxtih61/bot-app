@@ -10,7 +10,6 @@ import java.util.Objects;
  */
 public class Choice {
 
-  private int id;
   private String classRef;
   private String firstName;
   private String lastName;
@@ -48,39 +47,6 @@ public class Choice {
     this.choice4 = choice4;
     this.choice5 = choice5;
     this.choice6 = choice6;
-  }
-
-  public Choice(int id, String classRef, String firstName, String lastName, String choice1,
-      String choice2,
-      String choice3, String choice4, String choice5, String choice6) {
-    this.id = id;
-    this.classRef = classRef;
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.choice1 = choice1;
-    this.choice2 = choice2;
-    this.choice3 = choice3;
-    this.choice4 = choice4;
-    this.choice5 = choice5;
-    this.choice6 = choice6;
-  }
-
-  /**
-   * Gets the id
-   *
-   * @author mian
-   */
-  public int getId() {
-    return id;
-  }
-
-  /**
-   * Sets the id.
-   *
-   * @author mian
-   */
-  public void setId(int id) {
-    this.id = id;
   }
 
   /**

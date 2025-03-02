@@ -5,6 +5,12 @@ import com.openjfx.models.Event;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import com.openjfx.config.DatabaseConfig;
 
 /**
  * Service responsible for calculating workshop demand based on student choices.
@@ -93,5 +99,66 @@ public class WorkshopDemandService {
   public int countChoicesForEvent(List<Choice> choices, int eventId) {
     Map<Integer, Integer> counts = countAllChoices(choices);
     return counts.getOrDefault(eventId, 0);
+  }
+
+  /**
+   * Saves workshop demand data to the database.
+   *
+   * @param workshopDemand Map of event IDs to demand count
+   * @return true if saving was successful, false otherwise
+   * @author mian
+   */
+  public boolean saveDemandToDatabase(Map<Integer, Integer> workshopDemand) {
+    String sql = "MERGE INTO workshop_demand (event_id, demand) VALUES (?, ?)";
+
+    try (Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+      conn.setAutoCommit(false);
+
+      for (Map.Entry<Integer, Integer> entry : workshopDemand.entrySet()) {
+        stmt.setInt(1, entry.getKey());
+        stmt.setInt(2, entry.getValue());
+        stmt.addBatch();
+      }
+
+      stmt.executeBatch();
+      conn.commit();
+      System.out.println("Workshop demand saved to database successfully");
+      return true;
+    } catch (SQLException e) {
+      System.err.println("Error saving workshop demand: " + e.getMessage());
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  /**
+   * Loads workshop demand data from the database.
+   *
+   * @return Map of event IDs to demand count
+   * @author mian
+   */
+  public Map<Integer, Integer> loadDemandFromDatabase() {
+    String sql = "SELECT event_id, demand FROM workshop_demand";
+    Map<Integer, Integer> workshopDemand = new HashMap<>();
+
+    try (Connection conn = DatabaseConfig.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql)) {
+
+      while (rs.next()) {
+        int eventId = rs.getInt("event_id");
+        int demand = rs.getInt("demand");
+        workshopDemand.put(eventId, demand);
+      }
+
+      System.out.println("Loaded " + workshopDemand.size() + " workshop demand entries from database");
+    } catch (SQLException e) {
+      System.err.println("Error loading workshop demand: " + e.getMessage());
+      e.printStackTrace();
+    }
+
+    return workshopDemand;
   }
 }
