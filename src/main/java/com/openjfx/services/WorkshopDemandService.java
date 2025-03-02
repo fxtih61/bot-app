@@ -2,6 +2,8 @@ package com.openjfx.services;
 
 import com.openjfx.models.Choice;
 import com.openjfx.models.Event;
+import com.openjfx.models.WorkshopDemand;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,7 +155,8 @@ public class WorkshopDemandService {
         workshopDemand.put(eventId, demand);
       }
 
-      System.out.println("Loaded " + workshopDemand.size() + " workshop demand entries from database");
+      System.out.println(
+          "Loaded " + workshopDemand.size() + " workshop demand entries from database");
     } catch (SQLException e) {
       System.err.println("Error loading workshop demand: " + e.getMessage());
       e.printStackTrace();
@@ -161,4 +164,34 @@ public class WorkshopDemandService {
 
     return workshopDemand;
   }
+
+  /**
+   * Gets all workshop demand records from the database as WorkshopDemand objects.
+   *
+   * @return List of WorkshopDemand objects
+   * @author mian
+   */
+  public List<WorkshopDemand> getAllWorkshopDemands() {
+    String sql = "SELECT event_id, demand FROM workshop_demand";
+    List<WorkshopDemand> demands = new ArrayList<>();
+
+    try (Connection conn = DatabaseConfig.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql)) {
+
+      while (rs.next()) {
+        int eventId = rs.getInt("event_id");
+        int demand = rs.getInt("demand");
+        demands.add(new WorkshopDemand(eventId, demand));
+      }
+
+      System.out.println("Loaded " + demands.size() + " workshop demands as objects");
+    } catch (SQLException e) {
+      System.err.println("Error loading workshop demands: " + e.getMessage());
+      e.printStackTrace();
+    }
+
+    return demands;
+  }
+
 }

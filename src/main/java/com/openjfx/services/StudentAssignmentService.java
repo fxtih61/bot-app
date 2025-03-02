@@ -3,8 +3,10 @@ package com.openjfx.services;
 import com.openjfx.config.DatabaseConfig;
 import com.openjfx.models.Choice;
 import com.openjfx.models.Event;
+import com.openjfx.models.StudentAssignment;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -207,5 +209,38 @@ public class StudentAssignmentService {
       e.printStackTrace();
       return false;
     }
+  }
+
+  /**
+   * Retrieves all student assignments from the database.
+   *
+   * @return list of student assignments
+   * @author mian
+   */
+  public List<StudentAssignment> getAllAssignments() {
+    String sql = "SELECT event_id, first_name, last_name, class_ref FROM student_assignments";
+    List<StudentAssignment> assignments = new ArrayList<>();
+
+    try (Connection conn = DatabaseConfig.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql)) {
+
+      while (rs.next()) {
+        StudentAssignment assignment = new StudentAssignment(
+            rs.getInt("event_id"),
+            rs.getString("first_name"),
+            rs.getString("last_name"),
+            rs.getString("class_ref")
+        );
+        assignments.add(assignment);
+      }
+
+      System.out.println("Loaded " + assignments.size() + " student assignments from database");
+    } catch (SQLException e) {
+      System.err.println("Error loading student assignments: " + e.getMessage());
+      e.printStackTrace();
+    }
+
+    return assignments;
   }
 }
