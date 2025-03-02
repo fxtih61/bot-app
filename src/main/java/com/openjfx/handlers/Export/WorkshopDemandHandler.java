@@ -47,7 +47,7 @@ public class WorkshopDemandHandler implements Handler<WorkshopDemand> {
   @Override
   public List<Pair<String, String>> getColumns() {
     List<Pair<String, String>> columns = new ArrayList<>();
-    columns.add(new Pair<>("Event ID", "eventId"));
+    columns.add(new Pair<>("Company", "companyName"));
     columns.add(new Pair<>("Demand", "demand"));
     return columns;
   }

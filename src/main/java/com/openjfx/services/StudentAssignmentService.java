@@ -218,7 +218,9 @@ public class StudentAssignmentService {
    * @author mian
    */
   public List<StudentAssignment> getAllAssignments() {
-    String sql = "SELECT event_id, first_name, last_name, class_ref FROM student_assignments";
+    String sql = "SELECT sa.event_id, sa.first_name, sa.last_name, sa.class_ref, e.company " +
+        "FROM student_assignments sa " +
+        "JOIN events e ON sa.event_id = e.id";
     List<StudentAssignment> assignments = new ArrayList<>();
 
     try (Connection conn = DatabaseConfig.getConnection();
@@ -230,7 +232,8 @@ public class StudentAssignmentService {
             rs.getInt("event_id"),
             rs.getString("first_name"),
             rs.getString("last_name"),
-            rs.getString("class_ref")
+            rs.getString("class_ref"),
+            rs.getString("company")
         );
         assignments.add(assignment);
       }

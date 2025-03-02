@@ -10,8 +10,8 @@ import java.util.Objects;
  */
 public class StudentAssignment {
 
-  private int id;
   private int eventId;
+  private String companyName;
   private String firstName;
   private String lastName;
   private String classRef;
@@ -19,20 +19,20 @@ public class StudentAssignment {
   /**
    * Constructs a new StudentAssignment with the specified attributes.
    *
-   * @param id        the assignment ID
+   * @param eventId   the assignment ID
    * @param eventId   the event ID
    * @param firstName the student's first name
    * @param lastName  the student's last name
    * @param classRef  the class reference
    * @author mian
    */
-  public StudentAssignment(int id, int eventId, String firstName, String lastName,
-      String classRef) {
-    this.id = id;
+  public StudentAssignment(int eventId, String firstName, String lastName, String classRef,
+      String companyName) {
     this.eventId = eventId;
     this.firstName = firstName;
     this.lastName = lastName;
     this.classRef = classRef;
+    this.companyName = companyName;
   }
 
   /**
@@ -52,23 +52,23 @@ public class StudentAssignment {
   }
 
   /**
-   * Gets the assignment ID.
+   * Gets the company name.
    *
-   * @return the assignment ID
+   * @return the company name
    * @author mian
    */
-  public int getId() {
-    return id;
+  public String getCompanyName() {
+    return companyName;
   }
 
   /**
-   * Sets the assignment ID.
+   * Sets the company name.
    *
-   * @param id the assignment ID
+   * @param companyName the company name
    * @author mian
    */
-  public void setId(int id) {
-    this.id = id;
+  public void setCompanyName(String companyName) {
+    this.companyName = companyName;
   }
 
   /**
@@ -167,11 +167,12 @@ public class StudentAssignment {
       return false;
     }
     StudentAssignment that = (StudentAssignment) o;
-    return id == that.id &&
+    return
         eventId == that.eventId &&
-        Objects.equals(firstName, that.firstName) &&
-        Objects.equals(lastName, that.lastName) &&
-        Objects.equals(classRef, that.classRef);
+            Objects.equals(firstName, that.firstName) &&
+            Objects.equals(lastName, that.lastName) &&
+            Objects.equals(classRef, that.classRef)
+            && Objects.equals(companyName, that.companyName);
   }
 
   /**
@@ -182,7 +183,7 @@ public class StudentAssignment {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(id, eventId, firstName, lastName, classRef);
+    return Objects.hash(eventId, firstName, lastName, classRef, companyName);
   }
 
   /**
@@ -194,11 +195,11 @@ public class StudentAssignment {
   @Override
   public String toString() {
     return "StudentAssignment{" +
-        "id=" + id +
         ", eventId=" + eventId +
         ", firstName='" + firstName + '\'' +
         ", lastName='" + lastName + '\'' +
         ", classRef='" + classRef + '\'' +
+        ", companyName='" + companyName + '\'' +
         '}';
   }
 }

@@ -76,7 +76,7 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
   @Override
   public List<Pair<String, String>> getColumns() {
     List<Pair<String, String>> columns = new ArrayList<>();
-    columns.add(new Pair<>("Event ID", "eventId"));
+    columns.add(new Pair<>("Company", "companyName"));
     columns.add(new Pair<>("First Name", "firstName"));
     columns.add(new Pair<>("Last Name", "lastName"));
     columns.add(new Pair<>("Class", "classRef"));

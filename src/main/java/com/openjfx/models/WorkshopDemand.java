@@ -12,6 +12,7 @@ public class WorkshopDemand {
 
   private int eventId;
   private int demand;
+  private String companyName;
 
   /**
    * Constructs a new WorkshopDemand with the specified attributes.
@@ -20,9 +21,30 @@ public class WorkshopDemand {
    * @param demand  the number of students demanding this workshop
    * @author mian
    */
-  public WorkshopDemand(int eventId, int demand) {
+  public WorkshopDemand(int eventId, int demand, String companyName) {
     this.eventId = eventId;
     this.demand = demand;
+    this.companyName = companyName;
+  }
+
+  /**
+   * Gets the company name.
+   *
+   * @return the company name
+   * @author mian
+   */
+  public String getCompanyName() {
+    return companyName;
+  }
+
+  /**
+   * Sets the company name.
+   *
+   * @param companyName the company name
+   * @author mian
+   */
+  public void setCompanyName(String companyName) {
+    this.companyName = companyName;
   }
 
   /**
