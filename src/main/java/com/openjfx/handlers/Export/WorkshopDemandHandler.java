@@ -100,8 +100,10 @@ public class WorkshopDemandHandler implements Handler<WorkshopDemand> {
   @Override
   public boolean matchesSearch(WorkshopDemand item, String searchTerm) {
     String lowerTerm = searchTerm.toLowerCase();
-    return String.valueOf(item.getEventId()).contains(lowerTerm) ||
-        String.valueOf(item.getDemand()).contains(lowerTerm);
+    return
+        (item.getCompanyName() != null && item.getCompanyName().toLowerCase().contains(lowerTerm))
+            ||
+            String.valueOf(item.getDemand()).contains(lowerTerm);
   }
 
   /**

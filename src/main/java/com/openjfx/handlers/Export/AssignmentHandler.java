@@ -118,7 +118,8 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
   public boolean matchesSearch(StudentAssignment item, String searchTerm) {
     String lowerTerm = searchTerm.toLowerCase();
     return
-        String.valueOf(item.getEventId()).contains(lowerTerm) ||
+        (item.getCompanyName() != null && item.getCompanyName().toLowerCase().contains(lowerTerm))
+            ||
             item.getFirstName().toLowerCase().contains(lowerTerm) ||
             item.getLastName().toLowerCase().contains(lowerTerm) ||
             item.getClassRef().toLowerCase().contains(lowerTerm);
