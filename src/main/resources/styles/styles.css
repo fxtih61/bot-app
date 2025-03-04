@@ -331,3 +331,83 @@
   -fx-background-color: transparent;
   -fx-padding: 3px 10px;
 }
+
+/* MenuButton styles to match ComboBox */
+.menu-button {
+  -fx-background-color: #1f2a38;
+  -fx-border-color: #374151;
+  -fx-border-width: 1px;
+  -fx-border-radius: 4px;
+  -fx-background-radius: 4px;
+  -fx-padding: 3px;
+  -fx-text-fill: #d1d5dc;
+  -fx-alignment: CENTER-LEFT;
+}
+
+.menu-button > .label {
+  -fx-text-fill: #d1d5dc;
+  -fx-font-size: 14px;
+  -fx-font-weight: normal;
+  -fx-alignment: CENTER-LEFT;
+  -fx-padding: 0 0 0 5px;
+  -fx-content-display: LEFT;
+}
+
+.menu-button > .arrow-button {
+  -fx-background-color: transparent;
+  -fx-padding: 0 5px 0 0;
+}
+
+.menu-button .arrow {
+  -fx-background-color: #d1d5dc;
+}
+
+.menu-button .context-menu {
+  -fx-background-color: #1f2a38;
+  -fx-border-color: #374151;
+  -fx-border-width: 1px;
+  -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 8, 0, 0, 0);
+  -fx-content-display: LEFT;
+}
+
+.context-menu {
+  -fx-padding: 2px;
+}
+
+.menu-item {
+  -fx-background-color: #1f2a38;
+  -fx-padding: 3px 10px;
+  -fx-alignment: CENTER-LEFT;
+}
+
+.menu-item > .label {
+  -fx-text-fill: #d1d5dc;
+  -fx-font-size: 14px;
+  -fx-font-weight: normal;
+  -fx-alignment: CENTER-LEFT;
+  -fx-padding: 0 0 0 5px;
+  -fx-content-display: LEFT;
+}
+
+.menu-item:hover {
+  -fx-background-color: #2d3a4f;
+}
+
+.menu-item:focused {
+  -fx-background-color: #615FFF;
+}
+
+#ExportButton {
+  -fx-min-width: 80px;
+  -fx-max-width: 160px;
+}
+
+.menu-button:pressed,
+.menu-button.button-active {
+  -fx-background-color: #1f2a38;
+  -fx-text-fill: #d1d5dc;
+}
+
+.menu-button:hover {
+  -fx-background-color: #2d3a4f;
+}
