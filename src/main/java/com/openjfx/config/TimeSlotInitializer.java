@@ -47,10 +47,8 @@ public class TimeSlotInitializer {
       // Check if time slots are already populated
       if (!isTimeSlotTablePopulated(conn)) {
         insertTimeSlots(conn);
-        System.out.println("Time slots initialized successfully");
-      } else {
-        System.out.println("Time slots already exist, skipping initialization");
       }
+
       initialized = true;
     } catch (SQLException e) {
       System.err.println("Failed to initialize time slots: " + e.getMessage());

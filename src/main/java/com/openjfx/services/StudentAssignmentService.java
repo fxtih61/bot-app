@@ -202,10 +202,8 @@ public class StudentAssignmentService {
 
       stmt.executeBatch();
       conn.commit();
-      System.out.println("Saved assignments to database successfully");
       return true;
     } catch (SQLException e) {
-      System.err.println("Error saving student assignments: " + e.getMessage());
       e.printStackTrace();
       return false;
     }
@@ -238,9 +236,7 @@ public class StudentAssignmentService {
         assignments.add(assignment);
       }
 
-      System.out.println("Loaded " + assignments.size() + " student assignments from database");
     } catch (SQLException e) {
-      System.err.println("Error loading student assignments: " + e.getMessage());
       e.printStackTrace();
     }
 
