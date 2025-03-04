@@ -29,9 +29,10 @@ public class DatabaseConfigTest {
       assertTrue(stmt.execute("SELECT 1 FROM events"));
       assertTrue(stmt.execute("SELECT 1 FROM rooms"));
       assertTrue(stmt.execute("SELECT 1 FROM choices"));
-      assertTrue(stmt.execute("SELECT 1 FROM assignments"));
       assertTrue(stmt.execute("SELECT 1 FROM timeslots"));
       assertTrue(stmt.execute("SELECT 1 FROM timetable_assignments"));
+      assertTrue(stmt.execute("SELECT 1 FROM student_assignments"));
+      assertTrue(stmt.execute("SELECT 1 FROM workshop_demand"));
 
     }
   }
