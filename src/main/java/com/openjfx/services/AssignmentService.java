@@ -105,12 +105,7 @@ public class AssignmentService {
   private void assignStudents() {
     this.studentAssignments = studentAssignmentService.assignStudentsToEvents(choices, events);
     // Save assignments to the database
-    boolean saved = studentAssignmentService.saveAssignmentsToDatabase(studentAssignments);
-    if (saved) {
-      System.out.println("Student assignments saved to database successfully.");
-    } else {
-      System.err.println("Failed to save student assignments to database.");
-    }
+    studentAssignmentService.saveAssignmentsToDatabase(studentAssignments);
   }
 
   /**
@@ -122,12 +117,7 @@ public class AssignmentService {
     this.workshopDemand = workshopDemandService.calculateWorkshopsNeeded(events, choices);
 
     // Save workshop demand to database
-    boolean saved = workshopDemandService.saveDemandToDatabase(workshopDemand);
-    if (saved) {
-      System.out.println("Workshop demand saved to database successfully.");
-    } else {
-      System.err.println("Failed to save workshop demand to database.");
-    }
+    workshopDemandService.saveDemandToDatabase(workshopDemand);
   }
 
   /**

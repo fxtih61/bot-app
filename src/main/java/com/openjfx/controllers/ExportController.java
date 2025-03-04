@@ -4,10 +4,15 @@ import com.openjfx.handlers.Export.AssignmentHandler;
 import com.openjfx.handlers.Export.RoomPlanHandler;
 import com.openjfx.handlers.Export.WorkshopDemandHandler;
 import com.openjfx.handlers.Import.Handler;
+import com.openjfx.models.Event;
+import com.openjfx.models.StudentAssignment;
+import com.openjfx.models.WorkshopDemand;
 import com.openjfx.services.*;
+import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -42,6 +47,10 @@ public class ExportController {
   private TableView<?> tableView;
   @FXML
   private StackPane tableContainer;
+  @FXML
+  private ComboBox<String> eventFilterComboBox;
+  private final EventService eventService;
+
 
   private final AssignmentService assignmentService;
   private final WorkshopDemandService workshopDemandService;
@@ -66,6 +75,7 @@ public class ExportController {
     this.excelService = new ExcelService();
     this.workshopDemandService = new WorkshopDemandService();
     this.timetableService = new TimetableService();
+    this.eventService = new EventService(this.excelService);
 
     // Initialize services for AssignmentService
     ChoiceService choiceService = new ChoiceService(this.excelService);
@@ -93,6 +103,7 @@ public class ExportController {
   public void initialize() {
     setupButtons();
     setupSearchField();
+    setupEventFilter();
 
     // Check if data already exists and update status flags
     checkExistingData();
@@ -119,6 +130,103 @@ public class ExportController {
         ex.printStackTrace();
       }
     }
+  }
+
+  /**
+   * Sets up the event filter dropdown.
+   *
+   * @author mian
+   */
+  private void setupEventFilter() {
+    // Add "All Events" option first
+    eventFilterComboBox.getItems().add("All Events");
+
+    // Load events from database and add to dropdown
+    try {
+      List<String> eventNames = eventService.loadEvents().stream()
+          .map(Event::getCompany)
+          .collect(Collectors.toList());
+      eventFilterComboBox.getItems().addAll(eventNames);
+    } catch (Exception e) {
+      System.err.println("Error loading events: " + e.getMessage());
+    }
+
+    // Set default selection
+    eventFilterComboBox.setValue("All Events");
+
+    // Add listener for selection changes
+    eventFilterComboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
+      filterTableByEvent(newValue);
+    });
+  }
+
+  /**
+   * Filters the table data based on selected event and search term.
+   *
+   * @param eventName the selected event name, or "All Events" for no filtering
+   * @author mian
+   */
+  @SuppressWarnings("unchecked")
+  private void filterTableByEvent(String eventName) {
+    if (currentHandler != null) {
+      // Get current search term
+      String searchTerm = searchField.getText();
+
+      if ("All Events".equals(eventName) && (searchTerm == null || searchTerm.isEmpty())) {
+        // If "All Events" is selected and no search term, show all data
+        refreshTable();
+        return;
+      }
+
+      List<?> allItems = currentHandler.loadData();
+      List<Object> filteredItems = allItems.stream()
+          .filter(item -> {
+            // Apply event filter if not "All Events"
+            boolean matchesEvent = "All Events".equals(eventName) ||
+                matchesEventFilter(item, eventName);
+
+            // Apply search filter if there's a search term
+            boolean matchesSearch = searchTerm == null || searchTerm.isEmpty() ||
+                ((Handler<Object>) currentHandler).matchesSearch(item, searchTerm);
+
+            return matchesEvent && matchesSearch;
+          })
+          .collect(Collectors.toList());
+
+      // Update table with filtered items
+      TableView<Object> table = (TableView<Object>) tableView;
+      table.getItems().clear();
+      table.getItems().addAll(filteredItems);
+    }
+  }
+
+  /**
+   * Checks if an item matches the event filter.
+   *
+   * @param item      the data item to check
+   * @param eventName the event name to filter by
+   * @return true if the item is associated with the specified event
+   * @author mian
+   */
+  private boolean matchesEventFilter(Object item, String eventName) {
+    // Handle different types of data
+    if (item instanceof StudentAssignment) {
+      // For StudentAssignment, filter by event (company name)
+      StudentAssignment assignment = (StudentAssignment) item;
+      return assignment.getCompanyName() != null &&
+          assignment.getCompanyName().contains(eventName);
+    } else if (item instanceof WorkshopDemand) {
+      // For WorkshopDemand, filter by company name
+      WorkshopDemand demand = (WorkshopDemand) item;
+      return demand.getCompanyName() != null &&
+          demand.getCompanyName().contains(eventName);
+    } else if (item instanceof Map) {
+      // For map-based data like RoomPlanHandler
+      Map<String, String> mapItem = (Map<String, String>) item;
+      String company = mapItem.get("company");
+      return company != null && company.contains(eventName);
+    }
+    return false;
   }
 
   /**
@@ -250,7 +358,21 @@ public class ExportController {
     // Keep other button setup as is
     ExportButton.setOnAction(e -> {
       if (currentHandler != null) {
-        // Export functionality
+        List<?> dataToExport;
+
+        if (tableView.getItems().isEmpty()
+            || tableView.getItems().size() != currentHandler.loadData().size()) {
+          // If the table is filtered, export only the visible data
+          dataToExport = new ArrayList<>(tableView.getItems());
+        } else {
+          // If the table is not filtered, export all data
+          dataToExport = currentHandler.loadData();
+        }
+
+        // Print the data that would be exported
+        for (Object item : dataToExport) {
+          System.out.println(item);
+        }
       }
     });
   }
@@ -308,24 +430,37 @@ public class ExportController {
   @SuppressWarnings("unchecked")
   private void performSearch(String term) {
     if (currentHandler != null) {
+      String eventFilter = eventFilterComboBox.getValue();
+
+      // Reset event filter to "All Events" if search field is cleared
       if (term == null || term.isEmpty()) {
-        refreshTable();
+        if (!eventFilter.equals("All Events")) {
+          eventFilterComboBox.setValue("All Events");
+        } else {
+          refreshTable();
+        }
         return;
       }
 
-      List<?> allItems = currentHandler.loadData();
-      List<Object> filteredItems = allItems.stream()
-          .filter(item -> {
-            // Use explicit casting to handle the wildcard capture
-            Handler<Object> typedHandler = (Handler<Object>) currentHandler;
-            return typedHandler.matchesSearch(item, term);
-          })
-          .collect(Collectors.toList());
+      if ("All Events".equals(eventFilter)) {
+        // If "All Events" is selected, just filter by search term
+        List<?> allItems = currentHandler.loadData();
+        List<Object> filteredItems = allItems.stream()
+            .filter(item -> {
+              // Use explicit casting to handle the wildcard capture
+              Handler<Object> typedHandler = (Handler<Object>) currentHandler;
+              return typedHandler.matchesSearch(item, term);
+            })
+            .collect(Collectors.toList());
 
-      // Cast tableView to use proper generic type
-      TableView<Object> table = (TableView<Object>) tableView;
-      table.getItems().clear();
-      table.getItems().addAll(filteredItems);
+        // Cast tableView to use proper generic type
+        TableView<Object> table = (TableView<Object>) tableView;
+        table.getItems().clear();
+        table.getItems().addAll(filteredItems);
+      } else {
+        // If a specific event is selected, apply both filters
+        filterTableByEvent(eventFilter);
+      }
     }
   }
 
@@ -423,7 +558,8 @@ public class ExportController {
   }
 
   /**
-   * Switches the current handler and updates the UI accordingly.
+   * Switches the current handler and updates the UI accordingly, preserving the current event
+   * filter selection.
    *
    * @param handler      the new handler
    * @param activeButton the button associated with the new handler
@@ -432,6 +568,18 @@ public class ExportController {
   private void switchHandler(Handler<?> handler, Button activeButton) {
     currentHandler = handler;
     setActiveButton(activeButton);
-    refreshTable();
+
+    // Get current event filter before refreshing
+    String selectedEvent = eventFilterComboBox.getValue();
+
+    // If "All Events" is selected, just refresh the table normally
+    if ("All Events".equals(selectedEvent)) {
+      refreshTable();
+    } else {
+      // First load the data, then apply the event filter
+      refreshTable();
+      // Apply the current event filter to the new handler's data
+      filterTableByEvent(selectedEvent);
+    }
   }
 }
