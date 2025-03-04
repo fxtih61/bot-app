@@ -11,6 +11,8 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
 <StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
   fx:controller="com.openjfx.controllers.ExportController">
   <children>
@@ -30,6 +32,9 @@
         <VBox spacing="10">
           <ToolBar fx:id="export_toolbar_top">
             <items>
+              <HBox spacing="5" alignment="CENTER_LEFT">
+                <ComboBox fx:id="eventFilterComboBox" prefWidth="150" />
+              </HBox>
               <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                 <Button fx:id="AssignmentButton" text="%assignment"/>
                 <Button fx:id="WorkshopDemandButton" text="%workshopDemand"/>
