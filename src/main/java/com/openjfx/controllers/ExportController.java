@@ -8,6 +8,7 @@ import com.openjfx.models.Event;
 import com.openjfx.models.StudentAssignment;
 import com.openjfx.models.WorkshopDemand;
 import com.openjfx.services.*;
+import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -357,7 +358,21 @@ public class ExportController {
     // Keep other button setup as is
     ExportButton.setOnAction(e -> {
       if (currentHandler != null) {
-        // Export functionality
+        List<?> dataToExport;
+
+        if (tableView.getItems().isEmpty()
+            || tableView.getItems().size() != currentHandler.loadData().size()) {
+          // If the table is filtered, export only the visible data
+          dataToExport = new ArrayList<>(tableView.getItems());
+        } else {
+          // If the table is not filtered, export all data
+          dataToExport = currentHandler.loadData();
+        }
+
+        // Print the data that would be exported
+        for (Object item : dataToExport) {
+          System.out.println(item);
+        }
       }
     });
   }
