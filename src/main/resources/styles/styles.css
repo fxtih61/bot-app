@@ -263,3 +263,151 @@
   -fx-max-width: -1;
   -fx-pref-width: -1;
 }
+
+/* ComboBox styles for dark mode */
+.combo-box {
+  -fx-background-color: #1f2a38;
+  -fx-border-color: #374151;
+  -fx-border-width: 1px;
+  -fx-border-radius: 4px;
+  -fx-background-radius: 4px;
+  -fx-padding: 3px;
+}
+
+.combo-box .list-cell {
+  -fx-text-fill: #d1d5dc;
+  -fx-background-color: transparent;
+  -fx-padding: 3px 10px;
+}
+
+.combo-box .list-view {
+  -fx-background-color: #1f2a38;
+  -fx-border-color: #374151;
+  -fx-border-width: 1px;
+  -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 8, 0, 0, 0);
+}
+
+.combo-box .list-view .list-cell {
+  -fx-background-color: #1f2a38;
+  -fx-text-fill: #d1d5dc;
+}
+
+.combo-box .list-view .list-cell:filled:hover {
+  -fx-background-color: #2d3a4f;
+}
+
+.combo-box .list-view .list-cell:filled:selected {
+  -fx-background-color: #615FFF;
+}
+
+.combo-box .arrow-button {
+  -fx-background-color: transparent;
+}
+
+.combo-box .arrow {
+  -fx-background-color: #d1d5dc;
+}
+
+/* Specific styling for the event filter combo box */
+#eventFilterComboBox {
+  -fx-min-width: 150px;
+  -fx-max-width: 150px;
+  -fx-text-fill: #d1d5dc;
+  -fx-font-size: 14px;
+  -fx-background-color: #1f2a38;
+}
+
+
+/* Label style for event label */
+#export_toolbar_top Label {
+  -fx-font-size: 14px;
+  -fx-text-fill: #d1d5dc;
+  -fx-background-color: transparent;
+  -fx-padding: 3px 5px;
+}
+
+.combo-box .list-cell {
+  -fx-text-fill: #d1d5dc;
+  -fx-background-color: transparent;
+  -fx-padding: 3px 10px;
+}
+
+/* MenuButton styles to match ComboBox */
+.menu-button {
+  -fx-background-color: #1f2a38;
+  -fx-border-color: #374151;
+  -fx-border-width: 1px;
+  -fx-border-radius: 4px;
+  -fx-background-radius: 4px;
+  -fx-padding: 3px;
+  -fx-text-fill: #d1d5dc;
+  -fx-alignment: CENTER-LEFT;
+}
+
+.menu-button > .label {
+  -fx-text-fill: #d1d5dc;
+  -fx-font-size: 14px;
+  -fx-font-weight: normal;
+  -fx-alignment: CENTER-LEFT;
+  -fx-padding: 0 0 0 5px;
+  -fx-content-display: LEFT;
+}
+
+.menu-button > .arrow-button {
+  -fx-background-color: transparent;
+  -fx-padding: 0 5px 0 0;
+}
+
+.menu-button .arrow {
+  -fx-background-color: #d1d5dc;
+}
+
+.menu-button .context-menu {
+  -fx-background-color: #1f2a38;
+  -fx-border-color: #374151;
+  -fx-border-width: 1px;
+  -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 8, 0, 0, 0);
+  -fx-content-display: LEFT;
+}
+
+.context-menu {
+  -fx-padding: 2px;
+}
+
+.menu-item {
+  -fx-background-color: #1f2a38;
+  -fx-padding: 3px 10px;
+  -fx-alignment: CENTER-LEFT;
+}
+
+.menu-item > .label {
+  -fx-text-fill: #d1d5dc;
+  -fx-font-size: 14px;
+  -fx-font-weight: normal;
+  -fx-alignment: CENTER-LEFT;
+  -fx-padding: 0 0 0 5px;
+  -fx-content-display: LEFT;
+}
+
+.menu-item:hover {
+  -fx-background-color: #2d3a4f;
+}
+
+.menu-item:focused {
+  -fx-background-color: #615FFF;
+}
+
+#ExportButton {
+  -fx-min-width: 80px;
+  -fx-max-width: 160px;
+}
+
+.menu-button:pressed,
+.menu-button.button-active {
+  -fx-background-color: #1f2a38;
+  -fx-text-fill: #d1d5dc;
+}
+
+.menu-button:hover {
+  -fx-background-color: #2d3a4f;
+}

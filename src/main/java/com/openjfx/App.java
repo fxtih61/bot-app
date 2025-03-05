@@ -6,23 +6,12 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import com.openjfx.config.DatabaseConfig;
-import com.openjfx.services.AssignmentService;
-import com.openjfx.services.ChoiceService;
-import com.openjfx.services.EventService;
-import com.openjfx.services.ExcelService;
-import com.openjfx.services.RoomService;
-import com.openjfx.services.StudentAssignmentService;
-import com.openjfx.services.TimeSlotService;
-import com.openjfx.services.TimetableService;
-import com.openjfx.services.WorkshopDemandService;
-import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Main application class for the JavaFX application.
@@ -114,46 +103,6 @@ public class App extends Application {
    */
   public static void main(String[] args) throws IOException {
     launch();
-    //run assignment temporary
-
-    /*
-    ExcelService excelService = new ExcelService();
-    ChoiceService choiceService = new ChoiceService(excelService);
-    EventService eventService = new EventService(excelService);
-    AssignmentService assignmentService = getAssignmentService(excelService,
-        choiceService, eventService);
-
-    try {
-      // Run the assignment process
-      assignmentService.runAssignment();
-      System.out.println("Assignment process completed successfully!");
-    } catch (IOException e) {
-      System.err.println("Error during assignment process: " + e.getMessage());
-      e.printStackTrace();
-    }
-
-     */
-  }
-
-  private static @NotNull AssignmentService getAssignmentService(ExcelService excelService,
-      ChoiceService choiceService, EventService eventService) {
-    RoomService roomService = new RoomService(excelService);
-    TimeSlotService timeSlotService = new TimeSlotService();
-    StudentAssignmentService studentAssignmentService = new StudentAssignmentService();
-    WorkshopDemandService workshopDemandService = new WorkshopDemandService();
-    TimetableService timetableService = new TimetableService();
-
-    // Create the main service with all its dependencies
-    AssignmentService assignmentService = new AssignmentService(
-        choiceService,
-        eventService,
-        roomService,
-        timeSlotService,
-        studentAssignmentService,
-        timetableService,
-        workshopDemandService
-    );
-    return assignmentService;
   }
 
   /**

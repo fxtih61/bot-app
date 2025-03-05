@@ -34,7 +34,7 @@
                 <Button fx:id="choicesButton" text="%choicesButtoninImport"/>
                 <Button fx:id="roomsButton" text="%roomsButtoninImport"/>
               </HBox>
-              <TextField fx:id="searchField" promptText="%searchfield"/>
+              <TextField fx:id="searchField" promptText="%search"/>
             </items>
           </ToolBar>
         </VBox>
