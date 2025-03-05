@@ -35,18 +35,30 @@
             </HBox>
           </children>
           <children>
-            <HBox>
-              <ComboBox fx:id="languageComboBox" promptText="Sprache wählen">
-                  <items>
-                      <FXCollections fx:factory="observableArrayList">
-                          <String fx:value="Deutsch"/>
-                          <String fx:value="Englisch"/>
-                      </FXCollections>
-                  </items>
-              </ComboBox>
+            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="settings-row">
+              <children>
+                <Label text="%settingslanguage"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <ComboBox fx:id="languageComboBox" promptText="Sprache wählen">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Deutsch"/>
+                            <String fx:value="Englisch"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+              </children>
             </HBox>
           </children>
-          <ToggleButton fx:id="themeToggle" text="%lightmodebutton"/>
+          <children>
+            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="settings-row">
+              <children>
+                <Label text="%settingstheme"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <ToggleButton fx:id="themeToggle" text="%lightmodebutton"/>
+              </children>
+            </HBox>
+          </children>
         </VBox>
       </center>
     </BorderPane>
