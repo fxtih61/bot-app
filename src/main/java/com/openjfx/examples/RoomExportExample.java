@@ -8,16 +8,24 @@ import com.openjfx.services.TimetableService;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * This class demonstrates the creation of an Excel file containing room and schedule information.
+ * The data is stored in a list of maps and then exported to an Excel file.
+ *
+ * @author leon
+ */
 public class RoomExportExample {
 
+    /**
+     * Main method of the program. This is where the data for the table is created and exported to an Excel file.
+     *
+     * @param args Command-line arguments (not used in this example)
+     */
     public static void main(String[] args) {
-        // Daten für die Tabelle
+        // List to store the table data
         List<Map<String, Object>> data = new ArrayList<>();
 
-        //TimetableService timeSlotService = new TimetableService();
-        //timeSlotService.loadTimeTableAssignments();
-
-        // Beispielhafte Datensätze hinzufügen
+        // Add sample data records
         addRow(data, "Zentis", "209", "", "", "", "");
         addRow(data, "Babor Kosmetik", "109", "109", "", "", "");
         addRow(data, "RWTH Aachen", "", "", "108", "108", "108");
@@ -46,15 +54,26 @@ public class RoomExportExample {
         addRow(data, "BWL, Wirtschaftsrecht und Global Business and Economics", "", "106", "106", "106", "");
         addRow(data, "EVA", "", "", "", "", "106");
 
-        // Excel-Export
+        // Excel export
         RoomExcelExportService exportService = new RoomExcelExportService();
         try {
-            exportService.exportDataToExcel(data, "EXPORT BOT4 Raum- und Zeitplan.xlsx");
+            // Export the data to an Excel file
+            exportService.exportDataToExcel(data, "EXPORT BOT4 Room and Schedule Plan.xlsx");
         } catch (IOException e) {
+            // Error handling if the export fails
             e.printStackTrace();
         }
     }
 
+    /**
+     * Adds a new row to the data list. The row contains the company name and the associated room and schedule information.
+     *
+     * @param data The list to which the row is added
+     * @param unternehmen The name of the company
+     * @param raumZeiten The room and schedule information for the company (can be empty)
+     *
+     * @author leon
+     */
     private static void addRow(List<Map<String, Object>> data, String unternehmen, String... raumZeiten) {
         Map<String, Object> row = new LinkedHashMap<>();
         row.put("Unternehmen", unternehmen);
