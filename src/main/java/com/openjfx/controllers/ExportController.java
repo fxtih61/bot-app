@@ -21,6 +21,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.util.Pair;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 
 import java.io.IOException;
 import java.util.List;
@@ -40,8 +42,6 @@ public class ExportController {
   @FXML
   private Button WorkshopDemandButton;
   @FXML
-  private Button ExportButton;
-  @FXML
   private TextField searchField;
   @FXML
   private TableView<?> tableView;
@@ -49,9 +49,14 @@ public class ExportController {
   private StackPane tableContainer;
   @FXML
   private ComboBox<String> eventFilterComboBox;
+  @FXML
+  private MenuButton ExportButton;
+  @FXML
+  private MenuItem exportToExcelMenuItem;
+  @FXML
+  private MenuItem exportToPdfMenuItem;
+
   private final EventService eventService;
-
-
   private final AssignmentService assignmentService;
   private final WorkshopDemandService workshopDemandService;
   private final TimetableService timetableService;
@@ -355,26 +360,46 @@ public class ExportController {
       switchHandler(roomPlanHandler, RoomTimePlanButton);
     });
 
-    // Keep other button setup as is
-    ExportButton.setOnAction(e -> {
-      if (currentHandler != null) {
-        List<?> dataToExport;
-
-        if (tableView.getItems().isEmpty()
-            || tableView.getItems().size() != currentHandler.loadData().size()) {
-          // If the table is filtered, export only the visible data
-          dataToExport = new ArrayList<>(tableView.getItems());
-        } else {
-          // If the table is not filtered, export all data
-          dataToExport = currentHandler.loadData();
-        }
-
-        // Print the data that would be exported
-        for (Object item : dataToExport) {
-          System.out.println(item);
-        }
-      }
+    exportToExcelMenuItem.setOnAction(e -> {
+      exportData("excel");
     });
+
+    exportToPdfMenuItem.setOnAction(e -> {
+      exportData("pdf");
+    });
+  }
+
+  /**
+   * Exports the table data in the specified format.
+   *
+   * @param format the export format ("excel" or "pdf")
+   * @author mian
+   */
+  private void exportData(String format) {
+    if (currentHandler != null) {
+      List<?> dataToExport;
+
+      if (tableView.getItems().isEmpty()
+          || tableView.getItems().size() != currentHandler.loadData().size()) {
+        // If the table is filtered, export only the visible data
+        dataToExport = new ArrayList<>(tableView.getItems());
+      } else {
+        // If the table is not filtered, export all data
+        dataToExport = currentHandler.loadData();
+      }
+
+      System.out.println("Exporting to " + format + " format:");
+      // Print the data that would be exported
+      for (Object item : dataToExport) {
+        System.out.println(item);
+      }
+
+      // if (format.equals("excel")) {
+      //     exportToExcel(dataToExport);
+      // } else if (format.equals("pdf")) {
+      //     exportToPdf(dataToExport);
+      // }
+    }
   }
 
   /**
