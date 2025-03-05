@@ -163,6 +163,22 @@ public class DatabaseConfig {
             "demand INTEGER NOT NULL," +
             "FOREIGN KEY (event_id) REFERENCES events(id)" +
             ")");
+
+    // Route Slip for tracking the route of the student
+    stmt.execute(
+        "CREATE TABLE IF NOT EXISTS route_slips (" +
+            "id INTEGER PRIMARY KEY AUTO_INCREMENT, " +
+            "first_name VARCHAR(255), " +
+            "last_name VARCHAR(255), " +
+            "class_ref VARCHAR(20), " +
+            "event_id INTEGER, " +
+            "company_name VARCHAR(255), " +
+            "subject VARCHAR(255), " +
+            "room_name VARCHAR(100), " +
+            "time_slot VARCHAR(50), " +
+            "time_range VARCHAR(100), " +
+            "choice_priority INTEGER" +
+            ")");
   }
 
   /**
