@@ -46,9 +46,9 @@ class RoomExcelExportServiceTest {
      */
     private void addRow(List<Map<String, Object>> data, String company, String... roomTimes) {
         Map<String, Object> row = new LinkedHashMap<>();
-        row.put("Company", company);
+        row.put("Unternehmen", company); // Use "Unternehmen" instead of "Company"
         for (int i = 0; i < roomTimes.length; i++) {
-            row.put("Time " + (i + 1), roomTimes[i]);
+            row.put("Zeit " + (i + 1), roomTimes[i]); // Use "Zeit X" instead of "Time X"
         }
         data.add(row);
     }
@@ -70,19 +70,20 @@ class RoomExcelExportServiceTest {
     }
 
     @Test
-    void testExportDataToExcelWithEmptyData(@TempDir Path tempDir) throws IOException {
+    void testExportDataToExcelWithEmptyData(@TempDir Path tempDir) {
         // Create a temporary file path for the Excel file
         Path excelFilePath = tempDir.resolve("test_empty_export.xlsx");
         File excelFile = excelFilePath.toFile();
 
-        // Export an empty list to the Excel file
-        exportService.exportDataToExcel(new ArrayList<>(), excelFile.getAbsolutePath());
+        // Attempt to export an empty list
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            exportService.exportDataToExcel(new ArrayList<>(), excelFile.getAbsolutePath());
+        });
 
-        // Verify that the file exists
-        assertTrue(excelFile.exists(), "The Excel file should exist.");
-
-        // Verify that the file is not empty (even an empty table generates a file)
-        assertTrue(excelFile.length() > 0, "The Excel file should not be empty.");
+        // Verify the exception message
+        String expectedMessage = "Data list must not be null or empty";
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage), "The exception message should indicate that the data list cannot be empty.");
     }
 
     @Test
@@ -97,7 +98,7 @@ class RoomExcelExportServiceTest {
         });
 
         // Verify the exception message
-        String expectedMessage = "Data list cannot be null";
+        String expectedMessage = "Data list must not be null or empty";
         String actualMessage = exception.getMessage();
         assertTrue(actualMessage.contains(expectedMessage), "The exception message should indicate that the data list cannot be null.");
     }
