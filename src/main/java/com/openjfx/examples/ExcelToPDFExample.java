@@ -9,6 +9,7 @@ import java.util.List;
  * Einfache Testmethode zum manuellen Testen der Klasse `ExcelToPDFService`.
  */
 public class ExcelToPDFExample {
+    /*
     public static void main(String[] args) {
         ExcelToPDFService service = new ExcelToPDFService();
         String excelFilePath = "src/test/resources/test.xlsx";  // Pfad zur Excel-Datei
@@ -29,4 +30,6 @@ public class ExcelToPDFExample {
             System.err.println("Fehler beim Verarbeiten der Datei: " + e.getMessage());
         }
     }
+
+     */
 }

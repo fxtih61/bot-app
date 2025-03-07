@@ -1,6 +1,8 @@
 package com.openjfx.services;
 
 import com.openjfx.models.Room;
+
+import java.io.IOException;
 import java.sql.Statement;
 import java.util.Map;
 import com.openjfx.config.DatabaseConfig;
@@ -195,6 +197,14 @@ public class RoomService extends AbstractExcelService<Room> {
       e.printStackTrace();
     }
     return rooms;
+  }
+  public void exportToPdf(List<?> data) {
+    ExcelToPDFService pdfService = new ExcelToPDFService();
+    try {
+      pdfService.exportToPdf(data, "output.pdf");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
 }

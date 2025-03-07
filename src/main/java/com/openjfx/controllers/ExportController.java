@@ -65,6 +65,7 @@ public class ExportController {
   private Handler<?> currentHandler;
   private AssignmentHandler assignmentHandler;
   private RoomPlanHandler roomPlanHandler;
+  private RoomService roomService;
 
   // Track whether each step has been executed
   private boolean assignmentsGenerated = false;
@@ -81,6 +82,7 @@ public class ExportController {
     this.workshopDemandService = new WorkshopDemandService();
     this.timetableService = new TimetableService();
     this.eventService = new EventService(this.excelService);
+    this.roomService = new RoomService(this.excelService);
 
     // Initialize services for AssignmentService
     ChoiceService choiceService = new ChoiceService(this.excelService);
@@ -388,17 +390,13 @@ public class ExportController {
         dataToExport = currentHandler.loadData();
       }
 
-      System.out.println("Exporting to " + format + " format:");
-      // Print the data that would be exported
-      for (Object item : dataToExport) {
-        System.out.println(item);
-      }
-
-      // if (format.equals("excel")) {
-      //     exportToExcel(dataToExport);
-      // } else if (format.equals("pdf")) {
-      //     exportToPdf(dataToExport);
-      // }
+      if (format.equals("excel")) {
+           //
+       } else if (format.equals("pdf")) {
+        if(currentHandler instanceof RoomPlanHandler) {
+          roomService.exportToPdf(dataToExport);
+        }
+       }
     }
   }
 
