@@ -1,6 +1,7 @@
 package com.openjfx.Excel;
 
-import com.openjfx.services.RoomExcelExportService;
+import com.openjfx.services.ExcelService;
+import com.openjfx.services.RoomService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -22,13 +23,13 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class RoomExcelExportServiceTest {
 
-    private RoomExcelExportService exportService;
+    private RoomService exportService;
     private List<Map<String, Object>> testData;
 
     @BeforeEach
     void setUp() {
         // Initialize the export service and test data
-        exportService = new RoomExcelExportService();
+        exportService = new RoomService(new ExcelService());
         testData = new ArrayList<>();
 
         // Add sample data for testing

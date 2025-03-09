@@ -1,9 +1,7 @@
 package com.openjfx.examples;
 
-import com.openjfx.services.AssignmentService;
-import com.openjfx.services.RoomExcelExportService;
-import com.openjfx.services.TimeSlotService;
-import com.openjfx.services.TimetableService;
+import com.openjfx.services.ExcelService;
+import com.openjfx.services.RoomService;
 
 import java.io.IOException;
 import java.util.*;
@@ -55,7 +53,7 @@ public class RoomExportExample {
         addRow(data, "EVA", "", "", "", "", "106");
 
         // Excel export
-        RoomExcelExportService exportService = new RoomExcelExportService();
+        RoomService exportService = new RoomService(new ExcelService());
         try {
             // Export the data to an Excel file
             exportService.exportDataToExcel(data, "EXPORT BOT4 Room and Schedule Plan.xlsx");

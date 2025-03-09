@@ -26,23 +26,23 @@ public class RoomPlanHandler implements Handler<Map<String, String>> {
   private final TimetableService timetableService;
   private final TimeSlotService timeSlotService;
   private final ExcelService excelService;
-  private final RoomExcelExportService roomExportService;
+  private final RoomService roomService;
 
   /**
    * Constructs a new RoomPlanHandler with the necessary services.
    *
    * @param timetableService service for timetable data handling
    * @param excelService     service for Excel file operations
+   * @param roomService     service for rooms
    * @author mian
    */
-  public RoomPlanHandler(TimetableService timetableService, ExcelService excelService, RoomExcelExportService roomExportService) {
+  public RoomPlanHandler(TimetableService timetableService, ExcelService excelService, RoomService roomService) {
     this.timetableService = timetableService;
     this.excelService = excelService;
-      this.roomExportService = roomExportService;
+      this.roomService = new RoomService(this.excelService);
       this.timeSlotService = new TimeSlotService();
     ChoiceService choiceService = new ChoiceService(excelService);
     EventService eventService = new EventService(excelService);
-    RoomService roomService = new RoomService(excelService);
     StudentAssignmentService studentAssignmentService = new StudentAssignmentService();
     WorkshopDemandService workshopDemandService = new WorkshopDemandService();
 
@@ -250,6 +250,6 @@ public class RoomPlanHandler implements Handler<Map<String, String>> {
    * @author leon
    */
   public void exportRooms(List<Map<String, Object>> data) throws IOException {
-    roomExportService.exportDataToExcel(data, roomExportService.getFilePath());
+    roomService.exportDataToExcel(data, roomService.getFilePath());
   }
 }
