@@ -7,10 +7,8 @@ import com.openjfx.services.*;
 import javafx.util.Pair;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -28,6 +26,7 @@ public class RoomPlanHandler implements Handler<Map<String, String>> {
   private final TimetableService timetableService;
   private final TimeSlotService timeSlotService;
   private final ExcelService excelService;
+  private final RoomExcelExportService roomExportService;
 
   /**
    * Constructs a new RoomPlanHandler with the necessary services.
@@ -36,10 +35,11 @@ public class RoomPlanHandler implements Handler<Map<String, String>> {
    * @param excelService     service for Excel file operations
    * @author mian
    */
-  public RoomPlanHandler(TimetableService timetableService, ExcelService excelService) {
+  public RoomPlanHandler(TimetableService timetableService, ExcelService excelService, RoomExcelExportService roomExportService) {
     this.timetableService = timetableService;
     this.excelService = excelService;
-    this.timeSlotService = new TimeSlotService();
+      this.roomExportService = roomExportService;
+      this.timeSlotService = new TimeSlotService();
     ChoiceService choiceService = new ChoiceService(excelService);
     EventService eventService = new EventService(excelService);
     RoomService roomService = new RoomService(excelService);
@@ -237,5 +237,19 @@ public class RoomPlanHandler implements Handler<Map<String, String>> {
   @Override
   public ExcelService getExcelService() {
     return this.excelService;
+  }
+
+  /**
+   * Exports room data to an Excel file.
+   * This method calls the exportDataToExcel() function from the roomExportService
+   * to generate and save the room data in Excel format.
+   *
+   * @param data The room data to be exported as a list of maps.
+   * @throws IOException If an error occurs during export.
+   *
+   * @author leon
+   */
+  public void exportRooms(List<Map<String, Object>> data) throws IOException {
+    roomExportService.exportDataToExcel(data, roomExportService.getFilePath());
   }
 }

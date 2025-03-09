@@ -15,6 +15,9 @@ import java.util.*;
  */
 public class RoomExcelExportService {
 
+    // File Path to Export
+    private String filePath = "EXPORT BOT4 Room and Schedule Plan.xlsx";
+
     // General headers for the Excel sheet
     private static final List<String> GENERAL_HEADERS = Arrays.asList(
             "Organisationsplan für den Berufsorientierungstag",
@@ -85,6 +88,8 @@ public class RoomExcelExportService {
      *
      * @param workbook The Excel workbook
      * @return A map of styles
+     *
+     * @author leon
      */
     private Map<String, CellStyle> createStyles(Workbook workbook) {
         Map<String, CellStyle> styles = new HashMap<>();
@@ -185,6 +190,8 @@ public class RoomExcelExportService {
      * @param styles     A map of styles
      * @param rowIndex   The current row index
      * @return The updated row index
+     *
+     * @author leon
      */
     private int addGeneralHeaders(Sheet sheet, Map<String, CellStyle> styles, int rowIndex) {
         for (String header : GENERAL_HEADERS) {
@@ -217,6 +224,8 @@ public class RoomExcelExportService {
      * @param styles     A map of styles
      * @param rowIndex   The current row index
      * @return The updated row index
+     *
+     * @author leon
      */
     private int addTimeAndLetterHeaders(Workbook workbook, Sheet sheet, Map<String, CellStyle> styles, int rowIndex) {
         // Add time headers
@@ -267,7 +276,9 @@ public class RoomExcelExportService {
      * @param styles     A map of styles
      * @param data       The data to be added
      * @param rowIndex   The current row index
-     */
+     *
+     * @author leon
+     * */
     private void addDataRows(Workbook workbook, Sheet sheet, Map<String, CellStyle> styles, List<Map<String, Object>> data, int rowIndex) {
         int dataRowIndex = 0;
         for (Map<String, Object> rowData : data) {
@@ -313,4 +324,56 @@ public class RoomExcelExportService {
             }
         }
     }
+
+    /**
+     * Prepares a list of maps containing data for export to an Excel file.
+     * Each map represents a row in the Excel file, with keys as column headers
+     * and values as the corresponding data.
+     *
+     * @param dataToExport A list of objects (assumed to be maps) containing the raw data.
+     * @return A list of maps, where each map represents a row in the Excel file.
+     *
+     * @author leon
+     */
+    public List<Map<String, Object>> prepareDataForExport(List<Object> dataToExport) {
+        // Initialize the list to hold the rows of data
+        List<Map<String, Object>> data = new ArrayList<>();
+
+        // Iterate through the data received at the beginning
+        for (Object item : dataToExport) {
+            // Assume that the item is a map containing the data
+            Map<String, Object> itemMap = (Map<String, Object>) item;
+
+            // Create a new row for the Excel file
+            Map<String, Object> row = new LinkedHashMap<>();
+
+            // Add the company to the row
+            row.put("Unternehmen", itemMap.get("company"));
+
+            // Add the slots to the row (if they exist)
+            row.put("Zeit 1", itemMap.getOrDefault("slot_A", ""));
+            row.put("Zeit 2", itemMap.getOrDefault("slot_B", ""));
+            row.put("Zeit 3", itemMap.getOrDefault("slot_C", ""));
+            row.put("Zeit 4", itemMap.getOrDefault("slot_D", ""));
+            row.put("Zeit 5", itemMap.getOrDefault("slot_E", ""));
+
+            // Add the row to the data list
+            data.add(row);
+        }
+
+        // Return the prepared data
+        return data;
+    }
+
+    /**
+     * Returns the file path to which the data will be exported.
+     *
+     * @return The file path as a string.
+     *
+     * @author Leon
+     */
+    public String getFilePath() {
+        return filePath;
+    }
+
 }
