@@ -379,6 +379,10 @@ public class ExportController {
    * @author mian
    */
   private void exportData(String format) {
+    String filterName = eventFilterComboBox.getValue();
+
+    System.out.println(filterName);
+
     if (currentHandler != null) {
       List<?> dataToExport;
 
@@ -397,11 +401,11 @@ public class ExportController {
 
           try {
             // Export the data to an Excel file
-            roomPlanHandler.exportRooms(data);
-            showInfoAlert("Export Successful", "Data has been successfully exported to file: '" + roomService.getFilePath() + "'");
+            roomPlanHandler.exportRooms(data,filterName);
+            showInfoAlert("Export Successful", "Data has been successfully exported to file: '" + roomService.getFilePath() + "_" + filterName + ".xlsx'");
           } catch (IOException e) {
             // Error handling if the export fails
-            showErrorAlert("File Error", "Could not export to the the file : " + roomService.getFilePath() + ", " + e.getMessage());
+            showErrorAlert("File Error", "Could not export to the the file : " + roomService.getFilePath() + "_" + filterName  + ".xlsx, " + e.getMessage());
           }
         }
       } else if (format.equals("pdf")) {

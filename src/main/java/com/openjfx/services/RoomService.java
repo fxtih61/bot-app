@@ -206,7 +206,7 @@ public class RoomService extends AbstractExcelService<Room> {
    * The file path where the exported Excel file will be saved.
    *
    */
-  private String filePath = "EXPORT BOT4 Room and Schedule Plan.xlsx";
+  private String filePath = "EXPORT BOT4 Room and Schedule Plan";
 
   /**
    * General headers for the Excel sheet, including event information and instructions.
