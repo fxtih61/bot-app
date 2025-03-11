@@ -1,7 +1,7 @@
 package com.openjfx.Excel;
 
 import com.openjfx.services.ExcelService;
-import com.openjfx.services.RoomExcelExportService;
+import com.openjfx.services.RoomService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -9,99 +9,98 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * This class tests the functionality of the RoomExcelExportService.
+ *
+ * @author leon
+ */
 class RoomExcelExportServiceTest {
 
-    private RoomExcelExportService exportService;
-    private ExcelService excelService;
+    private RoomService exportService;
+    private List<Map<String, Object>> testData;
 
     @BeforeEach
     void setUp() {
-        excelService = new ExcelService();
-        exportService = new RoomExcelExportService(excelService);
+        // Initialize the export service and test data
+        exportService = new RoomService(new ExcelService());
+        testData = new ArrayList<>();
+
+        // Add sample data for testing
+        addRow(testData, "Zentis", "209", "", "", "", "");
+        addRow(testData, "Babor Kosmetik", "109", "109", "", "", "");
+        addRow(testData, "RWTH Aachen", "", "", "108", "108", "108");
     }
 
-    @Test
-    void testExportDataToExcelWithHeaders_Success(@TempDir Path tempDir) throws IOException {
-        // Beispielhafte Daten
-        List<Map<String, Object>> data = new ArrayList<>();
-        List<String> generalHeaders = Arrays.asList("Test Header 1", "Test Header 2");
-        List<String> headers = Arrays.asList("Unternehmen", "Zeit 1", "Zeit 2");
-
-        // Beispielhafte Datensätze
-        addRow(data, headers, "Firma A", "101", "102");
-        addRow(data, headers, "Firma B", "103", "104");
-
-        // Temporäre Datei
-        Path filePath = tempDir.resolve("TestExport.xlsx");
-
-        // Export aufrufen
-        exportService.exportDataToExcelWithHeaders(data, generalHeaders, headers, filePath.toString());
-
-        // Datei sollte existieren
-        File file = filePath.toFile();
-        assertTrue(file.exists());
-        assertTrue(file.length() > 0);
-    }
-
-    @Test
-    void testExportDataToExcelWithHeaders_EmptyData_ThrowsException() {
-        List<Map<String, Object>> data = new ArrayList<>();
-        List<String> generalHeaders = Arrays.asList("Test Header 1");
-        List<String> headers = Arrays.asList("Unternehmen", "Zeit 1");
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
-                exportService.exportDataToExcelWithHeaders(data, generalHeaders, headers, "Test.xlsx"));
-
-        assertEquals("Data list must not be null or empty", exception.getMessage());
-    }
-
-    @Test
-    void testExportDataToExcelWithHeaders_NullData_ThrowsException() {
-        List<String> generalHeaders = Arrays.asList("Header");
-        List<String> headers = Arrays.asList("Unternehmen", "Zeit 1");
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
-                exportService.exportDataToExcelWithHeaders(null, generalHeaders, headers, "Test.xlsx"));
-
-        assertEquals("Data list must not be null or empty", exception.getMessage());
-    }
-
-    @Test
-    void testExportDataToExcelWithHeaders_NullHeaders_ThrowsException() {
-        List<Map<String, Object>> data = new ArrayList<>();
-        addRow(data, Arrays.asList("Unternehmen", "Zeit 1"), "Firma", "101");
-
-        List<String> generalHeaders = Arrays.asList("Header");
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
-                exportService.exportDataToExcelWithHeaders(data, generalHeaders, null, "Test.xlsx"));
-
-        assertEquals("Headers must not be null or empty", exception.getMessage());
-    }
-
-    @Test
-    void testExportDataToExcelWithHeaders_NullFilePath_ThrowsException() {
-        List<Map<String, Object>> data = new ArrayList<>();
-        List<String> generalHeaders = Arrays.asList("Header");
-        List<String> headers = Arrays.asList("Unternehmen", "Zeit 1");
-
-        addRow(data, headers, "Firma A", "101");
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
-                exportService.exportDataToExcelWithHeaders(data, generalHeaders, headers, null));
-
-        assertEquals("File path must not be null or empty", exception.getMessage());
-    }
-
-    private static void addRow(List<Map<String, Object>> data, List<String> headers, String... values) {
+    /**
+     * Helper method to add a row to the data list.
+     *
+     * @param data       The list to which the row is added
+     * @param company    The name of the company
+     * @param roomTimes  The room and schedule information for the company (can be empty)
+     */
+    private void addRow(List<Map<String, Object>> data, String company, String... roomTimes) {
         Map<String, Object> row = new LinkedHashMap<>();
-        for (int i = 0; i < headers.size(); i++) {
-            row.put(headers.get(i), i < values.length ? values[i] : "");
+        row.put("Unternehmen", company); // Use "Unternehmen" instead of "Company"
+        for (int i = 0; i < roomTimes.length; i++) {
+            row.put("Zeit " + (i + 1), roomTimes[i]); // Use "Zeit X" instead of "Time X"
         }
         data.add(row);
+    }
+
+    @Test
+    void testExportDataToExcel(@TempDir Path tempDir) throws IOException {
+        // Create a temporary file path for the Excel file
+        Path excelFilePath = tempDir.resolve("test_export.xlsx");
+        File excelFile = excelFilePath.toFile();
+
+        // Export the test data to the Excel file
+        exportService.exportDataToExcel(testData, excelFile.getAbsolutePath());
+
+        // Verify that the file exists
+        assertTrue(excelFile.exists(), "The Excel file should exist.");
+
+        // Verify that the file is not empty
+        assertTrue(excelFile.length() > 0, "The Excel file should not be empty.");
+    }
+
+    @Test
+    void testExportDataToExcelWithEmptyData(@TempDir Path tempDir) {
+        // Create a temporary file path for the Excel file
+        Path excelFilePath = tempDir.resolve("test_empty_export.xlsx");
+        File excelFile = excelFilePath.toFile();
+
+        // Attempt to export an empty list
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            exportService.exportDataToExcel(new ArrayList<>(), excelFile.getAbsolutePath());
+        });
+
+        // Verify the exception message
+        String expectedMessage = "Data list must not be null or empty";
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage), "The exception message should indicate that the data list cannot be empty.");
+    }
+
+    @Test
+    void testExportDataToExcelWithNullData(@TempDir Path tempDir) {
+        // Create a temporary file path for the Excel file
+        Path excelFilePath = tempDir.resolve("test_null_export.xlsx");
+        File excelFile = excelFilePath.toFile();
+
+        // Attempt to export null data
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            exportService.exportDataToExcel(null, excelFile.getAbsolutePath());
+        });
+
+        // Verify the exception message
+        String expectedMessage = "Data list must not be null or empty";
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage), "The exception message should indicate that the data list cannot be null.");
     }
 }

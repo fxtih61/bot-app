@@ -25,6 +25,7 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -65,6 +66,7 @@ public class ExportController {
   private Handler<?> currentHandler;
   private AssignmentHandler assignmentHandler;
   private RoomPlanHandler roomPlanHandler;
+  private RoomService roomService;
 
   // Track whether each step has been executed
   private boolean assignmentsGenerated = false;
@@ -81,6 +83,7 @@ public class ExportController {
     this.workshopDemandService = new WorkshopDemandService();
     this.timetableService = new TimetableService();
     this.eventService = new EventService(this.excelService);
+    this.roomService = new RoomService(this.excelService);
 
     // Initialize services for AssignmentService
     ChoiceService choiceService = new ChoiceService(this.excelService);
@@ -94,7 +97,7 @@ public class ExportController {
         studentAssignmentService, this.timetableService, this.workshopDemandService);
 
     this.assignmentHandler = new AssignmentHandler(this.excelService);
-    this.roomPlanHandler = new RoomPlanHandler(this.timetableService, this.excelService);
+    this.roomPlanHandler = new RoomPlanHandler(this.timetableService, this.excelService, this.roomService);
     this.workshopDemandHandler = new WorkshopDemandHandler(this.assignmentService,
         this.excelService);
   }
@@ -376,6 +379,10 @@ public class ExportController {
    * @author mian
    */
   private void exportData(String format) {
+    String filterName = eventFilterComboBox.getValue();
+
+    System.out.println(filterName);
+
     if (currentHandler != null) {
       List<?> dataToExport;
 
@@ -388,17 +395,22 @@ public class ExportController {
         dataToExport = currentHandler.loadData();
       }
 
-      System.out.println("Exporting to " + format + " format:");
-      // Print the data that would be exported
-      for (Object item : dataToExport) {
-        System.out.println(item);
-      }
+      if (format.equals("excel")) {
+        if (currentHandler instanceof RoomPlanHandler) {
+          List<Map<String, Object>> data = roomService.prepareDataForExport((List<Object>) dataToExport);
 
-      // if (format.equals("excel")) {
-      //     exportToExcel(dataToExport);
-      // } else if (format.equals("pdf")) {
-      //     exportToPdf(dataToExport);
-      // }
+          try {
+            // Export the data to an Excel file
+            roomPlanHandler.exportRooms(data,filterName);
+            showInfoAlert("Export Successful", "Data has been successfully exported to file: '" + roomService.getFilePath() + "_" + filterName + ".xlsx'");
+          } catch (IOException e) {
+            // Error handling if the export fails
+            showErrorAlert("File Error", "Could not export to the the file : " + roomService.getFilePath() + "_" + filterName  + ".xlsx, " + e.getMessage());
+          }
+        }
+      } else if (format.equals("pdf")) {
+           //exportToPdf(dataToExport);
+       }
     }
   }
 
