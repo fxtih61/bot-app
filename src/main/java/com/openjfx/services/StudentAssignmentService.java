@@ -139,61 +139,82 @@ public class StudentAssignmentService {
    */
 
   private void distributeRemainingAssignments(Map<Integer, List<Choice>> assignments,
-      List<Choice> choices,
-      List<Event> events, Map<String, Integer> studentAssignmentCount) {
-    // Sort events by occupancy (least to most)
-    List<Event> sortedEvents = new ArrayList<>(events);
-    sortedEvents.sort((e1, e2) -> {
-      int occupancy1 = assignments.get(e1.getId()).size();
-      int occupancy2 = assignments.get(e2.getId()).size();
-      return Integer.compare(occupancy1, occupancy2);
-    });
+      List<Choice> choices, List<Event> events, Map<String, Integer> studentAssignmentCount) {
 
-    for (Choice choice : choices) {
-      int assignmentCount = getStudentAssignmentCount(studentAssignmentCount, choice);
+    // First pass: Try to assign students who need more assignments to events with space
+    for (Choice student : choices) {
+      int assignmentCount = getStudentAssignmentCount(studentAssignmentCount, student);
+      if (assignmentCount >= 5) {
+        continue; // Skip students who already have 5 assignments
+      }
 
-      // If student needs more assignments
-      while (assignmentCount < 5) {
-        for (Event event : sortedEvents) {
-          if (hasReachedCapacity(assignments, event) || isAlreadyAssigned(assignments, choice,
-              event)) {
-            continue;
-          }
+      // Sort events by current occupancy (least to most occupied)
+      List<Event> sortedEvents = new ArrayList<>(events);
+      sortedEvents.sort((e1, e2) -> {
+        int occupancy1 = assignments.get(e1.getId()).size();
+        int occupancy2 = assignments.get(e2.getId()).size();
+        return Integer.compare(occupancy1, occupancy2);
+      });
 
-          assignments.get(event.getId()).add(choice);
+      // Try to assign student to events with available capacity
+      for (Event event : sortedEvents) {
+        if (assignmentCount >= 5) {
+          break; // Stop once student has 5 assignments
+        }
+
+        if (!isAlreadyAssigned(assignments, student, event) &&
+            !hasReachedCapacity(assignments, event)) {
+          // Assign student to this event
+          assignments.get(event.getId()).add(student);
           assignmentCount++;
-          incrementStudentAssignmentCount(studentAssignmentCount, choice);
-
-          if (assignmentCount >= 5) {
-            break;
-          }
+          incrementStudentAssignmentCount(studentAssignmentCount, student);
         }
+      }
+    }
 
-        // Safety check to avoid infinite loop
-        if (assignmentCount < 5) {
-          // If we went through all events and still couldn't assign enough,
-          // we may need to relax capacity constraints
-          for (Event event : sortedEvents) {
-            if (isAlreadyAssigned(assignments, choice, event)) {
-              continue;
-            }
+    // Second pass: For students who still don't have 5 assignments, override capacity limits
+    for (Choice student : choices) {
+      int assignmentCount = getStudentAssignmentCount(studentAssignmentCount, student);
+      if (assignmentCount >= 5) {
+        continue; // Skip students who already have 5 assignments
+      }
 
-            assignments.get(event.getId()).add(choice);
-            assignmentCount++;
-            incrementStudentAssignmentCount(studentAssignmentCount, choice);
+      System.out.println("Student " + student.getFirstName() + " " + student.getLastName() +
+          " has only " + assignmentCount + " assignments. Overriding capacity constraints...");
 
-            if (assignmentCount >= 5) {
-              break;
-            }
-          }
-        }
+      // Sort events by current occupancy percentage relative to max capacity
+      List<Event> eventsByCapacity = new ArrayList<>(events);
+      eventsByCapacity.sort((e1, e2) -> {
+        double ratio1 = (double) assignments.get(e1.getId()).size() / e1.getMaxParticipants();
+        double ratio2 = (double) assignments.get(e2.getId()).size() / e2.getMaxParticipants();
+        return Double.compare(ratio1, ratio2);
+      });
 
-        // If still can't assign 5 events, break to avoid infinite loop
-        if (assignmentCount < 5) {
-          System.err.println("Warning: Could not assign 5 events to student: " +
-              choice.getFirstName() + " " + choice.getLastName());
+      // Force assignment to events with the lowest occupancy percentage
+      for (Event event : eventsByCapacity) {
+        if (assignmentCount >= 5) {
           break;
         }
+
+        if (!isAlreadyAssigned(assignments, student, event)) {
+          // Even if at capacity, assign student anyway
+          assignments.get(event.getId()).add(student);
+          assignmentCount++;
+          incrementStudentAssignmentCount(studentAssignmentCount, student);
+
+          if (assignments.get(event.getId()).size() > event.getMaxParticipants()) {
+            System.out.println("Warning: Event " + event.getId() + " (" +
+                event.getCompany() + ") exceeded capacity by " +
+                (assignments.get(event.getId()).size() - event.getMaxParticipants()));
+          }
+        }
+      }
+
+      // Final check if student still doesn't have 5 assignments
+      if (assignmentCount < 5) {
+        System.err.println("ERROR: Could not assign 5 events to student: " +
+            student.getFirstName() + " " + student.getLastName() +
+            ". Only assigned to " + assignmentCount + " events.");
       }
     }
   }
