@@ -30,7 +30,8 @@
             </HBox>
          </bottom>
          <center>
-            <Label fx:id="aboutUsTextArea" wrapText="true" text="%aboutustext" BorderPane.alignment="CENTER" />
+            <!-- <Label fx:id="aboutUsTextArea" wrapText="true" text="%aboutustext" BorderPane.alignment="CENTER" maxWidth="900"/> -->
+            <TextArea fx:id="aboutUsTextArea" wrapText="true" text="%aboutustext" editable="false" BorderPane.alignment="CENTER"/>
          </center>
       </BorderPane>
    </children>
