@@ -1,7 +1,14 @@
 package com.openjfx.services;
 
+import com.openjfx.config.DatabaseConfig;
 import com.openjfx.models.Choice;
 import com.openjfx.models.Event;
+import com.openjfx.models.StudentAssignment;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -158,5 +165,81 @@ public class StudentAssignmentService {
       default:
         return "";
     }
+  }
+
+  /**
+   * Saves the student assignments to the database.
+   *
+   * @param assignments Map of event IDs to assigned student choices
+   * @return true if saving was successful, false otherwise
+   * @author mian
+   */
+  public boolean saveAssignmentsToDatabase(Map<Integer, List<Choice>> assignments) {
+    String sql = "INSERT INTO student_assignments (event_id, first_name, last_name, class_ref) VALUES (?, ?, ?, ?)";
+
+    try (Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+      conn.setAutoCommit(false);
+
+      // Clear existing assignments first
+      try (Statement clearStmt = conn.createStatement()) {
+        clearStmt.execute("DELETE FROM student_assignments");
+      }
+
+      for (Map.Entry<Integer, List<Choice>> entry : assignments.entrySet()) {
+        int eventId = entry.getKey();
+        List<Choice> students = entry.getValue();
+
+        for (Choice student : students) {
+          stmt.setInt(1, eventId);
+          stmt.setString(2, student.getFirstName());
+          stmt.setString(3, student.getLastName());
+          stmt.setString(4, student.getClassRef());
+          stmt.addBatch();
+        }
+      }
+
+      stmt.executeBatch();
+      conn.commit();
+      return true;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  /**
+   * Retrieves all student assignments from the database.
+   *
+   * @return list of student assignments
+   * @author mian
+   */
+  public List<StudentAssignment> getAllAssignments() {
+    String sql = "SELECT sa.event_id, sa.first_name, sa.last_name, sa.class_ref, e.company " +
+        "FROM student_assignments sa " +
+        "JOIN events e ON sa.event_id = e.id";
+    List<StudentAssignment> assignments = new ArrayList<>();
+
+    try (Connection conn = DatabaseConfig.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql)) {
+
+      while (rs.next()) {
+        StudentAssignment assignment = new StudentAssignment(
+            rs.getInt("event_id"),
+            rs.getString("first_name"),
+            rs.getString("last_name"),
+            rs.getString("class_ref"),
+            rs.getString("company")
+        );
+        assignments.add(assignment);
+      }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+    return assignments;
   }
 }

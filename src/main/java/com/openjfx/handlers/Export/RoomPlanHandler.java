@@ -7,10 +7,8 @@ import com.openjfx.services.*;
 import javafx.util.Pair;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -28,21 +26,23 @@ public class RoomPlanHandler implements Handler<Map<String, String>> {
   private final TimetableService timetableService;
   private final TimeSlotService timeSlotService;
   private final ExcelService excelService;
+  private final RoomService roomService;
 
   /**
    * Constructs a new RoomPlanHandler with the necessary services.
    *
    * @param timetableService service for timetable data handling
    * @param excelService     service for Excel file operations
+   * @param roomService     service for rooms
    * @author mian
    */
-  public RoomPlanHandler(TimetableService timetableService, ExcelService excelService) {
+  public RoomPlanHandler(TimetableService timetableService, ExcelService excelService, RoomService roomService) {
     this.timetableService = timetableService;
     this.excelService = excelService;
-    this.timeSlotService = new TimeSlotService();
+      this.roomService = new RoomService(this.excelService);
+      this.timeSlotService = new TimeSlotService();
     ChoiceService choiceService = new ChoiceService(excelService);
     EventService eventService = new EventService(excelService);
-    RoomService roomService = new RoomService(excelService);
     StudentAssignmentService studentAssignmentService = new StudentAssignmentService();
     WorkshopDemandService workshopDemandService = new WorkshopDemandService();
 
@@ -237,5 +237,21 @@ public class RoomPlanHandler implements Handler<Map<String, String>> {
   @Override
   public ExcelService getExcelService() {
     return this.excelService;
+  }
+
+  /**
+   * Exports room data to an Excel file.
+   * This method calls the exportDataToExcel() function from the roomExportService
+   * to generate and save the room data in Excel format.
+   *
+   * @param data The room data to be exported as a list of maps.
+   * @param filterName The addition to the file path
+   * @throws IOException If an error occurs during export.
+   *
+   * @author leon
+   */
+  public void exportRooms(List<Map<String, Object>> data, String filterName) throws IOException {
+    String filePath = roomService.getFilePath() + "_" + filterName + ".xlsx";
+    roomService.exportDataToExcel(data,filePath);
   }
 }

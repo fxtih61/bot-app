@@ -83,6 +83,9 @@ Ensure you have the following installed:
 - [Leokin4](https://github.com/Leokin4)
 - [ymbatu64](https://github.com/ymbatu64)
 
+### 👏 Acknowledgments
+- Special thanks to [schulefant](https://github.com/schulefant) for their valuable guidance and support throughout the development of this project.
+
 ---
 
 This project aims to optimize and simplify the Berufsorientierungstag scheduling process, improving efficiency and user experience for students and organizers alike. 🚀

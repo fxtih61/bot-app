@@ -47,10 +47,8 @@ public class TimeSlotInitializer {
       // Check if time slots are already populated
       if (!isTimeSlotTablePopulated(conn)) {
         insertTimeSlots(conn);
-        System.out.println("Time slots initialized successfully");
-      } else {
-        System.out.println("Time slots already exist, skipping initialization");
       }
+
       initialized = true;
     } catch (SQLException e) {
       System.err.println("Failed to initialize time slots: " + e.getMessage());
@@ -65,7 +63,7 @@ public class TimeSlotInitializer {
    * @throws SQLException if a database error occurs
    * @author mian
    */
-  private boolean isTimeSlotTablePopulated(Connection conn) throws SQLException {
+  boolean isTimeSlotTablePopulated(Connection conn) throws SQLException {
     try (PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM timeslots")) {
       ResultSet rs = stmt.executeQuery();
       if (rs.next()) {
@@ -81,7 +79,7 @@ public class TimeSlotInitializer {
    * @throws SQLException if a database error occurs
    * @author mian
    */
-  private void insertTimeSlots(Connection conn) throws SQLException {
+  void insertTimeSlots(Connection conn) throws SQLException {
     List<TimeSlot> timeSlots = getDefaultTimeSlots();
 
     String sql = "INSERT INTO timeslots (start_time, end_time, slot) VALUES (?, ?, ?)";
@@ -101,7 +99,7 @@ public class TimeSlotInitializer {
    * @return List of TimeSlot objects
    * @author mian
    */
-  private List<TimeSlot> getDefaultTimeSlots() {
+  List<TimeSlot> getDefaultTimeSlots() {
     List<TimeSlot> slots = new ArrayList<>();
 
     slots.add(new TimeSlot("8:45", "9:30", "A"));
