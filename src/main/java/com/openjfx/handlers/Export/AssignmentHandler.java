@@ -77,6 +77,7 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
   public List<Pair<String, String>> getColumns() {
     List<Pair<String, String>> columns = new ArrayList<>();
     columns.add(new Pair<>("Company", "companyName"));
+    columns.add(new Pair<>("Subject", "subject"));
     columns.add(new Pair<>("First Name", "firstName"));
     columns.add(new Pair<>("Last Name", "lastName"));
     columns.add(new Pair<>("Class", "classRef"));
@@ -120,6 +121,7 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
     return
         (item.getCompanyName() != null && item.getCompanyName().toLowerCase().contains(lowerTerm))
             ||
+            (item.getSubject() != null && item.getSubject().toLowerCase().contains(lowerTerm)) ||
             item.getFirstName().toLowerCase().contains(lowerTerm) ||
             item.getLastName().toLowerCase().contains(lowerTerm) ||
             item.getClassRef().toLowerCase().contains(lowerTerm);

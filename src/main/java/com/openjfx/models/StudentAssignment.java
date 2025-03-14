@@ -15,6 +15,7 @@ public class StudentAssignment {
   private String firstName;
   private String lastName;
   private String classRef;
+  private String subject;
 
   /**
    * Constructs a new StudentAssignment with the specified attributes.
@@ -27,12 +28,13 @@ public class StudentAssignment {
    * @author mian
    */
   public StudentAssignment(int eventId, String firstName, String lastName, String classRef,
-      String companyName) {
+      String companyName, String subject) {
     this.eventId = eventId;
     this.firstName = firstName;
     this.lastName = lastName;
     this.classRef = classRef;
     this.companyName = companyName;
+    this.subject = subject;
   }
 
   /**
@@ -149,6 +151,26 @@ public class StudentAssignment {
    */
   public void setClassRef(String classRef) {
     this.classRef = classRef;
+  }
+
+  /**
+   * Gets the subject.
+   *
+   * @return the subject
+   * @author mian
+   */
+  public String getSubject() {
+    return subject;
+  }
+
+  /**
+   * Sets the subject.
+   *
+   * @param subject the subject
+   * @author mian
+   */
+  public void setSubject(String subject) {
+    this.subject = subject;
   }
 
   /**
