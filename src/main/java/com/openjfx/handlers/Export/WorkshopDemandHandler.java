@@ -48,6 +48,7 @@ public class WorkshopDemandHandler implements Handler<WorkshopDemand> {
   public List<Pair<String, String>> getColumns() {
     List<Pair<String, String>> columns = new ArrayList<>();
     columns.add(new Pair<>("Company", "companyName"));
+    columns.add(new Pair<>("Subject", "subject"));
     columns.add(new Pair<>("Demand", "demand"));
     return columns;
   }
@@ -102,6 +103,8 @@ public class WorkshopDemandHandler implements Handler<WorkshopDemand> {
     String lowerTerm = searchTerm.toLowerCase();
     return
         (item.getCompanyName() != null && item.getCompanyName().toLowerCase().contains(lowerTerm))
+            ||
+            (item.getSubject() != null && item.getSubject().toLowerCase().contains(lowerTerm))
             ||
             String.valueOf(item.getDemand()).contains(lowerTerm);
   }

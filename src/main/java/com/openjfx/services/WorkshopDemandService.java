@@ -172,7 +172,7 @@ public class WorkshopDemandService {
    * @author mian
    */
   public List<WorkshopDemand> getAllWorkshopDemands() {
-    String sql = "SELECT wd.event_id, wd.demand, e.company " +
+    String sql = "SELECT wd.event_id, wd.demand, e.company, e.subject " +
         "FROM workshop_demand wd " +
         "JOIN events e ON wd.event_id = e.id";
     List<WorkshopDemand> demands = new ArrayList<>();
@@ -185,7 +185,8 @@ public class WorkshopDemandService {
         int eventId = rs.getInt("event_id");
         int demand = rs.getInt("demand");
         String companyName = rs.getString("company");
-        demands.add(new WorkshopDemand(eventId, demand, companyName));
+        String subject = rs.getString("subject");
+        demands.add(new WorkshopDemand(eventId, demand, companyName, subject));
       }
 
       System.out.println("Loaded " + demands.size() + " workshop demands as objects");
