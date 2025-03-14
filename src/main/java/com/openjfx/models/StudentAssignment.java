@@ -194,7 +194,8 @@ public class StudentAssignment {
             Objects.equals(firstName, that.firstName) &&
             Objects.equals(lastName, that.lastName) &&
             Objects.equals(classRef, that.classRef)
-            && Objects.equals(companyName, that.companyName);
+            && Objects.equals(companyName, that.companyName)
+            && Objects.equals(subject, that.subject);
   }
 
   /**
@@ -205,7 +206,7 @@ public class StudentAssignment {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(eventId, firstName, lastName, classRef, companyName);
+    return Objects.hash(eventId, firstName, lastName, classRef, companyName, subject);
   }
 
   /**
@@ -217,11 +218,12 @@ public class StudentAssignment {
   @Override
   public String toString() {
     return "StudentAssignment{" +
-        ", eventId=" + eventId +
+        "eventId=" + eventId +
         ", firstName='" + firstName + '\'' +
         ", lastName='" + lastName + '\'' +
         ", classRef='" + classRef + '\'' +
         ", companyName='" + companyName + '\'' +
+        ", subject='" + subject + '\'' +
         '}';
   }
 }
