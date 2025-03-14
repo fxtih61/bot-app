@@ -16,6 +16,7 @@ public class StudentAssignment {
   private String lastName;
   private String classRef;
   private String subject;
+  private int choice_number;
 
   /**
    * Constructs a new StudentAssignment with the specified attributes.
@@ -28,13 +29,14 @@ public class StudentAssignment {
    * @author mian
    */
   public StudentAssignment(int eventId, String firstName, String lastName, String classRef,
-      String companyName, String subject) {
+      String companyName, String subject, int choice_number) {
     this.eventId = eventId;
     this.firstName = firstName;
     this.lastName = lastName;
     this.classRef = classRef;
     this.companyName = companyName;
     this.subject = subject;
+    this.choice_number = choice_number;
   }
 
   /**
@@ -171,6 +173,26 @@ public class StudentAssignment {
    */
   public void setSubject(String subject) {
     this.subject = subject;
+  }
+
+  /**
+   * Gets the choice number.
+   *
+   * @return the choice number
+   * @author mian
+   */
+  public int getChoiceNumber() {
+    return choice_number;
+  }
+
+  /**
+   * Sets the choice number.
+   *
+   * @param choice_number the choice number
+   * @author mian
+   */
+  public void setChoiceNumber(int choice_number) {
+    this.choice_number = choice_number;
   }
 
   /**
