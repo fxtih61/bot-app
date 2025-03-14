@@ -3,6 +3,7 @@ package com.openjfx.services;
 import com.openjfx.models.Choice;
 import com.openjfx.models.Event;
 import com.openjfx.models.Room;
+import com.openjfx.models.StudentAssignment;
 import com.openjfx.models.TimeSlot;
 import java.io.IOException;
 import java.util.List;
@@ -114,9 +115,10 @@ public class AssignmentService {
    * @author mian
    */
   private void calculateWorkshopDemand() {
-    this.workshopDemand = workshopDemandService.calculateWorkshopsNeeded(events, choices);
+    List<StudentAssignment> studentAssignmentList = studentAssignmentService.getAllAssignments();
 
-    // Save workshop demand to database
+    this.workshopDemand = workshopDemandService.calculateWorkshopsNeeded(events, studentAssignmentList);
+
     workshopDemandService.saveDemandToDatabase(workshopDemand);
   }
 

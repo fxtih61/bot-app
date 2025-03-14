@@ -2,6 +2,7 @@ package com.openjfx.services;
 
 import com.openjfx.models.Choice;
 import com.openjfx.models.Event;
+import com.openjfx.models.StudentAssignment;
 import com.openjfx.models.WorkshopDemand;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,26 +23,45 @@ import com.openjfx.config.DatabaseConfig;
 public class WorkshopDemandService {
 
   /**
-   * Calculates how many workshops are needed for each event based on student choices.
+   * Calculates how many workshops are needed for each event based on student assignments.
    *
    * @param events  list of events
-   * @param choices list of student choices
+   * @param studentAssignments list of student assignments
    * @return a map of event IDs to the number of workshops needed for each event
    * @author mian
    */
-  public Map<Integer, Integer> calculateWorkshopsNeeded(List<Event> events, List<Choice> choices) {
-    Map<Integer, Integer> choiceCounts = countAllChoices(choices);
+  public Map<Integer, Integer> calculateWorkshopsNeeded(List<Event> events,
+      List<StudentAssignment> studentAssignments) {
+    Map<Integer, Integer> assignmentCounts = countStudentAssignments(studentAssignments);
     Map<Integer, Integer> workshopsNeeded = new HashMap<>();
 
     // Calculate total workshops needed for each event
     for (Event event : events) {
       int eventId = event.getId();
-      int choiceCount = choiceCounts.getOrDefault(eventId, 0);
+      int assignedCount = assignmentCounts.getOrDefault(eventId, 0);
       int maxCapacity = event.getMaxParticipants();
-      workshopsNeeded.put(eventId, calculateAdditionalWorkshops(choiceCount, maxCapacity));
+      workshopsNeeded.put(eventId, calculateAdditionalWorkshops(assignedCount, maxCapacity));
     }
 
     return workshopsNeeded;
+  }
+
+  /**
+   * Counts students assigned to each event.
+   *
+   * @param studentAssignments list of student assignments
+   * @return map of event IDs to the count of students assigned to each event
+   * @author mian
+   */
+  private Map<Integer, Integer> countStudentAssignments(List<StudentAssignment> studentAssignments) {
+    Map<Integer, Integer> counts = new HashMap<>();
+
+    for (StudentAssignment assignment : studentAssignments) {
+      int eventId = assignment.getEventId();
+      counts.merge(eventId, 1, Integer::sum);
+    }
+
+    return counts;
   }
 
   /**
@@ -73,11 +93,23 @@ public class WorkshopDemandService {
     if (choice == null || choice.isEmpty()) {
       return;
     }
+
     try {
-      int eventId = Integer.parseInt(choice.replaceAll("[^0-9]", ""));
-      counts.merge(eventId, 1, Integer::sum);
+      java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(\\d+)");
+      java.util.regex.Matcher matcher = pattern.matcher(choice);
+
+      if (matcher.find()) {
+        int eventId = Integer.parseInt(matcher.group(1));
+        if (eventId > 0) {
+          counts.merge(eventId, 1, Integer::sum);
+        } else {
+          System.err.println("Warning: Invalid event ID format detected: " + choice);
+        }
+      } else {
+        System.err.println("Warning: Could not extract event ID from choice: " + choice);
+      }
     } catch (NumberFormatException e) {
-      // Ignore invalid choices
+      System.err.println("Error parsing event ID from: " + choice + " - " + e.getMessage());
     }
   }
 
