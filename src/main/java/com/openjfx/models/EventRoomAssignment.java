@@ -144,6 +144,10 @@ public class EventRoomAssignment {
     company.set(value);
   }
 
+  public Integer getEventId() {
+    return this.event.get().getId();
+  }
+
   /**
    * Returns the company property.
    *

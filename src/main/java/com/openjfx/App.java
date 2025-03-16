@@ -103,11 +103,10 @@ public class App extends Application {
    * @author mian
    */
   public static void main(String[] args) throws IOException {
-    StudentTimetableMappingService mappingService = new StudentTimetableMappingService();
-    mappingService.mapStudentsToTimetable();
+    StudentTimetableMappingService service = new StudentTimetableMappingService();
+    service.printAllData();
 
-
-     launch();
+    // launch();
   }
 
   /**
