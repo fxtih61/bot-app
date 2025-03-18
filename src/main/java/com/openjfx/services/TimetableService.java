@@ -81,19 +81,17 @@ public class TimetableService {
       timeSlotAssignments.put(slot.getSlot(), new ArrayList<>());
     }
 
-    // Print workshops needed
-    System.out.println("\nWORKSHOPS NEEDED:");
-    System.out.println("=================");
-    workshopsNeeded.entrySet().stream()
-        .sorted(Map.Entry.comparingByKey())
-        .forEach(entry -> System.out.printf("Event %d: %d workshops\n", entry.getKey(),
-            entry.getValue()));
-
-    // Create a list of events that need workshops, sorted by workshop count
+    // Sort events by workshop count and earliest start time
     List<Event> eventsNeedingRooms = events.stream()
         .filter(e -> workshopsNeeded.getOrDefault(e.getId(), 0) > 0)
-        .sorted((e1, e2) -> workshopsNeeded.getOrDefault(e2.getId(), 0)
-            .compareTo(workshopsNeeded.getOrDefault(e1.getId(), 0)))
+        .sorted((e1, e2) -> {
+          int compare = workshopsNeeded.getOrDefault(e2.getId(), 0)
+              .compareTo(workshopsNeeded.getOrDefault(e1.getId(), 0));
+          if (compare == 0) {
+            return e1.getEarliestStart().compareTo(e2.getEarliestStart());
+          }
+          return compare;
+        })
         .collect(Collectors.toList());
 
     // Assign rooms using round-robin approach
@@ -115,15 +113,18 @@ public class TimetableService {
       List<EventRoomAssignment> currentSlotAssignments = timeSlotAssignments.get(slot.getSlot());
       Set<Room> usedRoomsInSlot = new HashSet<>();
 
-      // Schedule workshops for events that still need them
+      // Schedule workshops for events that can start in this slot
       for (Event event : events) {
         int eventId = event.getId();
         Room assignedRoom = companyRooms.get(eventId);
+        String earliestStart = event.getEarliestStart();
 
-
+        // Check if event can start in this slot (A,B,C,D,E)
         if (assignedRoom != null
             && remainingWorkshops.getOrDefault(eventId, 0) > 0
-            && !usedRoomsInSlot.contains(assignedRoom)) {
+            && !usedRoomsInSlot.contains(assignedRoom)
+            && slot.getSlot().compareTo(earliestStart) >= 0) {
+
           currentSlotAssignments.add(new EventRoomAssignment(event, assignedRoom));
           remainingWorkshops.put(eventId, remainingWorkshops.getOrDefault(eventId, 0) - 1);
           usedRoomsInSlot.add(assignedRoom);
