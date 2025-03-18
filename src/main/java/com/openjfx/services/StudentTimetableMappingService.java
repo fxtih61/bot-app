@@ -4,6 +4,7 @@ import com.openjfx.models.Event;
 import com.openjfx.models.EventRoomAssignment;
 import com.openjfx.models.StudentAssignment;
 import com.openjfx.models.WorkshopDemand;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -71,114 +72,223 @@ public class StudentTimetableMappingService {
    * Retrieve all the events from the database.
    *
    * @return List of events
+   * @author mian
    */
   public List<Event> getAllEvents() {
     return eventService.loadEvents();
   }
 
   /**
-   * Maps students to timetable assignments considering event capacity, uniqueness constraints, and
-   * time slot conflicts. Prints the resulting assignments without saving them.
+   * Maps students to timetable assignments while respecting room capacity and preventing time
+   * conflicts.
+   *
+   * @return Map of student IDs to their assigned timetable entries
+   * @author mian
+   */
+  public Map<StudentAssignment, EventRoomAssignment> mapStudentsToTimetable() {
+    // Get all required data
+    List<StudentAssignment> studentAssignments = getAllStudentAssignments();
+    List<WorkshopDemand> workshopDemands = getAllWorkshopDemands();
+    List<EventRoomAssignment> timetableAssignments = getAllTimetableAssignments();
+    List<Event> events = getAllEvents();
+
+    // Result map to store student assignments to timetable slots
+    Map<StudentAssignment, EventRoomAssignment> studentTimetableMap = new HashMap<>();
+
+    // Track room occupancy for each event-room assignment
+    Map<EventRoomAssignment, Integer> roomOccupancy = new HashMap<>();
+    timetableAssignments.forEach(assignment -> roomOccupancy.put(assignment, 0));
+
+    // Track which time slots are assigned to each student to avoid conflicts
+    Map<String, Set<String>> studentTimeSlots = new HashMap<>();
+
+    // Create a composite key of eventId, company, and subject for more accurate matching
+    Map<String, List<EventRoomAssignment>> eventAssignments = new HashMap<>();
+    for (EventRoomAssignment assignment : timetableAssignments) {
+      int eventId = assignment.getEvent().getId();
+      // Use only the eventId for more reliable matching
+      String compositeKey = String.valueOf(eventId);
+      eventAssignments.computeIfAbsent(compositeKey, k -> new java.util.ArrayList<>())
+          .add(assignment);
+    }
+
+    // When grouping student assignments
+    Map<String, List<StudentAssignment>> studentsByEvent = new HashMap<>();
+    for (StudentAssignment assignment : studentAssignments) {
+      int eventId = assignment.getEventId();
+      // Use only the eventId for more reliable matching
+      String compositeKey = String.valueOf(eventId);
+      studentsByEvent.computeIfAbsent(compositeKey, k -> new java.util.ArrayList<>())
+          .add(assignment);
+    }
+
+    System.out.println("Available student event keys: " + studentsByEvent.keySet());
+    System.out.println("Available assignment event keys: " + eventAssignments.keySet());
+
+    // Process each event with company and subject combinations
+    for (Event event : events) {
+      int eventId = event.getId();
+      String company = event.getCompany();
+      String subject = event.getSubject();
+      String compositeKey = String.valueOf(eventId);
+
+      List<StudentAssignment> studentsForEvent = new java.util.ArrayList<>(
+          studentsByEvent.getOrDefault(compositeKey, new java.util.ArrayList<>()));
+      Collections.shuffle(studentsForEvent);
+      List<EventRoomAssignment> assignmentsForEvent = eventAssignments.getOrDefault(compositeKey,
+          new java.util.ArrayList<>());
+
+      if (studentsForEvent.isEmpty() || assignmentsForEvent.isEmpty()) {
+        continue;
+      }
+
+      // Sort room assignments by capacity (largest first) to optimize space usage
+      assignmentsForEvent.sort(
+          (a1, a2) -> Integer.compare(a2.getRoom().getCapacity(), a1.getRoom().getCapacity()));
+
+      // Assign students to rooms
+      for (StudentAssignment student : studentsForEvent) {
+        String studentId = student.getFirstName() + "_" + student.getLastName();
+
+        // Initialize student time slots set if not exists
+        if (!studentTimeSlots.containsKey(studentId)) {
+          studentTimeSlots.put(studentId, new HashSet<>());
+        }
+
+        //TODO: Fix the warning message
+
+        boolean assigned = false;
+        StringBuilder conflictInfo = new StringBuilder();
+
+        // Try to assign student to a room
+        for (EventRoomAssignment roomAssignment : assignmentsForEvent) {
+          String timeSlot = roomAssignment.getTimeSlot();
+          int currentOccupancy = roomOccupancy.get(roomAssignment);
+          int roomCapacity = roomAssignment.getRoom().getCapacity();
+
+          // Check if student already has an assignment at this time slot
+          if (studentTimeSlots.get(studentId).contains(timeSlot)) {
+            conflictInfo.append("  Time slot ")
+                .append(timeSlot)
+                .append(" - Student already has another assignment\n");
+            continue; // Skip this time slot, student already has an assignment
+          }
+
+          // Check if room has capacity
+          if (currentOccupancy < roomCapacity) {
+            // Assign student to this room
+            studentTimetableMap.put(student, roomAssignment);
+            roomOccupancy.put(roomAssignment, currentOccupancy + 1);
+            studentTimeSlots.get(studentId).add(timeSlot);
+            assigned = true;
+            break;
+          } else {
+            conflictInfo.append("  Time slot ")
+                .append(timeSlot)
+                .append(" - Room is at capacity\n");
+          }
+        }
+
+        if (!assigned) {
+          // Could not assign student due to conflicts
+          System.out.println("WARNING: Could not assign student " + student.getFirstName() + " "
+              + student.getLastName() + " to event " + eventId + " due to:");
+          System.out.println(conflictInfo);
+
+          // Print student's current assignments
+          System.out.println("  Student's current assignments: " +
+              String.join(", ", studentTimeSlots.get(studentId)));
+        }
+      }
+    }
+
+    return studentTimetableMap;
+  }
+
+  /**
+   * Prints the mapping of students to timetable assignments.
+   *
+   * @author mian
+   */
+  public void printStudentTimetableMapping() {
+    Map<StudentAssignment, EventRoomAssignment> mapping = mapStudentsToTimetable();
+
+    System.out.println("\n=== Student Timetable Mapping ===");
+    System.out.println("Total assignments: " + mapping.size());
+
+    // Group by time slot for better readability
+    Map<String, List<Map.Entry<StudentAssignment, EventRoomAssignment>>> byTimeSlot = new HashMap<>();
+
+    for (Map.Entry<StudentAssignment, EventRoomAssignment> entry : mapping.entrySet()) {
+      String timeSlot = entry.getValue().getTimeSlot();
+      byTimeSlot.computeIfAbsent(timeSlot, k -> new java.util.ArrayList<>()).add(entry);
+    }
+
+    // Print assignments by time slot
+    for (String timeSlot : byTimeSlot.keySet().stream().sorted()
+        .collect(java.util.stream.Collectors.toList())) {
+      System.out.println("\nTime Slot: " + timeSlot);
+
+      for (Map.Entry<StudentAssignment, EventRoomAssignment> entry : byTimeSlot.get(timeSlot)) {
+        StudentAssignment student = entry.getKey();
+        EventRoomAssignment assignment = entry.getValue();
+
+        System.out.println(String.format("  Student: %s %s, Event: %s (%s), Room: %s",
+            student.getFirstName(),
+            student.getLastName(),
+            assignment.getEvent().getId() + " - " + assignment.getEvent().getCompany() + " - "
+                + assignment.getEvent().getSubject(),
+            assignment.getCompany(),
+            assignment.getRoom().getName()));
+      }
+    }
+
+    // Print statistics
+    System.out.println("\n=== Assignment Statistics ===");
+    Map<EventRoomAssignment, Integer> roomOccupancy = new HashMap<>();
+    for (EventRoomAssignment assignment : mapping.values()) {
+      roomOccupancy.put(assignment, roomOccupancy.getOrDefault(assignment, 0) + 1);
+    }
+
+    for (Map.Entry<EventRoomAssignment, Integer> entry : roomOccupancy.entrySet()) {
+      EventRoomAssignment assignment = entry.getKey();
+      int count = entry.getValue();
+      int capacity = assignment.getRoom().getCapacity();
+
+      // In printStudentTimetableMapping method, update the statistics print:
+      System.out.printf("Room: %s, Time Slot: %s, Event: %s, Occupancy: %d/%d (%.1f%%)%n",
+          assignment.getRoom().getName(),
+          assignment.getTimeSlot(), // Add this line
+          assignment.getEvent().getId() + " - " + assignment.getEvent().getCompany() + " - " + assignment.getEvent().getSubject(),
+          count,
+          capacity,
+          (count * 100.0 / capacity));
+    }
+  }
+
+  /**
+   * Prints all the data fetched from the services.
    *
    * @author mian
    */
   public void printAllData() {
     List<StudentAssignment> studentAssignments = getAllStudentAssignments();
+    List<WorkshopDemand> workshopDemands = getAllWorkshopDemands();
     List<EventRoomAssignment> timetableAssignments = getAllTimetableAssignments();
     List<Event> events = getAllEvents();
 
-    // Create a map of event IDs to their max participants
-    Map<Integer, Integer> eventCapacities = new HashMap<>();
-    Map<Integer, Event> eventMap = new HashMap<>();
-    for (Event event : events) {
-      eventCapacities.put(event.getId(), event.getMaxParticipants());
-      eventMap.put(event.getId(), event);
-    }
+    // Print data
+    System.out.println("=== Student Assignments ===");
+    studentAssignments.forEach(System.out::println);
 
-    // Track current participant count for each timetable assignment
-    Map<EventRoomAssignment, Integer> assignmentCounts = new HashMap<>();
-    timetableAssignments.forEach(ta -> assignmentCounts.put(ta, 0));
+    System.out.println("\n=== Workshop Demands ===");
+    workshopDemands.forEach(System.out::println);
 
-    // Track which companies/subjects each student has been assigned to
-    Map<String, Set<String>> studentAssignedEvents = new HashMap<>();
+    System.out.println("\n=== Timetable Assignments ===");
+    timetableAssignments.forEach(System.out::println);
 
-    // Track which time slots each student is assigned to
-    Map<String, Set<String>> studentAssignedTimeSlots = new HashMap<>();
-
-    // Process each student assignment
-    for (StudentAssignment sa : studentAssignments) {
-      String studentKey = sa.getFirstName() + "_" + sa.getLastName() + "_" + sa.getClassRef();
-      studentAssignedEvents.putIfAbsent(studentKey, new HashSet<>());
-      studentAssignedTimeSlots.putIfAbsent(studentKey, new HashSet<>());
-
-      // Group timetable assignments by event ID for better distribution
-      Map<Integer, List<EventRoomAssignment>> assignmentsByEvent = new HashMap<>();
-      for (EventRoomAssignment ta : timetableAssignments) {
-        int eventId = ta.getEvent().getId();
-        assignmentsByEvent.computeIfAbsent(eventId, k -> new java.util.ArrayList<>()).add(ta);
-      }
-
-      // Check if there's a matching event for this student
-      if (assignmentsByEvent.containsKey(sa.getEventId())) {
-        Event event = eventMap.get(sa.getEventId());
-        String eventKey = event.getCompany() + "_" + event.getSubject();
-
-        // Check if student already assigned to this company/subject
-        if (!studentAssignedEvents.get(studentKey).contains(eventKey)) {
-          // Find the least filled time slot for this event that doesn't conflict
-          EventRoomAssignment bestAssignment = null;
-          int minCount = Integer.MAX_VALUE;
-
-          for (EventRoomAssignment ta : assignmentsByEvent.get(sa.getEventId())) {
-            int currentCount = assignmentCounts.get(ta);
-            String timeSlot = ta.getTimeSlot();
-
-            // Check if student is already assigned to this time slot
-            if (!studentAssignedTimeSlots.get(studentKey).contains(timeSlot) &&
-                currentCount < minCount &&
-                currentCount < eventCapacities.get(event.getId())) {
-              minCount = currentCount;
-              bestAssignment = ta;
-            }
-          }
-
-          // If we found a suitable time slot
-          if (bestAssignment != null) {
-            // Print the assignment
-            System.out.printf("Student: %s %s (%s) -> Event: %s - %s, Room: %s, Time: %s%n",
-                sa.getFirstName(),
-                sa.getLastName(),
-                sa.getClassRef(),
-                event.getCompany(),
-                event.getSubject(),
-                bestAssignment.getRoom().getName(),
-                bestAssignment.getTimeSlot()
-            );
-
-            // Update tracking
-            studentAssignedEvents.get(studentKey).add(eventKey);
-            // Track that this student is now assigned to this time slot
-            studentAssignedTimeSlots.get(studentKey).add(bestAssignment.getTimeSlot());
-            assignmentCounts.put(bestAssignment, assignmentCounts.get(bestAssignment) + 1);
-          }
-        }
-      }
-    }
-
-    // Print summary statistics
-    System.out.println("\nAssignment Summary:");
-    for (EventRoomAssignment ta : timetableAssignments) {
-      Event event = ta.getEvent();
-      System.out.printf("%s - %s (Room: %s, Time: %s): %d/%d students assigned%n",
-          event.getCompany(),
-          event.getSubject(),
-          ta.getRoom().getName(),
-          ta.getTimeSlot(),
-          assignmentCounts.get(ta),
-          eventCapacities.get(event.getId())
-      );
-    }
+    System.out.println("\n=== Events ===");
+    events.forEach(System.out::println);
   }
 
-  //TODO: See why students are not being assigned to events
 }
