@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * This class contains unit tests for the {@link ChoiceExcelExportService} class.
  * It tests the functionality of exporting data to an Excel file.
  *
- * @author Leon
+ * @author leon
  */
 class ChoiceExcelExportServiceTest {
 
@@ -25,7 +25,7 @@ class ChoiceExcelExportServiceTest {
      * Sets up the test environment before each test.
      * Initializes the {@link ChoiceExcelExportService} and prepares test data.
      *
-     * @author Leon
+     * @author leon
      */
     @BeforeEach
     void setUp() {
@@ -43,7 +43,8 @@ class ChoiceExcelExportServiceTest {
      * Verifies that the file is created and not empty.
      *
      * @throws IOException If an I/O error occurs during the test.
-     * @author Leon
+     *
+     * @author leon
      */
     @Test
     void testExportChoiceData_Success() throws IOException {
@@ -67,7 +68,7 @@ class ChoiceExcelExportServiceTest {
      * Tests the export functionality with an empty data list.
      * Verifies that an {@link IllegalArgumentException} is thrown.
      *
-     * @author Leon
+     * @author leon
      */
     @Test
     void testExportChoiceData_EmptyData() {
@@ -87,7 +88,7 @@ class ChoiceExcelExportServiceTest {
      * Tests the export functionality with invalid file paths.
      * Verifies that an {@link IOException} is thrown for invalid paths.
      *
-     * @author Leon
+     * @author leon
      */
     @Test
     void testExportChoiceData_InvalidFilePath() {
@@ -110,7 +111,8 @@ class ChoiceExcelExportServiceTest {
      * @param wunsch      The wish value.
      * @param name        The name value.
      * @param klasse      The class value.
-     * @author Leon
+     *
+     * @author leon
      */
     private void addRow(List<Map<String, Object>> data, String zeit, String raum, String veranstaltung, String beschreibung, String wunsch, String name, String klasse) {
         Map<String, Object> row = new LinkedHashMap<>();
