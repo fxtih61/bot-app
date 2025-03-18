@@ -157,4 +157,14 @@ public class EventRoomAssignment {
   public StringProperty companyProperty() {
     return company;
   }
+
+  @Override
+  public String toString() {
+    return "EventRoomAssignment{" +
+        "event=" + event.get() +
+        ", room=" + room.get() +
+        ", timeSlot=" + timeSlot.get() +
+        ", company=" + company.get() +
+        '}';
+  }
 }

@@ -50,6 +50,23 @@ public class Choice {
   }
 
   /**
+   * Default constructor.
+   *
+   * @author mian
+   */
+  public Choice() {
+    this.classRef = "";
+    this.firstName = "";
+    this.lastName = "";
+    this.choice1 = "";
+    this.choice2 = "";
+    this.choice3 = "";
+    this.choice4 = "";
+    this.choice5 = "";
+    this.choice6 = "";
+  }
+
+  /**
    * Gets the class reference.
    *
    * @return the class reference
