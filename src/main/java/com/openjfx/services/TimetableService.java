@@ -31,16 +31,6 @@ public class TimetableService {
    * @param events          list of events
    * @param rooms           list of rooms
    * @param timeSlots       list of time slots
-   * @param workshopsNeeded map of event IDs to the number of workshops needed
-   * @return a map of time slots to the list of event-room assignments
-   * @author mian
-   */
-  /**
-   * Creates and saves a timetable for events based on room availability and time slots.
-   *
-   * @param events          list of events
-   * @param rooms           list of rooms
-   * @param timeSlots       list of time slots
    * @param workshopsNeeded map of event IDs to the number of workshops needed (can be null)
    * @return a map of time slots to the list of event-room assignments
    * @author mian
@@ -53,7 +43,6 @@ public class TimetableService {
     if (workshopsNeeded == null || workshopsNeeded.isEmpty()) {
       WorkshopDemandService demandService = new WorkshopDemandService();
       workshopsNeeded = demandService.loadDemandFromDatabase();
-      System.out.println("Loaded workshop demand data from database");
     }
 
     Map<String, List<EventRoomAssignment>> timeSlotAssignments = createTimetable(events, rooms,
@@ -61,11 +50,22 @@ public class TimetableService {
     saveTimeTableAssignments(timeSlotAssignments);
     printTimetable(timeSlotAssignments, timeSlots);
 
+    // Print the timetable with company and subject information
+    for (Map.Entry<String, List<EventRoomAssignment>> entry : timeSlotAssignments.entrySet()) {
+      System.out.println("Time Slot: " + entry.getKey());
+      for (EventRoomAssignment assignment : entry.getValue()) {
+        System.out.println("Company: " + assignment.getEvent().getCompany() +
+            " | Subject: " + assignment.getEvent().getSubject() +
+            " | Room: " + assignment.getRoom().getName());
+      }
+    }
+
     return timeSlotAssignments;
   }
 
   /**
-   * Creates a timetable for events based on room availability and time slots.
+   * Creates a timetable for events based on room availability and time slots. This version ensures
+   * consecutive timeslots for each event-subject combination.
    *
    * @author mian
    */
@@ -74,15 +74,16 @@ public class TimetableService {
       Map<Integer, Integer> workshopsNeeded) {
 
     Map<String, List<EventRoomAssignment>> timeSlotAssignments = new HashMap<>();
-    Map<Integer, Room> companyRooms = new HashMap<>();
 
     // Initialize time slot assignments
-    for (TimeSlot slot : timeSlots) {
-      timeSlotAssignments.put(slot.getSlot(), new ArrayList<>());
-    }
+    timeSlots.forEach(slot -> timeSlotAssignments.put(slot.getSlot(), new ArrayList<>()));
 
-    // Sort events by workshop count and earliest start time
-    List<Event> eventsNeedingRooms = events.stream()
+    // Create a map to track which rooms are booked for each time slot
+    Map<String, Set<Room>> bookedRooms = new HashMap<>();
+    timeSlots.forEach(slot -> bookedRooms.put(slot.getSlot(), new HashSet<>()));
+
+    // Sort events by workshop count (highest first) and earliest start time
+    List<Event> sortedEvents = events.stream()
         .filter(e -> workshopsNeeded.getOrDefault(e.getId(), 0) > 0)
         .sorted((e1, e2) -> {
           int compare = workshopsNeeded.getOrDefault(e2.getId(), 0)
@@ -94,40 +95,102 @@ public class TimetableService {
         })
         .collect(Collectors.toList());
 
-    // Assign rooms using round-robin approach
-    List<Room> availableRooms = new ArrayList<>(rooms);
-    int currentRoomIndex = 0;
-
-    for (Event event : eventsNeedingRooms) {
-      if (availableRooms.isEmpty()) {
-        break;
+    // Process each event independently
+    for (Event event : sortedEvents) {
+      int requiredWorkshops = workshopsNeeded.getOrDefault(event.getId(), 0);
+      if (requiredWorkshops <= 0) {
+        continue;
       }
-      companyRooms.put(event.getId(), availableRooms.get(currentRoomIndex));
-      currentRoomIndex = (currentRoomIndex + 1) % availableRooms.size();
-    }
 
-    // For each time slot, schedule workshops for events that still need them
-    Map<Integer, Integer> remainingWorkshops = new HashMap<>(workshopsNeeded);
+      String earliestStart = event.getEarliestStart();
 
-    for (TimeSlot slot : timeSlots) {
-      List<EventRoomAssignment> currentSlotAssignments = timeSlotAssignments.get(slot.getSlot());
-      Set<Room> usedRoomsInSlot = new HashSet<>();
+      // Find the index of the earliest start time slot
+      int startSlotIndex = -1;
+      for (int i = 0; i < timeSlots.size(); i++) {
+        if (timeSlots.get(i).getSlot().compareTo(earliestStart) >= 0) {
+          startSlotIndex = i;
+          break;
+        }
+      }
 
-      // Schedule workshops for events that can start in this slot
-      for (Event event : events) {
-        int eventId = event.getId();
-        Room assignedRoom = companyRooms.get(eventId);
-        String earliestStart = event.getEarliestStart();
+      if (startSlotIndex == -1) {
+        continue; // Skip if no valid start slot found
+      }
 
-        // Check if event can start in this slot (A,B,C,D,E)
-        if (assignedRoom != null
-            && remainingWorkshops.getOrDefault(eventId, 0) > 0
-            && !usedRoomsInSlot.contains(assignedRoom)
-            && slot.getSlot().compareTo(earliestStart) >= 0) {
+      // Find a room that can be used for all required consecutive workshops
+      Room selectedRoom = null;
+      int consecutiveSlotStart = -1;
 
-          currentSlotAssignments.add(new EventRoomAssignment(event, assignedRoom));
-          remainingWorkshops.put(eventId, remainingWorkshops.getOrDefault(eventId, 0) - 1);
-          usedRoomsInSlot.add(assignedRoom);
+      // Try to find a room that works for all required consecutive slots
+      for (Room room : rooms) {
+        for (int i = startSlotIndex; i <= timeSlots.size() - requiredWorkshops; i++) {
+          boolean roomAvailableForAll = true;
+
+          // Check if this room is available for all required consecutive slots
+          for (int j = 0; j < requiredWorkshops; j++) {
+            String slotKey = timeSlots.get(i + j).getSlot();
+            if (bookedRooms.get(slotKey).contains(room)) {
+              roomAvailableForAll = false;
+              break;
+            }
+          }
+
+          if (roomAvailableForAll) {
+            selectedRoom = room;
+            consecutiveSlotStart = i;
+            break;
+          }
+        }
+
+        if (selectedRoom != null) {
+          break; // Found a suitable room
+        }
+      }
+
+      // If no room can accommodate all consecutive slots, try to find best available option
+      if (selectedRoom == null) {
+        // Find the room with the most available consecutive slots
+        int maxConsecutiveSlots = 0;
+
+        for (Room room : rooms) {
+          for (int i = startSlotIndex; i < timeSlots.size(); i++) {
+            int consecutiveCount = 0;
+            for (int j = i; j < timeSlots.size(); j++) {
+              String slotKey = timeSlots.get(j).getSlot();
+              if (!bookedRooms.get(slotKey).contains(room)) {
+                consecutiveCount++;
+              } else {
+                break;
+              }
+            }
+
+            if (consecutiveCount > maxConsecutiveSlots) {
+              maxConsecutiveSlots = consecutiveCount;
+              selectedRoom = room;
+              consecutiveSlotStart = i;
+            }
+          }
+        }
+      }
+
+      // If we found a room, assign the event to consecutive time slots
+      if (selectedRoom != null) {
+        int assignedWorkshops = 0;
+        for (int i = consecutiveSlotStart;
+            i < timeSlots.size() && assignedWorkshops < requiredWorkshops;
+            i++) {
+          String slotKey = timeSlots.get(i).getSlot();
+
+          // If room is already booked for this slot, skip it
+          if (bookedRooms.get(slotKey).contains(selectedRoom)) {
+            continue;
+          }
+
+          // Assign the event to this room and time slot
+          EventRoomAssignment assignment = new EventRoomAssignment(event, selectedRoom);
+          timeSlotAssignments.get(slotKey).add(assignment);
+          bookedRooms.get(slotKey).add(selectedRoom);
+          assignedWorkshops++;
         }
       }
     }
@@ -188,7 +251,7 @@ public class TimetableService {
       } else {
         assignments.sort((a, b) -> a.getRoom().getName().compareTo(b.getRoom().getName()));
         for (EventRoomAssignment assignment : assignments) {
-          System.out.printf("Room %-15s : Event %d - %s (%s)\n",
+          System.out.printf("Room %-15s : Event %d - %s - %s\n",
               assignment.getRoom().getName(),
               assignment.getEvent().getId(),
               assignment.getEvent().getCompany(),
