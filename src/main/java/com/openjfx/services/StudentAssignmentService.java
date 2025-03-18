@@ -22,28 +22,116 @@ import java.util.Map;
 public class StudentAssignmentService {
 
   /**
-   * Assigns students to events based on their choices and the available capacity.
+   * Assigns students to events based on their choices and the available capacity. Each student must
+   * be assigned to exactly 5 events.
    *
    * @param choices list of student choices
    * @param events  list of available events
    * @return a map of event IDs to the list of students assigned to each event
-   * @author mian
    */
   public Map<Integer, List<Choice>> assignStudentsToEvents(List<Choice> choices,
       List<Event> events) {
     // Track assignments: <EventID, List<StudentChoices>>
     Map<Integer, List<Choice>> assignments = new HashMap<>();
 
+    // Track how many events each student is assigned to
+    Map<String, Integer> studentAssignmentCount = new HashMap<>();
+
     // Initialize empty assignment slots for each event
     initializeEventSlots(assignments, events);
 
-    // Assign students to their first choice events where possible
-    assignFirstChoices(assignments, choices, events);
+    // Initialize student assignment count
+    for (Choice choice : choices) {
+      // Use student's full name and class as unique identifier
+      String studentId =
+          choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
+      studentAssignmentCount.put(studentId, 0);
+    }
 
-    // Assign remaining students to their subsequent choices (2-6) if space is available
-    assignRemainingChoices(assignments, choices, events);
+    // Assign students to their choices in priority order
+    for (int priority = 1; priority <= 6; priority++) {
+      for (Choice choice : choices) {
+        // Use student's full name and class as unique identifier
+        String studentId =
+            choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
+
+        // Skip if student already has 5 assignments
+        if (studentAssignmentCount.get(studentId) >= 5) {
+          continue;
+        }
+
+        String choiceStr = getChoiceByPriority(choice, priority);
+        if (choiceStr.isEmpty()) {
+          continue;
+        }
+
+        Event event = findEventByChoice(choiceStr, events);
+        if (event == null) {
+          continue;
+        }
+
+        // Check if student is already assigned to this event
+        if (isAlreadyAssigned(assignments, choice, event)) {
+          continue;
+        }
+
+        // Check if event has capacity
+        if (!hasReachedCapacity(assignments, event)) {
+          assignments.get(event.getId()).add(choice);
+          studentAssignmentCount.put(studentId, studentAssignmentCount.get(studentId) + 1);
+        }
+      }
+    }
+
+    // Force assign students who have less than 5 events
+    ensureExactlyFiveAssignments(assignments, choices, events, studentAssignmentCount);
 
     return assignments;
+  }
+
+  /**
+   * Ensures that every student is assigned to exactly 5 events. If a student has less than 5
+   * events, they will be forcibly assigned to available events.
+   */
+  private void ensureExactlyFiveAssignments(Map<Integer, List<Choice>> assignments,
+      List<Choice> choices,
+      List<Event> events, Map<String, Integer> studentAssignmentCount) {
+
+    for (Choice choice : choices) {
+      String studentId =
+          choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
+      int assignmentCount = studentAssignmentCount.get(studentId);
+
+      // If student has less than 5 assignments, forcibly assign them to events with capacity
+      while (assignmentCount < 5) {
+        for (Event event : events) {
+          if (!hasReachedCapacity(assignments, event) && !isAlreadyAssigned(assignments, choice,
+              event)) {
+            assignments.get(event.getId()).add(choice);
+            assignmentCount++;
+            studentAssignmentCount.put(studentId, assignmentCount);
+            break;
+          }
+        }
+
+        // If we still haven't reached 5 and went through all events, we'll need to override capacity for some events
+        if (assignmentCount < 5) {
+          for (Event event : events) {
+            if (!isAlreadyAssigned(assignments, choice, event)) {
+              assignments.get(event.getId()).add(choice);
+              assignmentCount++;
+              studentAssignmentCount.put(studentId, assignmentCount);
+              break;
+            }
+          }
+        }
+
+        // Safety check to prevent infinite loop if there are less than 5 unique events
+        if (assignmentCount < 5 && events.size() < 5) {
+          break;
+        }
+      }
+    }
   }
 
   /**
@@ -147,11 +235,11 @@ public class StudentAssignmentService {
 
   /**
    * Returns the choice string based on the priority provided.
-   *
-   * @author mian
    */
   private String getChoiceByPriority(Choice choice, int priority) {
     switch (priority) {
+      case 1:
+        return choice.getChoice1();
       case 2:
         return choice.getChoice2();
       case 3:
@@ -216,9 +304,10 @@ public class StudentAssignmentService {
    * @author mian
    */
   public List<StudentAssignment> getAllAssignments() {
-    String sql = "SELECT sa.event_id, sa.first_name, sa.last_name, sa.class_ref, e.company, e.subject " +
-        "FROM student_assignments sa " +
-        "JOIN events e ON sa.event_id = e.id";
+    String sql =
+        "SELECT sa.event_id, sa.first_name, sa.last_name, sa.class_ref, e.company, e.subject " +
+            "FROM student_assignments sa " +
+            "JOIN events e ON sa.event_id = e.id";
     List<StudentAssignment> assignments = new ArrayList<>();
 
     try (Connection conn = DatabaseConfig.getConnection();
