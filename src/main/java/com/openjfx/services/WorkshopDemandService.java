@@ -22,26 +22,54 @@ import com.openjfx.config.DatabaseConfig;
 public class WorkshopDemandService {
 
   /**
-   * Calculates how many workshops are needed for each event based on student choices.
+   * Calculates how many workshops are needed for each event based on student assignments.
    *
-   * @param events  list of events
-   * @param choices list of student choices
+   * @param events list of events
+   * @param studentAssignments map of student IDs to their assigned choices
    * @return a map of event IDs to the number of workshops needed for each event
    * @author mian
    */
-  public Map<Integer, Integer> calculateWorkshopsNeeded(List<Event> events, List<Choice> choices) {
-    Map<Integer, Integer> choiceCounts = countAllChoices(choices);
-    Map<Integer, Integer> workshopsNeeded = new HashMap<>();
+  public Map<Integer, Integer> calculateWorkshopsNeeded(List<Event> events,
+      Map<Integer, List<Choice>> studentAssignments) {
+      Map<Integer, Integer> assignmentCounts = countAssignments(studentAssignments);
+      Map<Integer, Integer> workshopsNeeded = new HashMap<>();
 
-    // Calculate total workshops needed for each event
-    for (Event event : events) {
-      int eventId = event.getId();
-      int choiceCount = choiceCounts.getOrDefault(eventId, 0);
-      int maxCapacity = event.getMaxParticipants();
-      workshopsNeeded.put(eventId, calculateAdditionalWorkshops(choiceCount, maxCapacity));
-    }
+      // Calculate total workshops needed for each event
+      for (Event event : events) {
+          int eventId = event.getId();
+        int assignedCount = assignmentCounts.getOrDefault(eventId, 0);
+          int maxCapacity = event.getMaxParticipants();
+          workshopsNeeded.put(eventId, calculateAdditionalWorkshops(assignedCount, maxCapacity));
+      }
 
-    return workshopsNeeded;
+      return workshopsNeeded;
+  }
+
+  /**
+   * Counts all assignments for each event.
+   *
+   * @param studentAssignments map of student IDs to their assigned choices
+   * @return map of event IDs to number of assigned students
+   * @author mian
+   */
+  private Map<Integer, Integer> countAssignments(Map<Integer, List<Choice>> studentAssignments) {
+      Map<Integer, Integer> counts = new HashMap<>();
+
+      for (List<Choice> assignments : studentAssignments.values()) {
+          for (Choice assignment : assignments) {
+              String eventStr = assignment.getChoice1(); // Assuming choice1 contains the assigned event
+              if (eventStr != null && !eventStr.isEmpty()) {
+                  try {
+                      int eventId = Integer.parseInt(eventStr.replaceAll("[^0-9]", ""));
+                      counts.merge(eventId, 1, Integer::sum);
+                  } catch (NumberFormatException e) {
+                      // Ignore invalid assignments
+                  }
+              }
+          }
+      }
+
+      return counts;
   }
 
   /**

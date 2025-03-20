@@ -33,14 +33,15 @@ public class RoomPlanHandler implements Handler<Map<String, String>> {
    *
    * @param timetableService service for timetable data handling
    * @param excelService     service for Excel file operations
-   * @param roomService     service for rooms
+   * @param roomService      service for rooms
    * @author mian
    */
-  public RoomPlanHandler(TimetableService timetableService, ExcelService excelService, RoomService roomService) {
+  public RoomPlanHandler(TimetableService timetableService, ExcelService excelService,
+      RoomService roomService) {
     this.timetableService = timetableService;
     this.excelService = excelService;
-      this.roomService = new RoomService(this.excelService);
-      this.timeSlotService = new TimeSlotService();
+    this.roomService = new RoomService(this.excelService);
+    this.timeSlotService = new TimeSlotService();
     ChoiceService choiceService = new ChoiceService(excelService);
     EventService eventService = new EventService(excelService);
     StudentAssignmentService studentAssignmentService = new StudentAssignmentService();
@@ -158,20 +159,21 @@ public class RoomPlanHandler implements Handler<Map<String, String>> {
   @Override
   public List<Map<String, String>> loadData() {
     List<TimetableRow> rows = timetableService.getTimetableRowsForDisplay();
-    Map<String, Map<String, String>> companyRooms = new HashMap<>();
+    Map<String, Map<String, String>> companySubjectRooms = new HashMap<>();
 
-    // Group by company and organize by time slot
+    // Group by company-subject combination and organize by time slot
     for (TimetableRow row : rows) {
-      String company = row.getCompany();
+      // Create unique key for company-subject combination
+      String companySubjectKey = row.getCompany() + " - " + row.getSubject();
       String timeSlot = row.getTimeSlot();
       String roomInfo = row.getRoomName();
 
-      companyRooms.putIfAbsent(company, new HashMap<>());
-      companyRooms.get(company).put("company", company);
-      companyRooms.get(company).put("slot_" + timeSlot, roomInfo);
+      companySubjectRooms.putIfAbsent(companySubjectKey, new HashMap<>());
+      companySubjectRooms.get(companySubjectKey).put("company", companySubjectKey);
+      companySubjectRooms.get(companySubjectKey).put("slot_" + timeSlot, roomInfo);
     }
 
-    return new ArrayList<>(companyRooms.values());
+    return new ArrayList<>(companySubjectRooms.values());
   }
 
   /**
@@ -240,18 +242,16 @@ public class RoomPlanHandler implements Handler<Map<String, String>> {
   }
 
   /**
-   * Exports room data to an Excel file.
-   * This method calls the exportDataToExcel() function from the roomExportService
-   * to generate and save the room data in Excel format.
+   * Exports room data to an Excel file. This method calls the exportDataToExcel() function from the
+   * roomExportService to generate and save the room data in Excel format.
    *
-   * @param data The room data to be exported as a list of maps.
+   * @param data       The room data to be exported as a list of maps.
    * @param filterName The addition to the file path
    * @throws IOException If an error occurs during export.
-   *
    * @author leon
    */
   public void exportRooms(List<Map<String, Object>> data, String filterName) throws IOException {
     String filePath = roomService.getFilePath() + "_" + filterName + ".xlsx";
-    roomService.exportDataToExcel(data,filePath);
+    roomService.exportDataToExcel(data, filePath);
   }
 }
