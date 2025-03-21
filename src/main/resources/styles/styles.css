@@ -22,6 +22,11 @@
   -fx-background-color: #1f2a38;
 }
 
+#resetButton {
+  -fx-text-fill: #ff0000;
+}
+
+
 #themeToggle {
   background-color: #030712;
   -fx-background-color: #030712;
@@ -129,7 +134,7 @@
   -fx-border-width: 0 0 2px 0;
 }
 
-.table-view > .virtual-flow > .clipped-container > .sheet > .empty-table {
+.table-view>.virtual-flow>.clipped-container>.sheet>.empty-table {
   -fx-background-color: #030712;
 }
 
@@ -238,9 +243,12 @@
   -fx-text-fill: white;
   -fx-background-radius: 4px;
   -fx-cursor: hand;
-  -fx-min-width: -1;  /* Use preferred size */
-  -fx-max-width: -1;  /* Use preferred size */
-  -fx-pref-width: -1; /* Use preferred size */
+  -fx-min-width: -1;
+  /* Use preferred size */
+  -fx-max-width: -1;
+  /* Use preferred size */
+  -fx-pref-width: -1;
+  /* Use preferred size */
 }
 
 .generate-button:hover {
@@ -284,7 +292,7 @@
   -fx-background-color: #1f2a38;
   -fx-border-color: #374151;
   -fx-border-width: 1px;
-  -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 8, 0, 0, 0);
+  -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 8, 0, 0, 0);
 }
 
 .combo-box .list-view .list-cell {
@@ -344,7 +352,7 @@
   -fx-alignment: CENTER-LEFT;
 }
 
-.menu-button > .label {
+.menu-button>.label {
   -fx-text-fill: #d1d5dc;
   -fx-font-size: 14px;
   -fx-font-weight: normal;
@@ -353,7 +361,7 @@
   -fx-content-display: LEFT;
 }
 
-.menu-button > .arrow-button {
+.menu-button>.arrow-button {
   -fx-background-color: transparent;
   -fx-padding: 0 5px 0 0;
 }
@@ -366,7 +374,7 @@
   -fx-background-color: #1f2a38;
   -fx-border-color: #374151;
   -fx-border-width: 1px;
-  -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 8, 0, 0, 0);
+  -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 8, 0, 0, 0);
   -fx-content-display: LEFT;
 }
 
@@ -380,7 +388,7 @@
   -fx-alignment: CENTER-LEFT;
 }
 
-.menu-item > .label {
+.menu-item>.label {
   -fx-text-fill: #d1d5dc;
   -fx-font-size: 14px;
   -fx-font-weight: normal;

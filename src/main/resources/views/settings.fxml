@@ -59,6 +59,15 @@
               </children>
             </HBox>
           </children>
+          <children>
+            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="settings-row">
+              <children>
+                <Label text="%deletedb"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="deleteDBButton" text="%deletedbbutton" styleClass="deletedb-button" onAction="#openDeletionProcessDB"/>
+              </children>
+            </HBox>
+          </children>
         </VBox>
       </center>
     </BorderPane>

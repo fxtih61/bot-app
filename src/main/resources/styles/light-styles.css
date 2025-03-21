@@ -17,6 +17,10 @@
     -fx-font-weight: bold;
 }
 
+#resetButton {
+    -fx-text-fill: #ff0000;
+}
+
 .button:hover {
     background-color: #d1d5db;
     -fx-background-color: #d1d5db;

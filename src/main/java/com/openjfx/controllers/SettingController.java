@@ -3,9 +3,11 @@ package com.openjfx.controllers;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import java.awt.Desktop;
+import java.awt.event.ActionEvent;
 import java.net.URI;
 import java.net.Socket;
 import java.io.IOException;
@@ -22,8 +24,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+
 /**
- * Controller class for handling the settings view. This class manages the H2 Console button and
+ * Controller class for handling the settings view. This class manages the H2
+ * Console button and
  * starts the H2 server when the button is clicked.
  *
  * @author mian
@@ -38,6 +42,9 @@ public class SettingController {
   private static final AtomicBoolean isServerStarting = new AtomicBoolean(false);
   @FXML
   private ToggleButton themeToggle;
+
+  @FXML
+  private Button deleteDBButton;
 
   @FXML
   private ComboBox<String> languageComboBox;
@@ -75,6 +82,31 @@ public class SettingController {
         System.out.println("Scene konnte nicht aus themeToggle geholt werden.");
       }
     });
+  }
+
+  /**
+   * Opens an alert dialog to confirm the deletion of the database.
+   * If the user confirms the deletion, the tables and colums are deleted.
+   * If the user cancels the deletion, the alert dialog is closed.
+   */
+  private void openDeletionProcessDB() throws IOException {
+
+    Alert alert = new Alert(AlertType.CONFIRMATION);
+    alert.setTitle("Datenbank löschen");
+    alert.setHeaderText("Möchten Sie die Datenbank wirklich löschen?");
+    alert.setContentText("Alle Tabellen und Daten werden gelöscht.");
+
+    try {
+      alert.showAndWait().ifPresent(response -> {
+        if (response == ButtonType.OK) {
+        } else {
+          alert.close();
+        }
+      });
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
   }
 
   /**
@@ -236,8 +268,10 @@ public class SettingController {
   }
 
   /**
-   * Handles the action of opening the H2 Console. If the H2 server is already running, it opens the
-   * browser to the H2 Console URL. If the server is not running, it starts the server and then
+   * Handles the action of opening the H2 Console. If the H2 server is already
+   * running, it opens the
+   * browser to the H2 Console URL. If the server is not running, it starts the
+   * server and then
    * opens the browser.
    *
    * @author mian
@@ -254,8 +288,10 @@ public class SettingController {
   }
 
   /**
-   * Starts the H2 server in a separate thread and waits for it to become available. If the server
-   * starts successfully, it opens the browser to the H2 Console URL. If the server fails to start
+   * Starts the H2 server in a separate thread and waits for it to become
+   * available. If the server
+   * starts successfully, it opens the browser to the H2 Console URL. If the
+   * server fails to start
    * within the timeout period, it shows an error alert.
    *
    * @author mian
@@ -268,8 +304,7 @@ public class SettingController {
           try {
             H2Server.main(new String[0]);
           } catch (Exception e) {
-            Platform.runLater(() ->
-                showAlert("Error", "H2 Server exception: " + e.getMessage()));
+            Platform.runLater(() -> showAlert("Error", "H2 Server exception: " + e.getMessage()));
           }
         });
         serverThread.setDaemon(true); // Make thread daemon so it won't prevent JVM shutdown
@@ -295,8 +330,7 @@ public class SettingController {
           }
         });
       } catch (Exception e) {
-        Platform.runLater(() ->
-            showAlert("Error", "Failed to start H2 Console: " + e.getMessage()));
+        Platform.runLater(() -> showAlert("Error", "Failed to start H2 Console: " + e.getMessage()));
       } finally {
         isServerStarting.set(false);
       }
@@ -304,9 +338,12 @@ public class SettingController {
   }
 
   /**
-   * Opens the default browser to the H2 Console URL. If desktop operations are not supported, it
-   * shows an error alert. There is a known issue with the Desktop API on Linux, where it does not
-   * run the default browser as expected. In this case, it tries to open the browser using different
+   * Opens the default browser to the H2 Console URL. If desktop operations are
+   * not supported, it
+   * shows an error alert. There is a known issue with the Desktop API on Linux,
+   * where it does not
+   * run the default browser as expected. In this case, it tries to open the
+   * browser using different
    * options.
    *
    * @author mian
@@ -319,13 +356,13 @@ public class SettingController {
       // Linux-specific handling
       if (os.contains("linux")) {
         // Try different browser options on Linux
-        String[] browsers = {"xdg-open", "google-chrome", "firefox", "mozilla", "konqueror",
-            "netscape", "opera"};
+        String[] browsers = { "xdg-open", "google-chrome", "firefox", "mozilla", "konqueror",
+            "netscape", "opera" };
         boolean browserOpened = false;
 
         for (String browser : browsers) {
           try {
-            Runtime.getRuntime().exec(new String[]{browser, url});
+            Runtime.getRuntime().exec(new String[] { browser, url });
             browserOpened = true;
             break;
           } catch (Exception e) {
