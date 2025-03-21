@@ -409,7 +409,18 @@ public class ExportController {
           }
         }
       } else if (format.equals("pdf")) {
-           //exportToPdf(dataToExport);
+        if (currentHandler instanceof RoomPlanHandler) {
+          List<Map<String, Object>> data = roomService.prepareDataForExport((List<Object>) dataToExport);
+
+          try {
+            // Export the data to an Excel file
+            roomPlanHandler.exportRoomsPDF(data,filterName);
+            showInfoAlert("Export Successful", "Data has been successfully exported to file: '" + roomService.getFilePath() + "_" + filterName + ".pdf'");
+          } catch (IOException e) {
+            // Error handling if the export fails
+            showErrorAlert("File Error", "Could not export to the the file : " + roomService.getFilePath() + "_" + filterName  + ".pdf, " + e.getMessage());
+          }
+        }
        }
     }
   }

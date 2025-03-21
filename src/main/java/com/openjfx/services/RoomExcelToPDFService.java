@@ -8,8 +8,21 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Diese Klasse bietet Funktionen zum Exportieren von Raumdaten in eine PDF-Datei.
+ * Die Daten werden in einer Tabelle dargestellt, die in der PDF-Datei erstellt wird.
+ */
 public class RoomExcelToPDFService {
 
+    /**
+     * Exportiert die übergebenen Daten in eine PDF-Datei.
+     *
+     * @param data       Eine Liste von Maps, die die Daten für die Tabelle enthalten.
+     *                   Jede Map repräsentiert eine Zeile in der Tabelle.
+     * @param outputPath Der Pfad, unter dem die PDF-Datei gespeichert werden soll.
+     * @throws IOException Wenn ein Fehler beim Erstellen oder Speichern der PDF-Datei auftritt.
+     * @author batuhan
+     */
     public void roomExportToPdf(List<Map<String, Object>> data, String outputPath) throws IOException {
         try (PDDocument document = new PDDocument()) {
             PDPage page = createNewPage(document);
@@ -35,12 +48,27 @@ public class RoomExcelToPDFService {
         }
     }
 
+    /**
+     * Erstellt eine neue Seite im PDF-Dokument.
+     *
+     * @param document Das PDF-Dokument, zu dem die Seite hinzugefügt werden soll.
+     * @return Die erstellte Seite.
+     * @author batuhan
+     */
     public PDPage createNewPage(PDDocument document) {
         PDPage page = new PDPage(new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
         document.addPage(page);
         return page;
     }
 
+    /**
+     * Fügt der PDF-Datei einen Titel und eine Einführung hinzu.
+     *
+     * @param contentStream Der PDPageContentStream, der verwendet wird, um den Text hinzuzufügen.
+     * @throws IOException Wenn ein Fehler beim Hinzufügen des Textes auftritt.
+     * @author batuhan
+     *
+     */
     public void addTitleAndIntro(PDPageContentStream contentStream) throws IOException {
         contentStream.setFont(PDType1Font.HELVETICA_BOLD, 16);
         contentStream.beginText();
@@ -57,6 +85,16 @@ public class RoomExcelToPDFService {
         contentStream.endText();
     }
 
+    /**
+     * Berechnet die Breiten der Spalten basierend auf den Überschriften und den Daten.
+     *
+     * @param contentStream Der PDPageContentStream, der verwendet wird, um die Schriftart zu setzen.
+     * @param headers       Die Überschriften der Tabelle.
+     * @param data          Die Daten, die in der Tabelle angezeigt werden sollen.
+     * @return Ein Array von Floats, das die Breiten der Spalten enthält.
+     * @throws IOException Wenn ein Fehler beim Berechnen der Spaltenbreiten auftritt.
+     * @author batuhan
+     */
     public float[] calculateColumnWidths(PDPageContentStream contentStream, String[] headers, List<Map<String, Object>> data) throws IOException {
         float[] colWidths = new float[headers.length];
         contentStream.setFont(PDType1Font.HELVETICA, 10);
@@ -78,6 +116,21 @@ public class RoomExcelToPDFService {
         return colWidths;
     }
 
+    /**
+     * Zeichnet die Tabelle in die PDF-Datei.
+     *
+     * @param contentStream Der PDPageContentStream, der verwendet wird, um die Tabelle zu zeichnen.
+     * @param x             Die X-Koordinate, an der die Tabelle beginnt.
+     * @param y             Die Y-Koordinate, an der die Tabelle beginnt.
+     * @param tableWidth    Die Breite der Tabelle.
+     * @param rowHeight     Die Höhe einer Zeile in der Tabelle.
+     * @param colWidths     Die Breiten der Spalten.
+     * @param headers       Die Überschriften der Tabelle.
+     * @param data          Die Daten, die in der Tabelle angezeigt werden sollen.
+     * @param document      Das PDF-Dokument, zu dem die Tabelle hinzugefügt wird.
+     * @throws IOException Wenn ein Fehler beim Zeichnen der Tabelle auftritt.
+     * @author batuhan
+     */
     public void drawTable(PDPageContentStream contentStream, float x, float y, float tableWidth, float rowHeight, float[] colWidths, String[] headers, List<Map<String, Object>> data, PDDocument document) throws IOException {
         float currentY = y;
 
@@ -137,6 +190,17 @@ public class RoomExcelToPDFService {
         contentStream.close();
     }
 
+    /**
+     * Zeichnet eine Zeile in die Tabelle.
+     *
+     * @param contentStream Der PDPageContentStream, der verwendet wird, um die Zeile zu zeichnen.
+     * @param x             Die X-Koordinate, an der die Zeile beginnt.
+     * @param y             Die Y-Koordinate, an der die Zeile beginnt.
+     * @param colWidths     Die Breiten der Spalten.
+     * @param columns       Die Daten, die in der Zeile angezeigt werden sollen.
+     * @throws IOException Wenn ein Fehler beim Zeichnen der Zeile auftritt.
+     * @author batuhan
+     */
     public void drawRow(PDPageContentStream contentStream, float x, float y, float[] colWidths, String[] columns) throws IOException {
         contentStream.setFont(PDType1Font.HELVETICA, 10); // Schriftart auf normal setzen
         float currentX = x;
@@ -163,6 +227,18 @@ public class RoomExcelToPDFService {
         }
     }
 
+    /**
+     * Zeichnet die Ränder der Tabelle.
+     *
+     * @param contentStream Der PDPageContentStream, der verwendet wird, um die Ränder zu zeichnen.
+     * @param x             Die X-Koordinate, an der die Tabelle beginnt.
+     * @param y             Die Y-Koordinate, an der die Tabelle beginnt.
+     * @param rowHeight     Die Höhe einer Zeile in der Tabelle.
+     * @param tableWidth    Die Breite der Tabelle.
+     * @param colWidths     Die Breiten der Spalten.
+     * @throws IOException Wenn ein Fehler beim Zeichnen der Ränder auftritt.
+     * @author batuhan
+     */
     public void drawTableBorders(PDPageContentStream contentStream, float x, float y, float rowHeight, float tableWidth, float[] colWidths) throws IOException {
         contentStream.setStrokingColor(0); // Schwarz für Linien
 
@@ -181,12 +257,33 @@ public class RoomExcelToPDFService {
         contentStream.stroke();
     }
 
+    /**
+     * Zeichnet eine horizontale Linie in der Tabelle.
+     *
+     * @param contentStream Der PDPageContentStream, der verwendet wird, um die Linie zu zeichnen.
+     * @param x             Die X-Koordinate, an der die Linie beginnt.
+     * @param y             Die Y-Koordinate, an der die Linie beginnt.
+     * @param width         Die Länge der Linie.
+     * @throws IOException Wenn ein Fehler beim Zeichnen der Linie auftritt.
+     * @author batuhan
+     */
     private void drawHorizontalLine(PDPageContentStream contentStream, float x, float y, float width) throws IOException {
         contentStream.moveTo(x, y);
         contentStream.lineTo(x + width, y);
         contentStream.stroke();
     }
 
+    /**
+     * Zeichnet vertikale Linien in der Tabelle.
+     *
+     * @param contentStream Der PDPageContentStream, der verwendet wird, um die Linien zu zeichnen.
+     * @param x             Die X-Koordinate, an der die Linien beginnen.
+     * @param y             Die Y-Koordinate, an der die Linien beginnen.
+     * @param rowHeight     Die Höhe einer Zeile in der Tabelle.
+     * @param colWidths     Die Breiten der Spalten.
+     * @throws IOException Wenn ein Fehler beim Zeichnen der Linien auftritt.
+     * @author batuhan
+     */
     private void drawVerticalLines(PDPageContentStream contentStream, float x, float y, float rowHeight, float[] colWidths) throws IOException {
         float currentX = x;
         for (float colWidth : colWidths) {

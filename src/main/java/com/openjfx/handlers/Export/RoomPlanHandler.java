@@ -254,4 +254,19 @@ public class RoomPlanHandler implements Handler<Map<String, String>> {
     String filePath = roomService.getFilePath() + "_" + filterName + ".xlsx";
     roomService.exportDataToExcel(data,filePath);
   }
+  /**
+   * Exports room data to a pdf file.
+   * This method calls the exportDataToPdf() function from the roomExportService
+   * to generate and save the room data in Excel format.
+   *
+   * @param data The room data to be exported as a list of maps.
+   * @param filterName The addition to the file path
+   * @throws IOException If an error occurs during export.
+   *
+   * @author batuhan
+   */
+  public void exportRoomsPDF(List<Map<String, Object>> data, String filterName) throws IOException {
+    String filePath = roomService.getFilePath() + "_" + filterName + ".pdf";
+    roomService.roomExportToPdf(data,filePath);
+  }
 }
