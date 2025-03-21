@@ -131,13 +131,37 @@ public class ExportController {
       try {
         assignmentService.loadAllDataAndAssignStudents();
         assignmentsGenerated = true;
-        refreshTable(); // Refresh the table to show the generated data
-        showInfoAlert("Data Generated", "Student assignments have been generated successfully.");
       } catch (IOException ex) {
         showErrorAlert("Error generating assignments", ex.getMessage());
         ex.printStackTrace();
+        return; // Don't proceed if assignment generation fails
       }
     }
+
+    if (!workshopDemandGenerated) {
+      try {
+        assignmentService.calculateWorkshopDemandOnly();
+        workshopDemandGenerated = true;
+      } catch (IOException ex) {
+        showErrorAlert("Error calculating workshop demand", ex.getMessage());
+        ex.printStackTrace();
+        return; // Don't proceed if demand calculation fails
+      }
+    }
+
+    if (!timetableGenerated) {
+      try {
+        Map<Integer, Integer> workshopDemand = assignmentService.loadWorkshopDemand();
+        assignmentService.createAndSaveTimetable(workshopDemand);
+        timetableGenerated = true;
+      } catch (IOException ex) {
+        showErrorAlert("Error creating timetable", ex.getMessage());
+        ex.printStackTrace();
+        return; // Don't proceed if timetable creation fails
+      }
+    }
+
+    refreshTable(); // Refresh the table to show the generated data
   }
 
   /**
@@ -263,113 +287,17 @@ public class ExportController {
    * @author mian
    */
   private void setupButtons() {
-    // Assignment button - check data before handling
-    AssignmentButton.setOnAction(e -> {
-      // Always check current state of data first
-      checkExistingData();
+    // Assignment button - only switch view
+    AssignmentButton.setOnAction(e -> switchHandler(assignmentHandler, AssignmentButton));
 
-      if (!assignmentsGenerated) {
-        try {
-          showGeneratingAlert("Generating student assignments...");
-          assignmentService.loadAllDataAndAssignStudents();
-          assignmentsGenerated = true;
-          showInfoAlert("Data Generated", "Student assignments have been generated successfully.");
-        } catch (IOException ex) {
-          showErrorAlert("Error generating assignments", ex.getMessage());
-          ex.printStackTrace();
-          return; // Don't proceed if assignment generation fails
-        }
-      }
+    // Workshop demand button - only switch view
+    WorkshopDemandButton.setOnAction(e -> switchHandler(workshopDemandHandler, WorkshopDemandButton));
 
-      switchHandler(assignmentHandler, AssignmentButton);
-    });
+    // Room time plan button - only switch view
+    RoomTimePlanButton.setOnAction(e -> switchHandler(roomPlanHandler, RoomTimePlanButton));
 
-    // Workshop demand button - check data before handling
-    WorkshopDemandButton.setOnAction(e -> {
-      // Always check current state of data first
-      checkExistingData();
-
-      if (!assignmentsGenerated) {
-        try {
-          showGeneratingAlert("Generating student assignments first...");
-          assignmentService.loadAllDataAndAssignStudents();
-          assignmentsGenerated = true;
-          showInfoAlert("Data Generated", "Student assignments have been generated successfully.");
-        } catch (IOException ex) {
-          showErrorAlert("Error generating assignments", ex.getMessage());
-          ex.printStackTrace();
-          return; // Don't proceed if assignment generation fails
-        }
-      }
-
-      if (!workshopDemandGenerated) {
-        try {
-          showGeneratingAlert("Calculating workshop demand...");
-          assignmentService.calculateWorkshopDemandOnly();
-          workshopDemandGenerated = true;
-        } catch (IOException ex) {
-          showErrorAlert("Error calculating workshop demand", ex.getMessage());
-          ex.printStackTrace();
-          return; // Don't proceed if demand calculation fails
-        }
-      }
-
-      switchHandler(workshopDemandHandler, WorkshopDemandButton);
-    });
-
-    // Room time plan button - check data before handling
-    RoomTimePlanButton.setOnAction(e -> {
-      // Always check current state of data first
-      checkExistingData();
-
-      if (!assignmentsGenerated) {
-        try {
-          showGeneratingAlert("Generating student assignments first...");
-          assignmentService.loadAllDataAndAssignStudents();
-          assignmentsGenerated = true;
-          showInfoAlert("Data Generated", "Student assignments have been generated successfully.");
-        } catch (IOException ex) {
-          showErrorAlert("Error generating assignments", ex.getMessage());
-          ex.printStackTrace();
-          return; // Don't proceed if assignment generation fails
-        }
-      }
-
-      if (!workshopDemandGenerated) {
-        try {
-          showGeneratingAlert("Calculating workshop demand...");
-          assignmentService.calculateWorkshopDemandOnly();
-          workshopDemandGenerated = true;
-        } catch (IOException ex) {
-          showErrorAlert("Error calculating workshop demand", ex.getMessage());
-          ex.printStackTrace();
-          return; // Don't proceed if demand calculation fails
-        }
-      }
-
-      if (!timetableGenerated) {
-        try {
-          showGeneratingAlert("Creating room timetable...");
-          Map<Integer, Integer> workshopDemand = assignmentService.loadWorkshopDemand();
-          assignmentService.createAndSaveTimetable(workshopDemand);
-          timetableGenerated = true;
-        } catch (IOException ex) {
-          showErrorAlert("Error creating timetable", ex.getMessage());
-          ex.printStackTrace();
-          return; // Don't proceed if timetable creation fails
-        }
-      }
-
-      switchHandler(roomPlanHandler, RoomTimePlanButton);
-    });
-
-    exportToExcelMenuItem.setOnAction(e -> {
-      exportData("excel");
-    });
-
-    exportToPdfMenuItem.setOnAction(e -> {
-      exportData("pdf");
-    });
+    exportToExcelMenuItem.setOnAction(e -> exportData("excel"));
+    exportToPdfMenuItem.setOnAction(e -> exportData("pdf"));
   }
 
   /**
