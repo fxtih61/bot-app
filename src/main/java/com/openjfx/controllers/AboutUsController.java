@@ -18,6 +18,10 @@ import java.awt.Desktop;
  * - Button mianButton
  * - Button leonButton
  * - Button batuhanButton
+ * - Button fatihLinkedInButton
+ * - Button mianLinkedInButton
+ * - Button leonLinkedInButton
+ * - Button batuhanLinkedInButton
  * 
  * Methods:
  * - initialize(): Initializes the controller.
@@ -33,6 +37,14 @@ import java.awt.Desktop;
  * @author Fatih Tolip
  */
 public class AboutUsController {
+
+    /**
+     * FXML annotated buttons representing team members in the About Us section for LinkedIn.
+     * These buttons are linked to their respective FXML elements.
+     *
+     * @author leon
+     */
+    public Button fatihLinkedInButton, mianLinkedInButton, leonLinkedInButton, batuhanLinkedInButton;
 
     /**
      * FXML annotated buttons representing team members in the About Us section.
@@ -60,7 +72,7 @@ public class AboutUsController {
     public void openFatihGitHub(ActionEvent event) throws Exception {
         String url = "https://github.com/fxtih61";
         try {
-            openBrowserToUserGithub(url);
+            openBrowserToUser(url);
         } catch (Exception e) {
             showAlert("Error", "Cannot open browser: " + e.getMessage());
         }
@@ -78,7 +90,7 @@ public class AboutUsController {
     public void openMianGitHub(ActionEvent event) throws Exception {
         String url = "https://github.com/MianGo7";
         try {
-            openBrowserToUserGithub(url);
+            openBrowserToUser(url);
         } catch (Exception e) {
             showAlert("Error", "Cannot open browser: " + e.getMessage());
         }
@@ -96,7 +108,7 @@ public class AboutUsController {
     public void openLeonGitHub(ActionEvent event) throws Exception {
         String url = "https://github.com/leokin4";
         try {
-            openBrowserToUserGithub(url);
+            openBrowserToUser(url);
         } catch (Exception e) {
             showAlert("Error", "Cannot open browser: " + e.getMessage());
         }
@@ -114,7 +126,7 @@ public class AboutUsController {
     public void openBatuhanGitHub(ActionEvent event) throws Exception {
         String url = "https://github.com/ymbatu64";
         try {
-            openBrowserToUserGithub(url);
+            openBrowserToUser(url);
         } catch (Exception e) {
             showAlert("Error", "Cannot open browser: " + e.getMessage());
         }
@@ -134,7 +146,7 @@ public class AboutUsController {
      * 
      * @author Fatih Tolip
      */
-    private void openBrowserToUserGithub(String rUrl) {
+    private void openBrowserToUser(String rUrl) {
         try {
             String url = rUrl;
             String os = System.getProperty("os.name").toLowerCase();
@@ -177,6 +189,8 @@ public class AboutUsController {
      *
      * @param title   the title of the alert
      * @param content the content of the alert
+     *
+     * @author Fatih Tolip
      */
     private void showAlert(String title, String content) {
         Alert alert = new Alert(AlertType.INFORMATION);
@@ -184,5 +198,77 @@ public class AboutUsController {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    /**
+     * Opens the default web browser to the specified LinkIn URL.
+     *
+     * @param event the action event that triggered this method
+     * @throws Exception if an error occurs while attempting to open the browser
+     *
+     * @author leon
+     */
+    @FXML
+    public void openFatihLinkedIn(ActionEvent event) throws Exception {
+        String url = "https://www.linkedin.com/in/fatih-tolip/";
+        try {
+            openBrowserToUser(url);
+        } catch (Exception e) {
+            showAlert("Error", "Cannot open browser: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Opens the default web browser to the specified LinkIn URL.
+     *
+     * @param event the action event that triggered this method
+     * @throws Exception if an error occurs while attempting to open the browser
+     *
+     * @author leon
+     */
+    @FXML
+    public void openMianLinkedIn(ActionEvent event) throws Exception {
+        String url = "https://www.linkedin.com/in/miangohar/";
+        try {
+            openBrowserToUser(url);
+        } catch (Exception e) {
+            showAlert("Error", "Cannot open browser: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Opens the default web browser to the specified LinkIn URL.
+     *
+     * @param event the action event that triggered this method
+     * @throws Exception if an error occurs while attempting to open the browser
+     *
+     * @author leon
+     */
+    @FXML
+    public void openLeonLinkedIn(ActionEvent event) throws Exception {
+        String url = "https://www.linkedin.com/in/leon-kinderreich/";
+        try {
+            openBrowserToUser(url);
+        } catch (Exception e) {
+            showAlert("Error", "Cannot open browser: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Opens the default web browser to the specified LinkIn URL.
+     *
+     * @param event the action event that triggered this method
+     * @throws Exception if an error occurs while attempting to open the browser
+     *
+     * @author leon
+     */
+    @FXML
+    public void openBatuhanLinkedIn(ActionEvent event) throws Exception {
+        String url = "https://www.linkedin.com/in/batuhan-kuecuekcongar/";
+        try {
+            openBrowserToUser(url);
+        } catch (Exception e) {
+            showAlert("Error", "Cannot open browser: " + e.getMessage());
+        }
     }
 }
