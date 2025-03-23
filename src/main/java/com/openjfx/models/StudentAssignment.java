@@ -16,6 +16,8 @@ public class StudentAssignment {
   private String lastName;
   private String classRef;
   private String subject;
+  private String timeSlot;
+  private String roomId;
 
   /**
    * Constructs a new StudentAssignment with the specified attributes.
@@ -171,6 +173,42 @@ public class StudentAssignment {
    */
   public void setSubject(String subject) {
     this.subject = subject;
+  }
+
+  /**
+   * Gets the time slot.
+   *
+   * @return the time slot
+   */
+  public String getTimeSlot() {
+    return timeSlot;
+  }
+
+  /**
+   * Sets the time slot.
+   *
+   * @param timeSlot the time slot
+   */
+  public void setTimeSlot(String timeSlot) {
+    this.timeSlot = timeSlot;
+  }
+
+  /**
+   * Gets the room ID.
+   *
+   * @return the room ID
+   */
+  public String getRoomId() {
+    return roomId;
+  }
+
+  /**
+   * Sets the room ID.
+   *
+   * @param roomId the room ID
+   */
+  public void setRoomId(String roomId) {
+    this.roomId = roomId;
   }
 
   /**

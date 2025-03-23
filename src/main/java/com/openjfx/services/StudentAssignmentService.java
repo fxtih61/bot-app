@@ -50,14 +50,16 @@ public class StudentAssignmentService {
     // Initialize student tracking
     for (Choice choice : choices) {
       // Use student's full name and class as unique identifier
-      String studentId = choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
+      String studentId =
+          choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
       studentAssignmentCount.put(studentId, 0);
       studentAssignedEvents.put(studentId, new HashSet<>());
     }
 
     // STEP 1: Assign ALL students to their first choice - this must be fulfilled
     for (Choice choice : choices) {
-      String studentId = choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
+      String studentId =
+          choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
 
       String firstChoice = choice.getChoice1();
       if (!firstChoice.isEmpty()) {
@@ -76,7 +78,8 @@ public class StudentAssignmentService {
     List<StudentChoicePriority> allChoices = new ArrayList<>();
 
     for (Choice choice : choices) {
-      String studentId = choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
+      String studentId =
+          choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
 
       // Add all choices from priority 2-6
       for (int priority = 2; priority <= 6; priority++) {
@@ -119,7 +122,8 @@ public class StudentAssignmentService {
     // STEP 3: Force assign students who have less than 5 events
     // But try to respect their preferences as much as possible
     for (Choice choice : choices) {
-      String studentId = choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
+      String studentId =
+          choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
       int assignmentCount = studentAssignmentCount.get(studentId);
 
       // Skip if student already has 5 assignments
@@ -396,9 +400,11 @@ public class StudentAssignmentService {
    */
   public List<StudentAssignment> getAllAssignments() {
     String sql =
-        "SELECT sa.event_id, sa.first_name, sa.last_name, sa.class_ref, e.company, e.subject " +
+        "SELECT sa.event_id, sa.first_name, sa.last_name, sa.class_ref, " +
+            "e.company, e.subject, sa.time_slot, sa.room_id " +
             "FROM student_assignments sa " +
             "JOIN events e ON sa.event_id = e.id";
+
     List<StudentAssignment> assignments = new ArrayList<>();
 
     try (Connection conn = DatabaseConfig.getConnection();
@@ -414,6 +420,8 @@ public class StudentAssignmentService {
             rs.getString("company"),
             rs.getString("subject")
         );
+        assignment.setTimeSlot(rs.getString("time_slot"));
+        assignment.setRoomId(rs.getString("room_id"));
         assignments.add(assignment);
       }
 
@@ -452,6 +460,7 @@ public class StudentAssignmentService {
 
   // Helper class to track student choices with priorities
   private static class StudentChoicePriority {
+
     private final String studentId;
     private final Choice choice;
     private final int eventId;
@@ -483,6 +492,7 @@ public class StudentAssignmentService {
 
   // Helper class to track events with priorities
   private static class EventPriority {
+
     private final Event event;
     private final int priority;
 
