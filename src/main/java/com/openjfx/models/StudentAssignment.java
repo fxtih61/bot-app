@@ -16,6 +16,9 @@ public class StudentAssignment {
   private String lastName;
   private String classRef;
   private String subject;
+  private Integer choiceNo;
+  private String timeSlot;
+  private String roomId;
 
   /**
    * Constructs a new StudentAssignment with the specified attributes.
@@ -35,6 +38,7 @@ public class StudentAssignment {
     this.classRef = classRef;
     this.companyName = companyName;
     this.subject = subject;
+    this.choiceNo = null;
   }
 
   /**
@@ -171,6 +175,66 @@ public class StudentAssignment {
    */
   public void setSubject(String subject) {
     this.subject = subject;
+  }
+
+  /**
+   * Gets the time slot.
+   *
+   * @return the time slot
+   * @author mian
+   */
+  public String getTimeSlot() {
+    return timeSlot;
+  }
+
+  /**
+   * Sets the time slot.
+   *
+   * @param timeSlot the time slot
+   * @author mian
+   */
+  public void setTimeSlot(String timeSlot) {
+    this.timeSlot = timeSlot;
+  }
+
+  /**
+   * Gets the room ID.
+   *
+   * @return the room ID
+   * @author mian
+   */
+  public String getRoomId() {
+    return roomId;
+  }
+
+  /**
+   * Sets the room ID.
+   *
+   * @param roomId the room ID
+   * @author mian
+   */
+  public void setRoomId(String roomId) {
+    this.roomId = roomId;
+  }
+
+  /**
+   * Gets the choice number.
+   *
+   * @return the choice number
+   * @author mian
+   */
+  public Integer getChoiceNo() {
+    return choiceNo;
+  }
+
+  /**
+   * Sets the choice number.
+   *
+   * @param choiceNo the choice number
+   * @author mian
+   */
+  public void setChoiceNo(Integer choiceNo) {
+    this.choiceNo = choiceNo;
   }
 
   /**

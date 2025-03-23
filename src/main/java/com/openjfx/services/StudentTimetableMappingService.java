@@ -1,15 +1,20 @@
 package com.openjfx.services;
 
+import com.openjfx.config.DatabaseConfig;
 import com.openjfx.models.Event;
 import com.openjfx.models.EventRoomAssignment;
 import com.openjfx.models.StudentAssignment;
 import com.openjfx.models.WorkshopDemand;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
  * Service class that consolidates data from student assignments, workshop demand, and timetable
@@ -79,127 +84,99 @@ public class StudentTimetableMappingService {
   }
 
   /**
-   * Maps students to timetable assignments while respecting room capacity and preventing time
-   * conflicts.
+   * Maps students to timetable assignments and updates the database.
    *
    * @return Map of student IDs to their assigned timetable entries
    * @author mian
    */
   public Map<StudentAssignment, EventRoomAssignment> mapStudentsToTimetable() {
-    // Get all required data
-    List<StudentAssignment> studentAssignments = getAllStudentAssignments();
-    List<WorkshopDemand> workshopDemands = getAllWorkshopDemands();
-    List<EventRoomAssignment> timetableAssignments = getAllTimetableAssignments();
-    List<Event> events = getAllEvents();
-
-    // Result map to store student assignments to timetable slots
     Map<StudentAssignment, EventRoomAssignment> studentTimetableMap = new HashMap<>();
 
-    // Track room occupancy for each event-room assignment
-    Map<EventRoomAssignment, Integer> roomOccupancy = new HashMap<>();
-    timetableAssignments.forEach(assignment -> roomOccupancy.put(assignment, 0));
+    try (Connection conn = DatabaseConfig.getConnection()) {
+      // Prepare update statement
+      String updateSQL = "UPDATE student_assignments SET time_slot = ?, room_id = ? WHERE first_name = ? AND last_name = ? AND event_id = ?";
+      PreparedStatement pstmt = conn.prepareStatement(updateSQL);
 
-    // Track which time slots are assigned to each student to avoid conflicts
-    Map<String, Set<String>> studentTimeSlots = new HashMap<>();
+      // Get all required data
+      List<StudentAssignment> studentAssignments = getAllStudentAssignments();
+      List<WorkshopDemand> workshopDemands = getAllWorkshopDemands();
+      List<EventRoomAssignment> timetableAssignments = getAllTimetableAssignments();
+      List<Event> events = getAllEvents();
 
-    // Create a composite key of eventId, company, and subject for more accurate matching
-    Map<String, List<EventRoomAssignment>> eventAssignments = new HashMap<>();
-    for (EventRoomAssignment assignment : timetableAssignments) {
-      int eventId = assignment.getEvent().getId();
-      // Use only the eventId for more reliable matching
-      String compositeKey = String.valueOf(eventId);
-      eventAssignments.computeIfAbsent(compositeKey, k -> new java.util.ArrayList<>())
-          .add(assignment);
-    }
+      // Track room occupancy and student time slots (same as before)
+      Map<EventRoomAssignment, Integer> roomOccupancy = new HashMap<>();
+      timetableAssignments.forEach(assignment -> roomOccupancy.put(assignment, 0));
+      Map<String, Set<String>> studentTimeSlots = new HashMap<>();
 
-    // When grouping student assignments
-    Map<String, List<StudentAssignment>> studentsByEvent = new HashMap<>();
-    for (StudentAssignment assignment : studentAssignments) {
-      int eventId = assignment.getEventId();
-      // Use only the eventId for more reliable matching
-      String compositeKey = String.valueOf(eventId);
-      studentsByEvent.computeIfAbsent(compositeKey, k -> new java.util.ArrayList<>())
-          .add(assignment);
-    }
-
-    System.out.println("Available student event keys: " + studentsByEvent.keySet());
-    System.out.println("Available assignment event keys: " + eventAssignments.keySet());
-
-    // Process each event with company and subject combinations
-    for (Event event : events) {
-      int eventId = event.getId();
-      String company = event.getCompany();
-      String subject = event.getSubject();
-      String compositeKey = String.valueOf(eventId);
-
-      List<StudentAssignment> studentsForEvent = new java.util.ArrayList<>(
-          studentsByEvent.getOrDefault(compositeKey, new java.util.ArrayList<>()));
-      Collections.shuffle(studentsForEvent);
-      List<EventRoomAssignment> assignmentsForEvent = eventAssignments.getOrDefault(compositeKey,
-          new java.util.ArrayList<>());
-
-      if (studentsForEvent.isEmpty() || assignmentsForEvent.isEmpty()) {
-        continue;
+      // Create event assignments map (same as before)
+      Map<String, List<EventRoomAssignment>> eventAssignments = new HashMap<>();
+      for (EventRoomAssignment assignment : timetableAssignments) {
+        String compositeKey = String.valueOf(assignment.getEvent().getId());
+        eventAssignments.computeIfAbsent(compositeKey, k -> new ArrayList<>())
+            .add(assignment);
       }
 
-      // Sort room assignments by capacity (largest first) to optimize space usage
-      assignmentsForEvent.sort(
-          (a1, a2) -> Integer.compare(a2.getRoom().getCapacity(), a1.getRoom().getCapacity()));
+      // Group students by event (same as before)
+      Map<String, List<StudentAssignment>> studentsByEvent = new HashMap<>();
+      for (StudentAssignment assignment : studentAssignments) {
+        String compositeKey = String.valueOf(assignment.getEventId());
+        studentsByEvent.computeIfAbsent(compositeKey, k -> new ArrayList<>())
+            .add(assignment);
+      }
 
-      // Assign students to rooms
-      for (StudentAssignment student : studentsForEvent) {
-        String studentId = student.getFirstName() + "_" + student.getLastName();
+      // Process each event
+      for (Event event : events) {
+        String compositeKey = String.valueOf(event.getId());
+        List<StudentAssignment> studentsForEvent = new ArrayList<>(
+            studentsByEvent.getOrDefault(compositeKey, new ArrayList<>()));
+        Collections.shuffle(studentsForEvent);
+        List<EventRoomAssignment> assignmentsForEvent = eventAssignments.getOrDefault(compositeKey,
+            new ArrayList<>());
 
-        // Initialize student time slots set if not exists
-        if (!studentTimeSlots.containsKey(studentId)) {
-          studentTimeSlots.put(studentId, new HashSet<>());
+        if (studentsForEvent.isEmpty() || assignmentsForEvent.isEmpty()) {
+          continue;
         }
 
-        //TODO: Fix the warning message
+        // Sort room assignments by capacity
+        assignmentsForEvent.sort(
+            (a1, a2) -> Integer.compare(a2.getRoom().getCapacity(), a1.getRoom().getCapacity()));
 
-        boolean assigned = false;
-        StringBuilder conflictInfo = new StringBuilder();
-
-        // Try to assign student to a room
-        for (EventRoomAssignment roomAssignment : assignmentsForEvent) {
-          String timeSlot = roomAssignment.getTimeSlot();
-          int currentOccupancy = roomOccupancy.get(roomAssignment);
-          int roomCapacity = roomAssignment.getRoom().getCapacity();
-
-          // Check if student already has an assignment at this time slot
-          if (studentTimeSlots.get(studentId).contains(timeSlot)) {
-            conflictInfo.append("  Time slot ")
-                .append(timeSlot)
-                .append(" - Student already has another assignment\n");
-            continue; // Skip this time slot, student already has an assignment
+        // Assign students to rooms
+        for (StudentAssignment student : studentsForEvent) {
+          String studentId = student.getFirstName() + "_" + student.getLastName();
+          if (!studentTimeSlots.containsKey(studentId)) {
+            studentTimeSlots.put(studentId, new HashSet<>());
           }
 
-          // Check if room has capacity
-          if (currentOccupancy < roomCapacity) {
-            // Assign student to this room
-            studentTimetableMap.put(student, roomAssignment);
-            roomOccupancy.put(roomAssignment, currentOccupancy + 1);
-            studentTimeSlots.get(studentId).add(timeSlot);
-            assigned = true;
-            break;
-          } else {
-            conflictInfo.append("  Time slot ")
-                .append(timeSlot)
-                .append(" - Room is at capacity\n");
+          for (EventRoomAssignment roomAssignment : assignmentsForEvent) {
+            String timeSlot = roomAssignment.getTimeSlot();
+            int currentOccupancy = roomOccupancy.get(roomAssignment);
+            int roomCapacity = roomAssignment.getRoom().getCapacity();
+
+            if (!studentTimeSlots.get(studentId).contains(timeSlot)
+                && currentOccupancy < roomCapacity) {
+              // Update database
+              pstmt.setString(1, timeSlot);
+              pstmt.setString(2, roomAssignment.getRoom().getName());
+              pstmt.setString(3, student.getFirstName());
+              pstmt.setString(4, student.getLastName());
+              pstmt.setInt(5, student.getEventId());
+              pstmt.executeUpdate();
+
+              // Update tracking maps
+              studentTimetableMap.put(student, roomAssignment);
+              roomOccupancy.put(roomAssignment, currentOccupancy + 1);
+              studentTimeSlots.get(studentId).add(timeSlot);
+              break;
+            }
           }
-        }
-
-        if (!assigned) {
-          // Could not assign student due to conflicts
-          System.out.println("WARNING: Could not assign student " + student.getFirstName() + " "
-              + student.getLastName() + " to event " + eventId + " due to:");
-          System.out.println(conflictInfo);
-
-          // Print student's current assignments
-          System.out.println("  Student's current assignments: " +
-              String.join(", ", studentTimeSlots.get(studentId)));
         }
       }
+
+      pstmt.close();
+    } catch (SQLException e) {
+      System.err.println("Error updating student assignments: " + e.getMessage());
+      e.printStackTrace();
     }
 
     return studentTimetableMap;
@@ -259,7 +236,8 @@ public class StudentTimetableMappingService {
       System.out.printf("Room: %s, Time Slot: %s, Event: %s, Occupancy: %d/%d (%.1f%%)%n",
           assignment.getRoom().getName(),
           assignment.getTimeSlot(), // Add this line
-          assignment.getEvent().getId() + " - " + assignment.getEvent().getCompany() + " - " + assignment.getEvent().getSubject(),
+          assignment.getEvent().getId() + " - " + assignment.getEvent().getCompany() + " - "
+              + assignment.getEvent().getSubject(),
           count,
           capacity,
           (count * 100.0 / capacity));
