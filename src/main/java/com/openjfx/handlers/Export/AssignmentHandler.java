@@ -75,15 +75,16 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
    */
   @Override
   public List<Pair<String, String>> getColumns() {
-      List<Pair<String, String>> columns = new ArrayList<>();
-      columns.add(new Pair<>("Company", "companyName"));
-      columns.add(new Pair<>("Subject", "subject"));
-      columns.add(new Pair<>("First Name", "firstName"));
-      columns.add(new Pair<>("Last Name", "lastName"));
-      columns.add(new Pair<>("Class", "classRef"));
-      columns.add(new Pair<>("Time Slot", "timeSlot"));
-      columns.add(new Pair<>("Room", "roomId"));
-      return columns;
+    List<Pair<String, String>> columns = new ArrayList<>();
+    columns.add(new Pair<>("Company", "companyName"));
+    columns.add(new Pair<>("Subject", "subject"));
+    columns.add(new Pair<>("First Name", "firstName"));
+    columns.add(new Pair<>("Last Name", "lastName"));
+    columns.add(new Pair<>("Class", "classRef"));
+    columns.add(new Pair<>("Time Slot", "timeSlot"));
+    columns.add(new Pair<>("Room", "roomId"));
+    columns.add(new Pair<>("Choice #", "choiceNo")); // Add this line
+    return columns;
   }
 
   /**
@@ -119,15 +120,17 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
    */
   @Override
   public boolean matchesSearch(StudentAssignment item, String searchTerm) {
-      String lowerTerm = searchTerm.toLowerCase();
-      return
-          (item.getCompanyName() != null && item.getCompanyName().toLowerCase().contains(lowerTerm)) ||
-          (item.getSubject() != null && item.getSubject().toLowerCase().contains(lowerTerm)) ||
-          item.getFirstName().toLowerCase().contains(lowerTerm) ||
-          item.getLastName().toLowerCase().contains(lowerTerm) ||
-          item.getClassRef().toLowerCase().contains(lowerTerm) ||
-          (item.getTimeSlot() != null && item.getTimeSlot().toLowerCase().contains(lowerTerm)) ||
-          (item.getRoomId() != null && item.getRoomId().toLowerCase().contains(lowerTerm));
+    String lowerTerm = searchTerm.toLowerCase();
+    return
+        (item.getCompanyName() != null && item.getCompanyName().toLowerCase().contains(lowerTerm))
+            ||
+            (item.getSubject() != null && item.getSubject().toLowerCase().contains(lowerTerm)) ||
+            item.getFirstName().toLowerCase().contains(lowerTerm) ||
+            item.getLastName().toLowerCase().contains(lowerTerm) ||
+            item.getClassRef().toLowerCase().contains(lowerTerm) ||
+            (item.getTimeSlot() != null && item.getTimeSlot().toLowerCase().contains(lowerTerm)) ||
+            (item.getRoomId() != null && item.getRoomId().toLowerCase().contains(lowerTerm)) ||
+            item.getChoiceNo().toString().contains(searchTerm);
   }
 
   /**
