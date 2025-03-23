@@ -62,6 +62,7 @@ public class ExportController {
   private final WorkshopDemandService workshopDemandService;
   private final TimetableService timetableService;
   private final ExcelService excelService;
+  private final StudentTimetableMappingService studentTimetableMappingService;
   private WorkshopDemandHandler workshopDemandHandler;
   private Handler<?> currentHandler;
   private AssignmentHandler assignmentHandler;
@@ -72,6 +73,7 @@ public class ExportController {
   private boolean assignmentsGenerated = false;
   private boolean workshopDemandGenerated = false;
   private boolean timetableGenerated = false;
+  private boolean studentTimetableMappingGenerated = false;
 
   /**
    * Constructor that initializes the required services for the controller.
@@ -100,6 +102,7 @@ public class ExportController {
     this.roomPlanHandler = new RoomPlanHandler(this.timetableService, this.excelService, this.roomService);
     this.workshopDemandHandler = new WorkshopDemandHandler(this.assignmentService,
         this.excelService);
+    this.studentTimetableMappingService = new StudentTimetableMappingService();
   }
 
   /**
@@ -158,6 +161,17 @@ public class ExportController {
         showErrorAlert("Error creating timetable", ex.getMessage());
         ex.printStackTrace();
         return; // Don't proceed if timetable creation fails
+      }
+    }
+
+    if (!studentTimetableMappingGenerated) {
+      try {
+        studentTimetableMappingService.mapStudentsToTimetable();
+        studentTimetableMappingGenerated = true;
+      } catch (Exception ex) {
+        showErrorAlert("Error mapping students to timetable", ex.getMessage());
+        ex.printStackTrace();
+        return;
       }
     }
 
