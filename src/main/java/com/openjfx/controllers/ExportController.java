@@ -56,6 +56,18 @@ public class ExportController {
   private MenuItem exportToExcelMenuItem;
   @FXML
   private MenuItem exportToPdfMenuItem;
+  @FXML
+  private MenuButton ExportButtonRoutingSlip;
+  @FXML
+  private MenuItem exportToExcelMenuItemRoutingSlip;
+  @FXML
+  private MenuItem exportToPdfMenuItemRoutingSlip;
+  @FXML
+  private MenuButton ExportButtonAttendanceList;
+  @FXML
+  private MenuItem exportToExcelMenuItemAttendanceList;
+  @FXML
+  private MenuItem exportToPdfMenuItemAttendanceList;
 
   private final EventService eventService;
   private final AssignmentService assignmentService;
@@ -115,6 +127,9 @@ public class ExportController {
     setupButtons();
     setupSearchField();
     setupEventFilter();
+
+    // Initially hide assignment-specific export buttons
+    updateExportButtonsVisibility(false);
 
     // Check if data already exists and update status flags
     checkExistingData();
@@ -548,6 +563,10 @@ public class ExportController {
     currentHandler = handler;
     setActiveButton(activeButton);
 
+    // Show/hide assignment-specific export buttons
+    boolean isAssignmentView = handler instanceof AssignmentHandler;
+    updateExportButtonsVisibility(isAssignmentView);
+
     // Get current event filter before refreshing
     String selectedEvent = eventFilterComboBox.getValue();
 
@@ -561,4 +580,26 @@ public class ExportController {
       filterTableByEvent(selectedEvent);
     }
   }
+  /**
+   * Updates the visibility of the export buttons based on the current view.
+   *
+   * <p>If the view is an assignment view, the export buttons will be visible and managed.
+   * Otherwise, they will be hidden and unmanaged.</p>
+   *
+   * @param isAssignmentView {@code true} if the view is an assignment view; {@code false} otherwise.
+   *
+   * @author leon
+   */
+  private void updateExportButtonsVisibility(boolean isAssignmentView) {
+    // Show Export Buttons for Routing Slip and Attendance List for the Assignment view
+    ExportButtonRoutingSlip.setVisible(isAssignmentView);
+    ExportButtonRoutingSlip.setManaged(isAssignmentView);
+    ExportButtonAttendanceList.setVisible(isAssignmentView);
+    ExportButtonAttendanceList.setManaged(isAssignmentView);
+
+    // Hide Export Button for the Assignment view
+    ExportButton.setVisible(!isAssignmentView);
+    ExportButton.setManaged(!isAssignmentView);
+  }
+
 }
