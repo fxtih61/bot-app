@@ -13,6 +13,7 @@ public class WorkshopDemand {
   private int eventId;
   private int demand;
   private String companyName;
+  private String subject;
 
   /**
    * Constructs a new WorkshopDemand with the specified attributes.
@@ -21,10 +22,11 @@ public class WorkshopDemand {
    * @param demand  the number of students demanding this workshop
    * @author mian
    */
-  public WorkshopDemand(int eventId, int demand, String companyName) {
+  public WorkshopDemand(int eventId, int demand, String companyName, String subject) {
     this.eventId = eventId;
     this.demand = demand;
     this.companyName = companyName;
+    this.subject = subject;
   }
 
   /**
@@ -88,6 +90,26 @@ public class WorkshopDemand {
   }
 
   /**
+   * Gets the subject.
+   *
+   * @return the subject
+   * @author mian
+   */
+  public String getSubject() {
+    return subject;
+  }
+
+  /**
+   * Sets the subject.
+   *
+   * @param subject the subject
+   * @author mian
+   */
+  public void setSubject(String subject) {
+    this.subject = subject;
+  }
+
+  /**
    * Checks if this WorkshopDemand is equal to another object.
    *
    * @param o the object to compare with
@@ -114,7 +136,7 @@ public class WorkshopDemand {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(eventId, demand);
+    return Objects.hash(eventId, demand, companyName, subject);
   }
 
   /**
@@ -128,6 +150,8 @@ public class WorkshopDemand {
     return "WorkshopDemand{" +
         "eventId=" + eventId +
         ", demand=" + demand +
+        ", companyName='" + companyName + '\'' +
+        ", subject='" + subject + '\'' +
         '}';
   }
 }

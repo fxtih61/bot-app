@@ -79,8 +79,9 @@ public class AssignmentService {
    */
   public void calculateWorkshopDemandOnly() throws IOException {
     if (choices == null || events == null) {
-      loadAllData(); // Make sure data is loaded if not already
+      loadAllData();
     }
+    this.studentAssignments = studentAssignmentService.getAssignmentsAsMap();
     calculateWorkshopDemand();
   }
 
@@ -114,10 +115,8 @@ public class AssignmentService {
    * @author mian
    */
   private void calculateWorkshopDemand() {
-    this.workshopDemand = workshopDemandService.calculateWorkshopsNeeded(events, choices);
-
-    // Save workshop demand to database
-    workshopDemandService.saveDemandToDatabase(workshopDemand);
+      this.workshopDemand = workshopDemandService.calculateWorkshopsNeeded(events, studentAssignments);
+      workshopDemandService.saveDemandToDatabase(workshopDemand);
   }
 
   /**
