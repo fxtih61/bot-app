@@ -6,7 +6,7 @@ The Berufsorientierungstag App is a Spring Boot application developed using Mave
 ## 📚 Documentation
 For detailed instructions on how to use the application, including step-by-step guides and feature explanations, please refer to our comprehensive documentation:
 
-- [User Documentation](https://docs.google.com/document/d/1ORkgtmaymn2wac9gj1fX_38GON4L5VK2aELffv47Xvk/edit?usp=sharing)
+- <a href="https://docs.google.com/document/d/1ORkgtmaymn2wac9gj1fX_38GON4L5VK2aELffv47Xvk/edit?usp=sharing" target="_blank">User Documentation</a>
 
 This documentation covers all aspects of the application from installation to advanced features, helping you get the most out of the Berufsorientierungstag App.
 
