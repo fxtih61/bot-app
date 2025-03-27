@@ -21,6 +21,7 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
   private final AssignmentService assignmentService;
   private final StudentAssignmentService studentAssignmentService;
   private final ExcelService excelService;
+  private final TimetableService timetableService;
 
   /**
    * Constructs a new AssignmentHandler with the necessary services.
@@ -28,8 +29,9 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
    * @param excelService the Excel service for export operations
    * @author mian
    */
-  public AssignmentHandler(ExcelService excelService) {
+  public AssignmentHandler(ExcelService excelService, TimetableService timetableService) {
     this.excelService = excelService;
+    this.timetableService = timetableService;
     this.studentAssignmentService = new StudentAssignmentService();
 
     // Initialize services needed for Assignment Service
@@ -37,7 +39,6 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
     EventService eventService = new EventService(excelService);
     RoomService roomService = new RoomService(excelService);
     TimeSlotService timeSlotService = new TimeSlotService();
-    TimetableService timetableService = new TimetableService();
     WorkshopDemandService workshopDemandService = new WorkshopDemandService();
 
     this.assignmentService = new AssignmentService(
@@ -163,5 +164,20 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
   @Override
   public ExcelService getExcelService() {
     return this.excelService;
+  }
+
+  /**
+   * Exports Event data to an Excel file. This method calls the exportDataToExcel() function from the
+   * TimetableService to generate and save the room data in Excel format.
+   *
+   * @param data       The room data to be exported as a list of maps.
+   * @param filterName The addition to the file path
+   * @throws IOException If an error occurs during export.
+   *
+   * @author leon
+   */
+  public void exportEvents(Map<String, Object> data, String filterName) throws IOException {
+    String filePath = timetableService.getFilePathEvent() + "_" + filterName + ".xlsx";
+    timetableService.exportEventData(filePath,data);
   }
 }
