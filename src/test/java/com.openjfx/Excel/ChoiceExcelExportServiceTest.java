@@ -1,6 +1,6 @@
 package com.openjfx.Excel;
 
-import com.openjfx.services.ChoiceExcelExportService;
+import com.openjfx.services.TimetableService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,25 +11,25 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * This class contains unit tests for the {@link ChoiceExcelExportService} class.
+ * This class contains unit tests for the {@link com.openjfx.services.TimetableService} class.
  * It tests the functionality of exporting data to an Excel file.
  *
  * @author leon
  */
 class ChoiceExcelExportServiceTest {
 
-    private ChoiceExcelExportService exportService;
+    private TimetableService exportService;
     private List<Map<String, Object>> testData;
 
     /**
      * Sets up the test environment before each test.
-     * Initializes the {@link ChoiceExcelExportService} and prepares test data.
+     * Initializes the {@link TimetableService} and prepares test data.
      *
      * @author leon
      */
     @BeforeEach
     void setUp() {
-        exportService = new ChoiceExcelExportService();
+        exportService = new TimetableService();
         testData = new ArrayList<>();
 
         // Create sample data for testing

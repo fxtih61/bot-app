@@ -1,6 +1,6 @@
 package com.openjfx.examples;
 
-import com.openjfx.services.ChoiceExcelExportService;
+import com.openjfx.services.TimetableService;
 
 import java.io.IOException;
 import java.util.*;
@@ -29,7 +29,7 @@ public class ChoiceExportExample {
         addRow(data, "11:40-12:25", "102", "Justizvollzugsanstalt", "Beamter im allgemeinen Vollzugsdienst, Dipl-Verwaltungswirt (FH)", "4", "Doe, Jane", "ASS221");
         addRow(data, "12:25-13:10", "107", "Debeka", "Kaufleute für Versicherungen und Finanzen", "2", "Doe, Jane", "ASS221");
 
-        ChoiceExcelExportService exportService = new ChoiceExcelExportService();
+        TimetableService exportService = new TimetableService();
 
         // Export data
         try {
