@@ -1,34 +1,33 @@
 package com.openjfx.Excel;
 
-import com.openjfx.services.EventExcelExportService;
+import com.openjfx.services.TimetableService;
 import org.junit.jupiter.api.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * This class contains unit tests for the {@link EventExcelExportService} class.
+ * This class contains unit tests for the {@link com.openjfx.services.TimetableService} class.
  * It verifies the functionality of exporting event data to an Excel file.
  *
  * @author leon
  */
 class EventExcelExportServiceTest {
     private static final String TEST_FILE_PATH = "test_export.xlsx";
-    private EventExcelExportService exportService;
+    private TimetableService exportService;
     private Map<String, Object> sampleEventData;
 
     /**
      * Sets up the test environment before each test execution.
-     * Initializes the {@link EventExcelExportService} and prepares sample event data.
+     * Initializes the {@link TimetableService} and prepares sample event data.
      *
      * @author leon
      */
     @BeforeEach
     void setUp() {
-        exportService = new EventExcelExportService();
+        exportService = new TimetableService();
         sampleEventData = new HashMap<>();
         sampleEventData.put("Veranstaltung", "Test Event");
 
@@ -61,7 +60,7 @@ class EventExcelExportServiceTest {
     }
 
     /**
-     * Tests the successful creation of an Excel file by the {@link EventExcelExportService}.
+     * Tests the successful creation of an Excel file by the {@link TimetableService}.
      * Verifies that the file is created without throwing exceptions.
      *
      * @author leon
@@ -75,7 +74,7 @@ class EventExcelExportServiceTest {
     }
 
     /**
-     * Tests the behavior of {@link EventExcelExportService} when provided with empty event data.
+     * Tests the behavior of {@link TimetableService} when provided with empty event data.
      * Verifies that an {@link IllegalArgumentException} is thrown.
      *
      * @author leon

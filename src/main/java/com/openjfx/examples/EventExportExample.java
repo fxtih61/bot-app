@@ -1,6 +1,6 @@
 package com.openjfx.examples;
 
-import com.openjfx.services.EventExcelExportService;
+import com.openjfx.services.TimetableService;
 
 import java.io.IOException;
 import java.util.*;
@@ -30,7 +30,7 @@ public class EventExportExample {
 
         // First time slot: 9:45-9:30
         Map<String, Object> timeSlot1 = new HashMap<>();
-        timeSlot1.put("Uhrzeit", "9:45-9:30"); // Time slot
+        timeSlot1.put("Uhrzeit", "8:45-9:30"); // Time slot
 
         // List of participants for the first time slot
         List<Map<String, String>> participants1 = new ArrayList<>();
@@ -81,7 +81,7 @@ public class EventExportExample {
         eventData.put("Zeitfenster", timeSlots);
 
         // Export the data to an Excel file
-        EventExcelExportService exportService = new EventExcelExportService();
+        TimetableService exportService = new TimetableService();
         try {
             exportService.exportEventData("EXPORT BOT5_Anwesenheitslisten_je_Veranstaltung.xlsx", eventData);
             System.out.println("Data successfully exported.");
