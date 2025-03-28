@@ -30,6 +30,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Controller class for the Export view. This class handles the UI logic for the Export view,
+ * including switching between different data views, filtering data, and exporting data to Excel or
+ * PDF.
+ *
+ * @author mian
+ */
+
 public class ExportController {
 
   @FXML
@@ -69,6 +77,7 @@ public class ExportController {
   @FXML
   private MenuItem exportToPdfMenuItemAttendanceList;
 
+  private boolean dataVerified = false;
   private final EventService eventService;
   private final AssignmentService assignmentService;
   private final WorkshopDemandService workshopDemandService;
@@ -137,14 +146,27 @@ public class ExportController {
     // Set default handler to AssignmentHandler
     switchHandler(assignmentHandler, AssignmentButton);
 
-    // Begin data generation automatically if needed
-    Platform.runLater(this::initializeData);
+    // Begin data generation once only if needed
+    Platform.runLater(() -> {
+      if (!assignmentsGenerated || !workshopDemandGenerated ||
+          !timetableGenerated || !studentTimetableMappingGenerated) {
+        initializeData();
+      }
+    });
   }
 
   /**
    * Initialize data for the first view if needed
+   *
+   * @author mian
    */
   private void initializeData() {
+    // Skip processing if already verified and all data is present
+    if (dataVerified && assignmentsGenerated && workshopDemandGenerated &&
+        timetableGenerated && studentTimetableMappingGenerated) {
+      return;
+    }
+
     if (!assignmentsGenerated) {
       try {
         assignmentService.loadAllDataAndAssignStudents();
@@ -181,8 +203,13 @@ public class ExportController {
 
     if (!studentTimetableMappingGenerated) {
       try {
-        studentTimetableMappingService.mapStudentsToTimetable();
-        studentTimetableMappingGenerated = true;
+        showGeneratingAlert("Mapping students to timetable, please wait...");
+        boolean success = studentTimetableMappingService.generateAndMapStudentTimetables();
+        studentTimetableMappingGenerated = success;
+        if (!success) {
+          showErrorAlert("Warning",
+              "Some student assignments could not be completed. Manual adjustments may be needed.");
+        }
       } catch (Exception ex) {
         showErrorAlert("Error mapping students to timetable", ex.getMessage());
         ex.printStackTrace();
@@ -190,7 +217,8 @@ public class ExportController {
       }
     }
 
-    refreshTable(); // Refresh the table to show the generated data
+    // Refresh the table to show the generated data
+    refreshTable();
   }
 
   /**
@@ -292,11 +320,31 @@ public class ExportController {
 
   /**
    * Check if data already exists in the database for each handler
+   *
+   * @author mian
    */
   private void checkExistingData() {
+    // Check if handlers have data
     assignmentsGenerated = assignmentHandler.hasAssignmentData();
     workshopDemandGenerated = workshopDemandHandler.hasWorkshopDemandData();
     timetableGenerated = roomPlanHandler.hasTimetableData();
+
+    // Check if students are already mapped to timetables
+    if (assignmentsGenerated && timetableGenerated) {
+      // Check if student assignments have time slots and room assignments
+      List<StudentAssignment> assignments = studentTimetableMappingService.getAllStudentAssignments();
+      studentTimetableMappingGenerated = !assignments.isEmpty() &&
+          assignments.stream()
+              .allMatch(a -> a.getTimeSlot() != null && a.getRoomId() != null);
+
+      if (studentTimetableMappingGenerated) {
+        System.out.println(
+            "Student timetable mapping verified: Students already assigned to rooms and time slots");
+      }
+    }
+
+    // Set dataVerified flag to true once we've checked
+    dataVerified = true;
   }
 
   /**
@@ -320,7 +368,8 @@ public class ExportController {
     AssignmentButton.setOnAction(e -> switchHandler(assignmentHandler, AssignmentButton));
 
     // Workshop demand button - only switch view
-    WorkshopDemandButton.setOnAction(e -> switchHandler(workshopDemandHandler, WorkshopDemandButton));
+    WorkshopDemandButton.setOnAction(
+        e -> switchHandler(workshopDemandHandler, WorkshopDemandButton));
 
     // Room time plan button - only switch view
     RoomTimePlanButton.setOnAction(e -> switchHandler(roomPlanHandler, RoomTimePlanButton));
@@ -360,15 +409,20 @@ public class ExportController {
       if (format.equals("excel")) {
         //System.out.println("Excel");
         if (currentHandler instanceof RoomPlanHandler) {
-          List<Map<String, Object>> data = roomService.prepareDataForExport((List<Object>) dataToExport);
+          List<Map<String, Object>> data = roomService.prepareDataForExport(
+              (List<Object>) dataToExport);
 
           try {
             // Export the data to an Excel file
-            roomPlanHandler.exportRooms(data,filterName);
-            showInfoAlert("Export Successful", "Data has been successfully exported to file: '" + roomService.getFilePath() + "_" + filterName + ".xlsx'");
+            roomPlanHandler.exportRooms(data, filterName);
+            showInfoAlert("Export Successful",
+                "Data has been successfully exported to file: '" + roomService.getFilePath() + "_"
+                    + filterName + ".xlsx'");
           } catch (IOException e) {
             // Error handling if the export fails
-            showErrorAlert("File Error", "Could not export to the the file : " + roomService.getFilePath() + "_" + filterName  + ".xlsx, " + e.getMessage());
+            showErrorAlert("File Error",
+                "Could not export to the the file : " + roomService.getFilePath() + "_" + filterName
+                    + ".xlsx, " + e.getMessage());
           }
         }
       } else if (format.equals("pdf")) {
