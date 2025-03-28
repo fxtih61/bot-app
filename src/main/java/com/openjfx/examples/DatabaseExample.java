@@ -6,8 +6,20 @@ import com.openjfx.models.Room;
 
 import java.sql.*;
 
+/**
+ * This class demonstrates basic database operations such as inserting, reading, updating, and
+ * deleting records in a database using JDBC.
+ *
+ * @author mian
+ */
 public class DatabaseExample {
 
+  /**
+   * The main method that executes the database operations.
+   *
+   * @param args Command line arguments
+   * @author mian
+   */
   public static void main(String[] args) {
     try {
       // Initialize database
@@ -50,6 +62,13 @@ public class DatabaseExample {
     }
   }
 
+  /**
+   * Inserts an event into the database.
+   *
+   * @param event The event to be inserted
+   * @throws SQLException If a database access error occurs
+   * @author mian
+   */
   private static void insertEvent(Event event) throws SQLException {
     String sql = "INSERT INTO events (id, company, subject, max_participants, min_participants, earliest_start) VALUES (?, ?, ?, ?, ?, ?)";
     try (Connection conn = DatabaseConfig.getConnection();
@@ -64,6 +83,13 @@ public class DatabaseExample {
     }
   }
 
+  /**
+   * Inserts a room into the database.
+   *
+   * @param room The room to be inserted
+   * @throws SQLException If a database access error occurs
+   * @author mian
+   */
   private static void insertRoom(Room room) throws SQLException {
     String sql = "INSERT INTO rooms (name, capacity) VALUES (?, ?)";
     try (Connection conn = DatabaseConfig.getConnection();
@@ -74,6 +100,12 @@ public class DatabaseExample {
     }
   }
 
+  /**
+   * Reads and prints all events from the database.
+   *
+   * @throws SQLException If a database access error occurs
+   * @author mian
+   */
   private static void readEvents() throws SQLException {
     String sql = "SELECT * FROM events";
     try (Connection conn = DatabaseConfig.getConnection();
@@ -91,6 +123,12 @@ public class DatabaseExample {
     }
   }
 
+  /**
+   * Reads and prints all rooms from the database.
+   *
+   * @throws SQLException If a database access error occurs
+   * @author mian
+   */
   private static void readRooms() throws SQLException {
     String sql = "SELECT * FROM rooms";
     try (Connection conn = DatabaseConfig.getConnection();
@@ -104,6 +142,14 @@ public class DatabaseExample {
     }
   }
 
+  /**
+   * Updates the maximum number of participants for a specific event.
+   *
+   * @param id     The ID of the event to be updated
+   * @param newMax The new maximum number of participants
+   * @throws SQLException If a database access error occurs
+   * @author mian
+   */
   private static void updateEventMaxParticipants(int id, int newMax) throws SQLException {
     String sql = "UPDATE events SET max_participants = ? WHERE id = ?";
     try (Connection conn = DatabaseConfig.getConnection();
@@ -114,6 +160,14 @@ public class DatabaseExample {
     }
   }
 
+  /**
+   * Updates the capacity of a specific room.
+   *
+   * @param name        The name of the room to be updated
+   * @param newCapacity The new capacity of the room
+   * @throws SQLException If a database access error occurs
+   * @author mian
+   */
   private static void updateRoomCapacity(String name, int newCapacity) throws SQLException {
     String sql = "UPDATE rooms SET capacity = ? WHERE name = ?";
     try (Connection conn = DatabaseConfig.getConnection();
@@ -124,6 +178,13 @@ public class DatabaseExample {
     }
   }
 
+  /**
+   * Deletes an event from the database.
+   *
+   * @param id The ID of the event to be deleted
+   * @throws SQLException If a database access error occurs
+   * @author mian
+   */
   private static void deleteEvent(int id) throws SQLException {
     String sql = "DELETE FROM events WHERE id = ?";
     try (Connection conn = DatabaseConfig.getConnection();
@@ -133,6 +194,13 @@ public class DatabaseExample {
     }
   }
 
+  /**
+   * Deletes a room from the database.
+   *
+   * @param name The name of the room to be deleted
+   * @throws SQLException If a database access error occurs
+   * @author mian
+   */
   private static void deleteRoom(String name) throws SQLException {
     String sql = "DELETE FROM rooms WHERE name = ?";
     try (Connection conn = DatabaseConfig.getConnection();

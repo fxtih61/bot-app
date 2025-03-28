@@ -3,11 +3,12 @@
 ## 📌 Project Overview
 The Berufsorientierungstag App is a Spring Boot application developed using Maven, Java 23, and JavaFX. It aims to fully automate the scheduling process for the annual Berufsorientierungstag, which is organized for students in different educational programs. The application simplifies student event preferences, assigns them to appropriate sessions, generates timetables, and produces printable attendance lists and itineraries.
 
-## 🛠 Tech Stack
-- **Java 23**
-- **Maven**
-- **Spring Boot**
-- **JavaFX**
+## 📚 Documentation
+For detailed instructions on how to use the application, including step-by-step guides and feature explanations, please refer to our comprehensive documentation:
+
+- [User Documentation](https://docs.google.com/document/d/1ORkgtmaymn2wac9gj1fX_38GON4L5VK2aELffv47Xvk/edit?usp=sharing)
+
+This documentation covers all aspects of the application from installation to advanced features, helping you get the most out of the Berufsorientierungstag App.
 
 ## 🎯 Features
 - **Student Event Selection**: Students can choose their preferred events from a predefined list.
@@ -17,6 +18,13 @@ The Berufsorientierungstag App is a Spring Boot application developed using Mave
 - **Performance Metrics**: Calculates a fulfillment score to measure scheduling efficiency.
 - **Data Import & Export**: Uses Excel files for importing student preferences and exporting final schedules.
 - **Reproducibility**: Ensures identical results with the same input data.
+
+## 🛠 Tech Stack
+- **Java 23**
+- **Maven**
+- **Spring Boot**
+- **JavaFX**
+
 
 ## 🚀 Getting Started
 
@@ -82,6 +90,9 @@ Ensure you have the following installed:
 - [fxtih61](https://github.com/fxtih61)
 - [Leokin4](https://github.com/Leokin4)
 - [ymbatu64](https://github.com/ymbatu64)
+
+### 👏 Acknowledgments
+- Special thanks to [schulefant](https://github.com/schulefant) for their valuable guidance and support throughout the development of this project.
 
 ---
 

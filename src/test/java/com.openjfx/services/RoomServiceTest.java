@@ -1,6 +1,7 @@
 package com.openjfx.services;
 
 import com.openjfx.models.Room;
+import java.io.File;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -31,7 +32,7 @@ class RoomServiceTest {
 
     roomService.saveToExcel(expectedRooms, testFile.toString());
 
-    List<Room> actualRooms = roomService.loadFromExcel(testFile.toString());
+    List<Room> actualRooms = roomService.loadFromExcel(new File(testFile.toString()));
 
     assertEquals(expectedRooms.size(), actualRooms.size());
     for (int i = 0; i < expectedRooms.size(); i++) {
@@ -44,7 +45,7 @@ class RoomServiceTest {
   void testLoadRoomsFromExcel_FileNotFound() {
     String invalidPath = "nonexistent.xlsx";
 
-    assertThrows(IOException.class, () -> roomService.loadFromExcel(invalidPath));
+    assertThrows(IOException.class, () -> roomService.loadFromExcel(new File(invalidPath)));
   }
 
   @Test
@@ -59,7 +60,7 @@ class RoomServiceTest {
 
     assertTrue(testFile.toFile().exists());
 
-    List<Room> loadedRooms = roomService.loadFromExcel(testFile.toString());
+    List<Room> loadedRooms = roomService.loadFromExcel(new File(testFile.toString()));
     assertEquals(rooms.size(), loadedRooms.size());
     for (int i = 0; i < rooms.size(); i++) {
       assertEquals(rooms.get(i).getName(), loadedRooms.get(i).getName());

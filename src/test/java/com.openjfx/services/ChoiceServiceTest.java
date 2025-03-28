@@ -1,7 +1,7 @@
 package com.openjfx.services;
 
 import com.openjfx.models.Choice;
-import com.openjfx.models.Event;
+import java.io.File;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -33,7 +33,7 @@ class ChoiceServiceTest {
     );
 
     choiceService.saveToExcel(expectedChoices, testFile.toString());
-    List<Choice> actualChoices = choiceService.loadFromExcel(testFile.toString());
+    List<Choice> actualChoices = choiceService.loadFromExcel(new File(testFile.toString()));
 
     assertEquals(expectedChoices.size(), actualChoices.size());
     for (int i = 0; i < expectedChoices.size(); i++) {
@@ -58,7 +58,7 @@ class ChoiceServiceTest {
     );
 
     choiceService.saveToExcel(expectedChoices, testFile.toString());
-    List<Choice> actualChoices = choiceService.loadFromExcel(testFile.toString());
+    List<Choice> actualChoices = choiceService.loadFromExcel(new File(testFile.toString()));
 
     assertEquals(expectedChoices.size(), actualChoices.size());
     for (int i = 0; i < expectedChoices.size(); i++) {
@@ -77,7 +77,7 @@ class ChoiceServiceTest {
   @Test
   void testLoadChoicesFromExcel_FileNotFound() {
     String invalidPath = "nonexistent.xlsx";
-    assertThrows(IOException.class, () -> choiceService.loadFromExcel(invalidPath));
+    assertThrows(IOException.class, () -> choiceService.loadFromExcel(new File(invalidPath)));
   }
 
   @Test
@@ -98,7 +98,7 @@ class ChoiceServiceTest {
     );
 
     choiceService.saveToExcel(validChoices, testFile.toString());
-    List<Choice> loadedChoices = choiceService.loadFromExcel(testFile.toString());
+    List<Choice> loadedChoices = choiceService.loadFromExcel(new File(testFile.toString()));
 
     assertEquals(1, loadedChoices.size());
     Choice loadedChoice = loadedChoices.get(0);

@@ -1,6 +1,7 @@
 package com.openjfx.services;
 
 import com.openjfx.models.Event;
+import java.io.File;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -30,7 +31,7 @@ class EventServiceTest {
     );
 
     eventService.saveToExcel(expectedEvents, testFile.toString());
-    List<Event> actualEvents = eventService.loadFromExcel(testFile.toString());
+    List<Event> actualEvents = eventService.loadFromExcel(new File(testFile.toString()));
 
     assertEquals(expectedEvents.size(), actualEvents.size());
     for (int i = 0; i < expectedEvents.size(); i++) {
@@ -52,23 +53,23 @@ class EventServiceTest {
     );
 
     eventService.saveToExcel(expectedEvents, testFile.toString());
-    List<Event> actualEvents = eventService.loadFromExcel(testFile.toString());
+    List<Event> actualEvents = eventService.loadFromExcel(new File(testFile.toString()));
 
     assertEquals(expectedEvents.size(), actualEvents.size());
     for (int i = 0; i < expectedEvents.size(); i++) {
       assertEquals(expectedEvents.get(i).getId(), actualEvents.get(i).getId());
       assertEquals(expectedEvents.get(i).getMaxParticipants(), actualEvents.get(i).getMaxParticipants());
       assertEquals(expectedEvents.get(i).getMinParticipants(), actualEvents.get(i).getMinParticipants());
-      assertTrue(actualEvents.get(i).getCompany().isEmpty());
-      assertTrue(actualEvents.get(i).getSubject().isEmpty());
-      assertTrue(actualEvents.get(i).getEarliestStart().isEmpty());
+      assertEquals("Empty", actualEvents.get(i).getCompany());
+      assertEquals("Empty", actualEvents.get(i).getSubject());
+      assertEquals("Empty", actualEvents.get(i).getEarliestStart());
     }
   }
 
   @Test
   void testLoadEventsFromExcel_FileNotFound() {
     String invalidPath = "nonexistent.xlsx";
-    assertThrows(IOException.class, () -> eventService.loadFromExcel(invalidPath));
+    assertThrows(IOException.class, () -> eventService.loadFromExcel(new File(invalidPath)));
   }
 
   @Test
@@ -91,7 +92,7 @@ class EventServiceTest {
     eventService.saveToExcel(validEvents, testFile.toString());
 
     // Load and verify we get only valid events
-    List<Event> loadedEvents = eventService.loadFromExcel(testFile.toString());
+    List<Event> loadedEvents = eventService.loadFromExcel(new File(testFile.toString()));
     assertEquals(1, loadedEvents.size());
 
     Event loadedEvent = loadedEvents.get(0);
@@ -114,7 +115,7 @@ class EventServiceTest {
     eventService.saveToExcel(events, testFile.toString());
     assertTrue(testFile.toFile().exists());
 
-    List<Event> loadedEvents = eventService.loadFromExcel(testFile.toString());
+    List<Event> loadedEvents = eventService.loadFromExcel(new File(testFile.toString()));
     assertEquals(events.size(), loadedEvents.size());
     for (int i = 0; i < events.size(); i++) {
       assertEquals(events.get(i).getId(), loadedEvents.get(i).getId());

@@ -5,6 +5,8 @@ import java.util.Objects;
 /**
  * Represents a Choice with various attributes such as class reference, first name, last name, and
  * multiple choices.
+ *
+ * @author mian
  */
 public class Choice {
 
@@ -30,9 +32,11 @@ public class Choice {
    * @param choice4   the fourth choice of the student
    * @param choice5   the fifth choice of the student
    * @param choice6   the sixth choice (Least preferred) of the student
+   * @author mian
    */
 
-  public Choice(String classRef, String firstName, String lastName, String choice1, String choice2,
+  public Choice(String classRef, String firstName, String lastName, String choice1,
+      String choice2,
       String choice3, String choice4, String choice5, String choice6) {
     this.classRef = classRef;
     this.firstName = firstName;
@@ -46,9 +50,27 @@ public class Choice {
   }
 
   /**
+   * Default constructor.
+   *
+   * @author mian
+   */
+  public Choice() {
+    this.classRef = "";
+    this.firstName = "";
+    this.lastName = "";
+    this.choice1 = "";
+    this.choice2 = "";
+    this.choice3 = "";
+    this.choice4 = "";
+    this.choice5 = "";
+    this.choice6 = "";
+  }
+
+  /**
    * Gets the class reference.
    *
    * @return the class reference
+   * @author mian
    */
   public String getClassRef() {
     return classRef;
@@ -58,6 +80,7 @@ public class Choice {
    * Sets the class reference.
    *
    * @param classRef the class reference
+   * @author mian
    */
   public void setClassRef(String classRef) {
     this.classRef = classRef;
@@ -67,6 +90,7 @@ public class Choice {
    * Gets the first name.
    *
    * @return the first name
+   * @author mian
    */
   public String getFirstName() {
     return firstName;
@@ -76,6 +100,7 @@ public class Choice {
    * Sets the first name.
    *
    * @param firstName the first name
+   * @author mian
    */
   public void setFirstName(String firstName) {
     this.firstName = firstName;
@@ -85,6 +110,7 @@ public class Choice {
    * Gets the last name.
    *
    * @return the last name
+   * @author mian
    */
   public String getLastName() {
     return lastName;
@@ -94,6 +120,7 @@ public class Choice {
    * Sets the last name.
    *
    * @param lastName the last name
+   * @author mian
    */
   public void setLastName(String lastName) {
     this.lastName = lastName;
@@ -103,6 +130,7 @@ public class Choice {
    * Gets the first choice.
    *
    * @return the first choice
+   * @author mian
    */
   public String getChoice1() {
     return choice1;
@@ -112,6 +140,7 @@ public class Choice {
    * Sets the first choice.
    *
    * @param choice1 the first choice
+   * @author mian
    */
   public void setChoice1(String choice1) {
     this.choice1 = choice1;
@@ -121,6 +150,7 @@ public class Choice {
    * Gets the second choice.
    *
    * @return the second choice
+   * @author mian
    */
   public String getChoice2() {
     return choice2;
@@ -130,6 +160,7 @@ public class Choice {
    * Sets the second choice.
    *
    * @param choice2 the second choice
+   * @author mian
    */
   public void setChoice2(String choice2) {
     this.choice2 = choice2;
@@ -139,6 +170,7 @@ public class Choice {
    * Gets the third choice.
    *
    * @return the third choice
+   * @author mian
    */
   public String getChoice3() {
     return choice3;
@@ -148,6 +180,7 @@ public class Choice {
    * Sets the third choice.
    *
    * @param choice3 the third choice
+   * @author mian
    */
   public void setChoice3(String choice3) {
     this.choice3 = choice3;
@@ -157,6 +190,7 @@ public class Choice {
    * Gets the fourth choice.
    *
    * @return the fourth choice
+   * @author mian
    */
   public String getChoice4() {
     return choice4;
@@ -166,6 +200,7 @@ public class Choice {
    * Sets the fourth choice.
    *
    * @param choice4 the fourth choice
+   * @author mian
    */
   public void setChoice4(String choice4) {
     this.choice4 = choice4;
@@ -179,6 +214,7 @@ public class Choice {
    * Sets the fifth choice.
    *
    * @param choice5 the fifth choice
+   * @author mian
    */
   public void setChoice5(String choice5) {
     this.choice5 = choice5;
@@ -188,6 +224,7 @@ public class Choice {
    * Gets the sixth choice.
    *
    * @return the sixth choice
+   * @author mian
    */
   public String getChoice6() {
     return choice6;
@@ -197,6 +234,7 @@ public class Choice {
    * Sets the sixth choice.
    *
    * @param choice6 the sixth choice
+   * @author mian
    */
   public void setChoice6(String choice6) {
     this.choice6 = choice6;
@@ -207,6 +245,7 @@ public class Choice {
    *
    * @param o the object to compare with
    * @return true if the objects are equal, false otherwise
+   * @author mian
    */
   @Override
   public boolean equals(Object o) {
@@ -232,6 +271,7 @@ public class Choice {
    * Generates a hash code for this Choice.
    *
    * @return the hash code
+   * @author mian
    */
   @Override
   public int hashCode() {
@@ -252,6 +292,7 @@ public class Choice {
    * Returns a string representation of this Choice.
    *
    * @return the string representation
+   * @author mian
    */
   @Override
   public String toString() {

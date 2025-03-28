@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.File;
 
 /**
  * Abstract base class for Excel-related services that handle reading and writing data models. This
@@ -19,12 +20,15 @@ import java.util.Map;
  * </ul>
  *
  * @param <T> the type of model this service handles
+ * @author mian
  */
 
 public abstract class AbstractExcelService<T> {
 
   /**
    * The Excel service used for low-level file operations.
+   *
+   * @author mian
    */
   protected final ExcelService excelService;
 
@@ -32,6 +36,7 @@ public abstract class AbstractExcelService<T> {
    * Constructs a new AbstractExcelService with the specified Excel service.
    *
    * @param excelService the Excel service to use for file operations
+   * @author mian
    */
   public AbstractExcelService(ExcelService excelService) {
     this.excelService = excelService;
@@ -44,6 +49,7 @@ public abstract class AbstractExcelService<T> {
    * @param row          the row data containing column names
    * @param columnPrefix the prefix to match against column names
    * @return the matched column name, or an empty string if no match is found
+   * @author mian
    */
   protected String findColumn(Map<String, String> row, String columnPrefix) {
     return row.keySet().stream()
@@ -53,30 +59,22 @@ public abstract class AbstractExcelService<T> {
   }
 
   /**
-   * Loads model objects from an Excel file.
+   * Imports data from an Excel file and validates required fields.
    *
-   * <p>The method:
-   * <ol>
-   *   <li>Reads the Excel file</li>
-   *   <li>Maps column headers to model properties</li>
-   *   <li>Converts each row to a model object</li>
-   * </ol>
-   *
-   * @param path the path to the Excel file
-   * @return a List of model objects
-   * @throws IOException if there's an error reading the file
+   * @param excelFile the Excel file to import
+   * @return the list of imported objects
+   * @throws IOException              if an I/O error occurs
+   * @throws IllegalArgumentException if the data is invalid or required fields are missing
+   * @author mian
    */
-  public List<T> loadFromExcel(String path) throws IOException {
-    List<Map<String, String>> excelData = excelService.readExcelFile(path);
-    List<T> models = new ArrayList<>();
-
-    if (excelData.isEmpty()) {
-      return models;
+  public List<T> loadFromExcel(File excelFile) throws IOException, IllegalArgumentException {
+    List<Map<String, String>> rows = excelService.readExcelFile(excelFile.getPath());
+    if (rows.isEmpty()) {
+      throw new IllegalArgumentException("The Excel file contains no data rows");
     }
 
-    // Extract column mappings from the first row
     Map<String, String> columnMappings = new HashMap<>();
-    Map<String, String> firstRow = excelData.get(0);
+    Map<String, String> firstRow = rows.get(0);
     Map<String, String> columnPrefixes = getColumnPrefixes();
 
     for (Map.Entry<String, String> entry : columnPrefixes.entrySet()) {
@@ -85,20 +83,62 @@ public abstract class AbstractExcelService<T> {
       columnMappings.put(key, findColumn(firstRow, prefix));
     }
 
-    // Process each row
-    for (Map<String, String> row : excelData) {
+    validateRequiredColumns(columnMappings);
+
+    List<T> importedObjects = new ArrayList<>();
+    int rowNumber = 1;
+
+    for (Map<String, String> row : rows) {
+      rowNumber++;
       try {
         T model = createModelFromRow(row, columnMappings);
         if (model != null) {
-          models.add(model);
+          importedObjects.add(model);
+        } else {
+          throw new IllegalArgumentException("Invalid data in row " + rowNumber);
         }
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException("Error in row " + rowNumber + ": " + e.getMessage());
       } catch (Exception e) {
-        System.err.println("Error processing row: " + row + " - " + e.getMessage());
+        throw new IllegalArgumentException(
+            "Error processing row " + rowNumber + ": " + e.getMessage());
       }
     }
 
-    return models;
+    return importedObjects;
   }
+
+  /**
+   * Validates that all required columns are present in the column mappings.
+   *
+   * @param columnMappings the column mappings to validate
+   * @throws IllegalArgumentException if required columns are missing
+   * @author mian
+   */
+  protected void validateRequiredColumns(Map<String, String> columnMappings)
+      throws IllegalArgumentException {
+    List<String> requiredFields = getRequiredFields();
+    List<String> missingFields = new ArrayList<>();
+
+    for (String field : requiredFields) {
+      if (!columnMappings.containsKey(field) || columnMappings.get(field).isEmpty()) {
+        missingFields.add(field);
+      }
+    }
+
+    if (!missingFields.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Missing required columns: " + String.join(", ", missingFields));
+    }
+  }
+
+  /**
+   * Gets the list of required fields for this model.
+   *
+   * @return the list of required field names
+   * @author mian
+   */
+  protected abstract List<String> getRequiredFields();
 
   /**
    * Saves a list of model objects to an Excel file.
@@ -106,6 +146,7 @@ public abstract class AbstractExcelService<T> {
    * @param models the list of model objects to save
    * @param path   the path where the Excel file should be saved
    * @throws IOException if there's an error writing the file
+   * @author mian
    */
   public void saveToExcel(List<T> models, String path) throws IOException {
     List<Map<String, Object>> data = new ArrayList<>();
@@ -120,6 +161,7 @@ public abstract class AbstractExcelService<T> {
    * subclasses to specify their column mappings.
    *
    * @return a Map where keys are property names and values are column prefixes
+   * @author mian
    */
   protected abstract Map<String, String> getColumnPrefixes();
 
@@ -130,6 +172,7 @@ public abstract class AbstractExcelService<T> {
    * @param row            the row data from Excel
    * @param columnMappings the mappings between property names and Excel columns
    * @return a new model object, or null if the row data is invalid
+   * @author mian
    */
   protected abstract T createModelFromRow(Map<String, String> row,
       Map<String, String> columnMappings);
@@ -140,6 +183,11 @@ public abstract class AbstractExcelService<T> {
    *
    * @param model the model object to convert
    * @return a Map containing the column names and values for Excel export
+   * @author mian
    */
   protected abstract Map<String, Object> convertModelToRow(T model);
+
+  public ExcelService getExcelService() {
+    return excelService;
+  }
 }
