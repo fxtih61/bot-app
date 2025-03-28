@@ -29,7 +29,7 @@ class RoomExcelToPDFServiceTest {
      */
     @Test
     void testCreateNewPage() throws IOException {
-        RoomExcelToPDFService service = new RoomExcelToPDFService();
+        RoomService service = new RoomService(new ExcelService());
         PDDocument document = new PDDocument();
         PDPage page = service.createNewPage(document);
 
@@ -48,7 +48,7 @@ class RoomExcelToPDFServiceTest {
      */
     @Test
     void testAddTitleAndIntro() throws IOException {
-        RoomExcelToPDFService service = new RoomExcelToPDFService();
+        RoomService service = new RoomService(new ExcelService());
         PDDocument document = new PDDocument();
         PDPage page = new PDPage(PDRectangle.A4);
         document.addPage(page);
@@ -68,7 +68,7 @@ class RoomExcelToPDFServiceTest {
      */
     @Test
     void testCalculateColumnWidths() throws IOException {
-        RoomExcelToPDFService service = new RoomExcelToPDFService();
+        RoomService service = new RoomService(new ExcelService());
         PDDocument document = new PDDocument();
         PDPage page = new PDPage(PDRectangle.A4);
         document.addPage(page);

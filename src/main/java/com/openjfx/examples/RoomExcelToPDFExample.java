@@ -1,7 +1,6 @@
 package com.openjfx.examples;
 
 import com.openjfx.services.ExcelService;
-import com.openjfx.services.RoomExcelToPDFService;
 import com.openjfx.services.RoomService;
 
 import java.io.IOException;
@@ -56,7 +55,7 @@ public class RoomExcelToPDFExample {
         addRow(data, "EVA", "", "", "", "", "106");
 
 // Excel export
-        RoomExcelToPDFService roomPdfService = new RoomExcelToPDFService();
+        RoomService roomPdfService = new RoomService(new ExcelService());
         try {
 // Export the data to an Excel file
             roomPdfService.roomExportToPdf(data, "EXPORT BOT4 Room and Schedule Plan.pdf");
