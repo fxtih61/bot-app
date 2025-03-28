@@ -15,6 +15,10 @@ public class StudentAssignment {
   private String firstName;
   private String lastName;
   private String classRef;
+  private String subject;
+  private Integer choiceNo;
+  private String timeSlot;
+  private String roomId;
 
   /**
    * Constructs a new StudentAssignment with the specified attributes.
@@ -27,12 +31,14 @@ public class StudentAssignment {
    * @author mian
    */
   public StudentAssignment(int eventId, String firstName, String lastName, String classRef,
-      String companyName) {
+      String companyName, String subject) {
     this.eventId = eventId;
     this.firstName = firstName;
     this.lastName = lastName;
     this.classRef = classRef;
     this.companyName = companyName;
+    this.subject = subject;
+    this.choiceNo = null;
   }
 
   /**
@@ -152,6 +158,86 @@ public class StudentAssignment {
   }
 
   /**
+   * Gets the subject.
+   *
+   * @return the subject
+   * @author mian
+   */
+  public String getSubject() {
+    return subject;
+  }
+
+  /**
+   * Sets the subject.
+   *
+   * @param subject the subject
+   * @author mian
+   */
+  public void setSubject(String subject) {
+    this.subject = subject;
+  }
+
+  /**
+   * Gets the time slot.
+   *
+   * @return the time slot
+   * @author mian
+   */
+  public String getTimeSlot() {
+    return timeSlot;
+  }
+
+  /**
+   * Sets the time slot.
+   *
+   * @param timeSlot the time slot
+   * @author mian
+   */
+  public void setTimeSlot(String timeSlot) {
+    this.timeSlot = timeSlot;
+  }
+
+  /**
+   * Gets the room ID.
+   *
+   * @return the room ID
+   * @author mian
+   */
+  public String getRoomId() {
+    return roomId;
+  }
+
+  /**
+   * Sets the room ID.
+   *
+   * @param roomId the room ID
+   * @author mian
+   */
+  public void setRoomId(String roomId) {
+    this.roomId = roomId;
+  }
+
+  /**
+   * Gets the choice number.
+   *
+   * @return the choice number
+   * @author mian
+   */
+  public Integer getChoiceNo() {
+    return choiceNo;
+  }
+
+  /**
+   * Sets the choice number.
+   *
+   * @param choiceNo the choice number
+   * @author mian
+   */
+  public void setChoiceNo(Integer choiceNo) {
+    this.choiceNo = choiceNo;
+  }
+
+  /**
    * Checks if this StudentAssignment is equal to another object.
    *
    * @param o the object to compare with
@@ -172,7 +258,8 @@ public class StudentAssignment {
             Objects.equals(firstName, that.firstName) &&
             Objects.equals(lastName, that.lastName) &&
             Objects.equals(classRef, that.classRef)
-            && Objects.equals(companyName, that.companyName);
+            && Objects.equals(companyName, that.companyName)
+            && Objects.equals(subject, that.subject);
   }
 
   /**
@@ -183,7 +270,7 @@ public class StudentAssignment {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(eventId, firstName, lastName, classRef, companyName);
+    return Objects.hash(eventId, firstName, lastName, classRef, companyName, subject);
   }
 
   /**
@@ -195,11 +282,12 @@ public class StudentAssignment {
   @Override
   public String toString() {
     return "StudentAssignment{" +
-        ", eventId=" + eventId +
+        "eventId=" + eventId +
         ", firstName='" + firstName + '\'' +
         ", lastName='" + lastName + '\'' +
         ", classRef='" + classRef + '\'' +
         ", companyName='" + companyName + '\'' +
+        ", subject='" + subject + '\'' +
         '}';
   }
 }

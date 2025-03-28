@@ -10,9 +10,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Service responsible for assigning students to events based on their choices and priorities.
@@ -21,29 +25,186 @@ import java.util.Map;
  */
 public class StudentAssignmentService {
 
+  private Map<String, Map<Integer, Integer>> studentEventChoiceNumbers;
+
+  public StudentAssignmentService() {
+    this.studentEventChoiceNumbers = new HashMap<>();
+  }
+
   /**
-   * Assigns students to events based on their choices and the available capacity.
+   * Assigns students to events based on their choices and the available capacity. Each student must
+   * be assigned to exactly 5 events.
    *
    * @param choices list of student choices
    * @param events  list of available events
    * @return a map of event IDs to the list of students assigned to each event
-   * @author mian
    */
   public Map<Integer, List<Choice>> assignStudentsToEvents(List<Choice> choices,
       List<Event> events) {
-    // Track assignments: <EventID, List<StudentChoices>>
+    this.studentEventChoiceNumbers.clear();
     Map<Integer, List<Choice>> assignments = new HashMap<>();
+    Map<String, Integer> studentAssignmentCount = new HashMap<>();
+    Map<String, Set<Integer>> studentAssignedEvents = new HashMap<>();
 
-    // Initialize empty assignment slots for each event
     initializeEventSlots(assignments, events);
+    for (Choice choice : choices) {
+      String studentId =
+          choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
+      studentAssignmentCount.put(studentId, 0);
+      studentAssignedEvents.put(studentId, new HashSet<>());
+      studentEventChoiceNumbers.put(studentId, new HashMap<>());
+    }
 
-    // Assign students to their first choice events where possible
-    assignFirstChoices(assignments, choices, events);
+    // STEP 1: First choices
+    for (Choice choice : choices) {
+      String studentId =
+          choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
+      String firstChoice = choice.getChoice1();
+      if (!firstChoice.isEmpty()) {
+        Event event = findEventByChoice(firstChoice, events);
+        if (event != null) {
+          assignments.get(event.getId()).add(choice);
+          studentAssignmentCount.put(studentId, 1);
+          studentAssignedEvents.get(studentId).add(event.getId());
+          studentEventChoiceNumbers.get(studentId).put(event.getId(), 1);
+        }
+      }
+    }
 
-    // Assign remaining students to their subsequent choices (2-6) if space is available
-    assignRemainingChoices(assignments, choices, events);
+    // STEP 2: Process remaining choices by priority
+    List<StudentChoicePriority> allChoices = new ArrayList<>();
+    for (Choice choice : choices) {
+      String studentId =
+          choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
+      for (int priority = 2; priority <= 6; priority++) {
+        String choiceStr = getChoiceByPriority(choice, priority);
+        if (!choiceStr.isEmpty()) {
+          Event event = findEventByChoice(choiceStr, events);
+          if (event != null) {
+            allChoices.add(new StudentChoicePriority(studentId, choice, event.getId(), priority));
+          }
+        }
+      }
+    }
+
+    Collections.sort(allChoices, Comparator.comparingInt(StudentChoicePriority::getPriority));
+
+    for (StudentChoicePriority scp : allChoices) {
+      String studentId = scp.getStudentId();
+      Choice choice = scp.getChoice();
+      int eventId = scp.getEventId();
+
+      if (studentAssignmentCount.get(studentId) >= 5 ||
+          studentAssignedEvents.get(studentId).contains(eventId)) {
+        continue;
+      }
+
+      assignments.get(eventId).add(choice);
+      studentAssignmentCount.put(studentId, studentAssignmentCount.get(studentId) + 1);
+      studentAssignedEvents.get(studentId).add(eventId);
+      studentEventChoiceNumbers.get(studentId).put(eventId, scp.getPriority());
+    }
+
+    // STEP 3: Force assign remaining
+    for (Choice choice : choices) {
+      String studentId =
+          choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
+      int assignmentCount = studentAssignmentCount.get(studentId);
+
+      if (assignmentCount >= 5) {
+        continue;
+      }
+
+      List<EventPriority> remainingChoices = new ArrayList<>();
+      for (int priority = 2; priority <= 6; priority++) {
+        String choiceStr = getChoiceByPriority(choice, priority);
+        if (!choiceStr.isEmpty()) {
+          Event event = findEventByChoice(choiceStr, events);
+          if (event != null && !studentAssignedEvents.get(studentId).contains(event.getId())) {
+            remainingChoices.add(new EventPriority(event, priority));
+          }
+        }
+      }
+
+      Collections.sort(remainingChoices, Comparator.comparingInt(EventPriority::getPriority));
+
+      for (EventPriority ep : remainingChoices) {
+        if (assignmentCount >= 5) {
+          break;
+        }
+
+        Event event = ep.getEvent();
+        assignments.get(event.getId()).add(choice);
+        assignmentCount++;
+        studentAssignmentCount.put(studentId, assignmentCount);
+        studentAssignedEvents.get(studentId).add(event.getId());
+        studentEventChoiceNumbers.get(studentId).put(event.getId(), ep.getPriority());
+      }
+
+      // Force assign to any remaining events if still needed
+      if (assignmentCount < 5) {
+        for (Event event : events) {
+          if (assignmentCount >= 5) {
+            break;
+          }
+
+          if (!studentAssignedEvents.get(studentId).contains(event.getId())) {
+            assignments.get(event.getId()).add(choice);
+            assignmentCount++;
+            studentAssignmentCount.put(studentId, assignmentCount);
+            studentAssignedEvents.get(studentId).add(event.getId());
+            studentEventChoiceNumbers.get(studentId).put(event.getId(), 0);
+          }
+        }
+      }
+    }
 
     return assignments;
+  }
+
+  /**
+   * Ensures that every student is assigned to exactly 5 events. If a student has less than 5
+   * events, they will be forcibly assigned to available events.
+   */
+  private void ensureExactlyFiveAssignments(Map<Integer, List<Choice>> assignments,
+      List<Choice> choices,
+      List<Event> events, Map<String, Integer> studentAssignmentCount) {
+
+    for (Choice choice : choices) {
+      String studentId =
+          choice.getFirstName() + "_" + choice.getLastName() + "_" + choice.getClassRef();
+      int assignmentCount = studentAssignmentCount.get(studentId);
+
+      // If student has less than 5 assignments, forcibly assign them to events with capacity
+      while (assignmentCount < 5) {
+        for (Event event : events) {
+          if (!hasReachedCapacity(assignments, event) && !isAlreadyAssigned(assignments, choice,
+              event)) {
+            assignments.get(event.getId()).add(choice);
+            assignmentCount++;
+            studentAssignmentCount.put(studentId, assignmentCount);
+            break;
+          }
+        }
+
+        // If we still haven't reached 5 and went through all events, we'll need to override capacity for some events
+        if (assignmentCount < 5) {
+          for (Event event : events) {
+            if (!isAlreadyAssigned(assignments, choice, event)) {
+              assignments.get(event.getId()).add(choice);
+              assignmentCount++;
+              studentAssignmentCount.put(studentId, assignmentCount);
+              break;
+            }
+          }
+        }
+
+        // Safety check to prevent infinite loop if there are less than 5 unique events
+        if (assignmentCount < 5 && events.size() < 5) {
+          break;
+        }
+      }
+    }
   }
 
   /**
@@ -147,11 +308,11 @@ public class StudentAssignmentService {
 
   /**
    * Returns the choice string based on the priority provided.
-   *
-   * @author mian
    */
   private String getChoiceByPriority(Choice choice, int priority) {
     switch (priority) {
+      case 1:
+        return choice.getChoice1();
       case 2:
         return choice.getChoice2();
       case 3:
@@ -175,7 +336,7 @@ public class StudentAssignmentService {
    * @author mian
    */
   public boolean saveAssignmentsToDatabase(Map<Integer, List<Choice>> assignments) {
-    String sql = "INSERT INTO student_assignments (event_id, first_name, last_name, class_ref) VALUES (?, ?, ?, ?)";
+    String sql = "INSERT INTO student_assignments (event_id, first_name, last_name, class_ref, choice_no) VALUES (?, ?, ?, ?, ?)";
 
     try (Connection conn = DatabaseConfig.getConnection();
         PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -196,6 +357,14 @@ public class StudentAssignmentService {
           stmt.setString(2, student.getFirstName());
           stmt.setString(3, student.getLastName());
           stmt.setString(4, student.getClassRef());
+
+          // Determine choice number
+          String studentId =
+              student.getFirstName() + "_" + student.getLastName() + "_" + student.getClassRef();
+          int choiceNo = studentEventChoiceNumbers.getOrDefault(studentId, new HashMap<>())
+              .getOrDefault(eventId, 0);
+          stmt.setInt(5, choiceNo);
+
           stmt.addBatch();
         }
       }
@@ -216,9 +385,12 @@ public class StudentAssignmentService {
    * @author mian
    */
   public List<StudentAssignment> getAllAssignments() {
-    String sql = "SELECT sa.event_id, sa.first_name, sa.last_name, sa.class_ref, e.company " +
-        "FROM student_assignments sa " +
-        "JOIN events e ON sa.event_id = e.id";
+    String sql =
+        "SELECT sa.event_id, sa.first_name, sa.last_name, sa.class_ref, " +
+            "e.company, e.subject, sa.time_slot, sa.room_id, sa.choice_no " +
+            "FROM student_assignments sa " +
+            "JOIN events e ON sa.event_id = e.id";
+
     List<StudentAssignment> assignments = new ArrayList<>();
 
     try (Connection conn = DatabaseConfig.getConnection();
@@ -231,8 +403,12 @@ public class StudentAssignmentService {
             rs.getString("first_name"),
             rs.getString("last_name"),
             rs.getString("class_ref"),
-            rs.getString("company")
+            rs.getString("company"),
+            rs.getString("subject")
         );
+        assignment.setTimeSlot(rs.getString("time_slot"));
+        assignment.setRoomId(rs.getString("room_id"));
+        assignment.setChoiceNo(rs.getInt("choice_no"));
         assignments.add(assignment);
       }
 
@@ -241,5 +417,83 @@ public class StudentAssignmentService {
     }
 
     return assignments;
+  }
+
+  /**
+   * Converts database assignments to the required map format.
+   *
+   * @return map of event IDs to their assigned choices
+   * @author mian
+   */
+  public Map<Integer, List<Choice>> getAssignmentsAsMap() {
+    List<StudentAssignment> assignments = getAllAssignments();
+    Map<Integer, List<Choice>> assignmentMap = new HashMap<>();
+
+    for (StudentAssignment assignment : assignments) {
+      Choice choice = new Choice();
+      choice.setFirstName(assignment.getFirstName());
+      choice.setLastName(assignment.getLastName());
+      choice.setClassRef(assignment.getClassRef());
+      choice.setChoice1(String.valueOf(assignment.getEventId()));
+
+      assignmentMap
+          .computeIfAbsent(assignment.getEventId(), k -> new ArrayList<>())
+          .add(choice);
+    }
+
+    return assignmentMap;
+  }
+
+
+  // Helper class to track student choices with priorities
+  private static class StudentChoicePriority {
+
+    private final String studentId;
+    private final Choice choice;
+    private final int eventId;
+    private final int priority;
+
+    public StudentChoicePriority(String studentId, Choice choice, int eventId, int priority) {
+      this.studentId = studentId;
+      this.choice = choice;
+      this.eventId = eventId;
+      this.priority = priority;
+    }
+
+    public String getStudentId() {
+      return studentId;
+    }
+
+    public Choice getChoice() {
+      return choice;
+    }
+
+    public int getEventId() {
+      return eventId;
+    }
+
+    public int getPriority() {
+      return priority;
+    }
+  }
+
+  // Helper class to track events with priorities
+  private static class EventPriority {
+
+    private final Event event;
+    private final int priority;
+
+    public EventPriority(Event event, int priority) {
+      this.event = event;
+      this.priority = priority;
+    }
+
+    public Event getEvent() {
+      return event;
+    }
+
+    public int getPriority() {
+      return priority;
+    }
   }
 }

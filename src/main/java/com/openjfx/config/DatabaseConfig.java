@@ -153,7 +153,10 @@ public class DatabaseConfig {
             "event_id INTEGER NOT NULL," +
             "first_name VARCHAR(255) NOT NULL," +
             "last_name VARCHAR(255) NOT NULL," +
-            "class_ref VARCHAR(50) NOT NULL" +
+            "choice_no INTEGER NULL," +
+            "class_ref VARCHAR(50) NOT NULL," +
+            "time_slot VARCHAR(50) NULL," +
+            "room_id VARCHAR(255) NULL" +
             ")");
 
     // Workshop demand table for tracking workshop demand per event
