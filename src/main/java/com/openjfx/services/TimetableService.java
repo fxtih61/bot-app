@@ -562,7 +562,7 @@ public class TimetableService {
    *
    * @author leon
    */
-  public Map<String, Object> prepareDataForExport(List<Object> dataToExport) {
+  public Map<String, Object> prepareDataForExportForAttendanceList(List<Object> dataToExport) {
     if (dataToExport == null || dataToExport.isEmpty()) {
       return Collections.emptyMap();
     }
@@ -945,6 +945,75 @@ public class TimetableService {
     }
   }
 
+  /**
+   * The file path where the exported Excel file will be saved for Choices.
+   *
+   */
+  private String filePathChoices = "EXPORT BOT6 Laufzettel";
+
+  /**
+   * Returns the file path to which the data will be exported for the Choices.
+   *
+   * @return The file path as a string.
+   *
+   * @author leon
+   */
+  public String getFilePathChoices() {
+        return filePathChoices;
+  }
+
+
+  /**
+   * Prepares data for export in routing slip format by converting StudentAssignment objects
+   * into a structured map with time slots converted to time ranges.
+   *
+   * @param dataToExport List of objects to be exported (expected to contain StudentAssignment instances)
+   * @return Map containing the prepared export data under the "data" key
+   *
+   * @author leon
+   */
+  public Map<String, Object> prepareDataForExportForRoutingSlip(List<Object> dataToExport) {
+    // Initialize list to hold all converted assignment records
+    List<Map<String, Object>> exportData = new ArrayList<>();
+
+    // Process each item in the input list
+    for (Object item : dataToExport) {
+      // Only process StudentAssignment objects
+      if (item instanceof StudentAssignment) {
+        StudentAssignment assignment = (StudentAssignment) item;
+
+        // Create a new row with ordered columns for the export
+        Map<String, Object> row = new LinkedHashMap<>();
+
+        // Convert time slot to time range
+        String timeRange;
+        switch(assignment.getTimeSlot()) {
+          case "A": timeRange = "08:00-08:45"; break;
+          case "B": timeRange = "08:45-09:30"; break;
+          case "C": timeRange = "09:50-10:35"; break;
+          case "D": timeRange = "10:35-11:20"; break;
+          case "E": timeRange = "11:40-12:25"; break;
+          case "F": timeRange = "12:25-13:10"; break;
+          default: timeRange = assignment.getTimeSlot(); // Return original if no match
+        }
+
+        row.put("Zeit", timeRange);
+        row.put("Raum", assignment.getRoomId());
+        row.put("Veranstaltung", assignment.getCompanyName());
+        row.put("Beschreibung", assignment.getSubject());
+        row.put("Wunsch", assignment.getChoiceNo());
+        row.put("Name", assignment.getLastName() + ", " + assignment.getFirstName());
+        row.put("Klasse", assignment.getClassRef());
+
+        exportData.add(row);
+      }
+    }
+
+    // Return the data in a structured map (grouping happens later during export)
+    Map<String, Object> result = new HashMap<>();
+    result.put("data", exportData);
+    return result;
+  }
 
 
 }

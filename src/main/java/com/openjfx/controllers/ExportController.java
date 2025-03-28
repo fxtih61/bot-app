@@ -328,8 +328,11 @@ public class ExportController {
     exportToExcelMenuItem.setOnAction(e -> exportData("excel"));
     exportToPdfMenuItem.setOnAction(e -> exportData("pdf"));
 
-    exportToExcelMenuItemAttendanceList.setOnAction(e -> exportData("excel"));
-    exportToPdfMenuItemAttendanceList.setOnAction(e -> exportData("pdf"));
+    exportToExcelMenuItemAttendanceList.setOnAction(e -> exportData("excelAttendanceList"));
+    exportToPdfMenuItemAttendanceList.setOnAction(e -> exportData("pdfAttendanceList"));
+
+    exportToExcelMenuItemRoutingSlip.setOnAction(e -> exportData("excelRoutingSlip"));
+    exportToPdfMenuItemRoutingSlip.setOnAction(e -> exportData("pdfRoutingSlip"));
   }
 
   /**
@@ -341,8 +344,6 @@ public class ExportController {
   private void exportData(String format) {
     String filterName = eventFilterComboBox.getValue();
 
-    //System.out.println("Filtername: " + filterName);
-
     if (currentHandler != null) {
       List<?> dataToExport;
 
@@ -353,7 +354,6 @@ public class ExportController {
       } else {
         // If the table is not filtered, export all data
         dataToExport = currentHandler.loadData();
-        //System.out.println("Exportdaten: " + dataToExport);
 
       }
 
@@ -371,26 +371,39 @@ public class ExportController {
             showErrorAlert("File Error", "Could not export to the the file : " + roomService.getFilePath() + "_" + filterName  + ".xlsx, " + e.getMessage());
           }
         }
-        if (currentHandler instanceof AssignmentHandler) {
-            if (filterName.equals("All Events")) {
-                showErrorAlert("Choice Error", "Please select a specific event and not All Events.");
-            }
-            Map<String, Object> data = timetableService.prepareDataForExport((List<Object>) dataToExport);
-            System.out.println(dataToExport);
-
-            String filePath = null;
-            try {
-                // Export the data to an Excel file
-                assignmentHandler.exportEvents(data,filterName);
-                showInfoAlert("Export Successful", "Data has been successfully exported to file: '" + timetableService.getFilePathEvent() + "_" + filterName + ".xlsx'");
-            } catch (IOException e) {
-                // Error handling if the export fails
-                showErrorAlert("File Error", "Could not export to the the file : " + timetableService.getFilePathEvent() + "_" + filterName + ".xlsx'" + e.getMessage());
-            }
-        }
       } else if (format.equals("pdf")) {
            //exportToPdf(dataToExport);
-       }
+        }
+
+      if (format.equals("excelAttendanceList")) {
+        if (filterName.equals("All Events")) {
+          showErrorAlert("Choice Error", "Please select a specific event and not All Events.");
+        }
+        Map<String, Object> data = timetableService.prepareDataForExportForAttendanceList((List<Object>) dataToExport);
+
+        String filePath = null;
+        try {
+          // Export the data to an Excel file
+          assignmentHandler.exportEvents(data,filterName);
+          showInfoAlert("Export Successful", "Data has been successfully exported to file: '" + timetableService.getFilePathEvent() + "_" + filterName + ".xlsx'");
+        } catch (IOException e) {
+          // Error handling if the export fails
+          showErrorAlert("File Error", "Could not export to the the file : " + timetableService.getFilePathEvent() + "_" + filterName + ".xlsx'" + e.getMessage());
+        }
+      }
+
+      if (format.equals("excelRoutingSlip")) {
+        Map<String, Object> preparedData = timetableService.prepareDataForExportForRoutingSlip((List<Object>) dataToExport);
+        String filePath = null;
+        try {
+          // Export the data to an Excel file
+          assignmentHandler.exportChoices(preparedData,filterName);
+          showInfoAlert("Export Successful", "Data has been successfully exported to file: '" + timetableService.getFilePathChoices() + "_" + filterName + ".xlsx'");
+        } catch (IOException e) {
+          // Error handling if the export fails
+          showErrorAlert("File Error", "Could not export to the the file : " + timetableService.getFilePathChoices() + "_" + filterName + ".xlsx'" + e.getMessage());
+        }
+      }
     }
   }
 

@@ -290,6 +290,7 @@ public class StudentAssignment {
         ", subject='" + subject + '\'' +
         ", timeSlot='" + timeSlot + '\'' +
         ", choice='" + choiceNo + '\'' +
+        ", roomId='" + roomId + '\'' +
         '}';
   }
 }

@@ -180,4 +180,22 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
     String filePath = timetableService.getFilePathEvent() + "_" + filterName + ".xlsx";
     timetableService.exportEventData(filePath,data);
   }
+
+  /**
+   * Exports Event data to an Excel file. This method calls the exportDataToExcel() function from the
+   * TimetableService to generate and save the room data in Excel format.
+   *
+   * @param data       The room data to be exported as a list of maps.
+   * @param filterName The addition to the file path
+   * @throws IOException If an error occurs during export.
+   *
+   * @author leon
+   */
+  public void exportChoices(Map<String, Object> data, String filterName) throws IOException {
+    String filePath = timetableService.getFilePathChoices() + "_" + filterName + ".xlsx";
+    List<Map<String, Object>> exportData = (List<Map<String, Object>>) data.get("data");
+    timetableService.exportChoiceData(filePath, exportData);
+  }
+
+
 }
