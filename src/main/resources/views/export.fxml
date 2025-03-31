@@ -28,6 +28,18 @@
               <MenuItem fx:id="exportToPdfMenuItem" text="%toPdf" />
             </items>
           </MenuButton>
+          <MenuButton fx:id="ExportButtonRoutingSlip" mnemonicParsing="false" text="%exportRoutingSlip">
+            <items>
+              <MenuItem fx:id="exportToExcelMenuItemRoutingSlip" text="%toExcel" />
+              <MenuItem fx:id="exportToPdfMenuItemRoutingSlip" text="%toPdf" />
+            </items>
+          </MenuButton>
+          <MenuButton fx:id="ExportButtonAttendanceList" mnemonicParsing="false" text="%exportAttendanceList">
+            <items>
+              <MenuItem fx:id="exportToExcelMenuItemAttendanceList" text="%toExcel" />
+              <MenuItem fx:id="exportToPdfMenuItemAttendanceList" text="%toPdf" />
+            </items>
+          </MenuButton>
           <BorderPane.margin>
             <Insets right="15.0"/>
           </BorderPane.margin>

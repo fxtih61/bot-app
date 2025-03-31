@@ -1,52 +1,68 @@
 package com.openjfx.examples;
 
-import com.openjfx.services.ChoiceExcelExportService;
-import com.openjfx.services.ExcelService;
+import com.openjfx.services.TimetableService;
 
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * This class demonstrates the creation of an Excel file containing choice information.
+ * The data is stored in a list of maps and then exported to an Excel file.
+ *
+ * @author leon
+ */
 public class ChoiceExportExample {
 
+    /**
+     * Main method of the program. This is where the data for the table is created and exported to an Excel file.
+     *
+     * @param args Command-line arguments (not used in this example)
+     */
     public static void main(String[] args) {
-        // Beispielhafte Daten erstellen
+        // Create example data
         List<Map<String, Object>> data = new ArrayList<>();
-        List<String> headers = Arrays.asList("Zeit", "Raum", "Veranstaltung", "Wunsch");
 
-        // Beispiel 1: Jane Doe
-        addRow(data, headers, "08:45-9:30", "103", "Finanzamt", "3", "Jane Doe", "ASS221");
-        addRow(data, headers, "9:50-10:35", "103", "Finanzamt", "1", "Jane Doe", "ASS221");
-        addRow(data, headers, "10:35-11:20", "102", "Aachener Sparkasse", "5", "Jane Doe", "ASS221");
-        addRow(data, headers, "11:40-12:25", "102", "Justizvollzugsanstalt", "4", "Jane Doe", "ASS221");
-        addRow(data, headers, "12:25-13:10", "107", "Debeka", "2", "Jane Doe", "ASS221");
+        // Example 1: Jane Doe
+        addRow(data, "08:45-9:30", "103", "Finanzamt", "duales Studium Dipl. Finanzwirt/-in", "3", "Doe, Jane", "ASS221");
+        addRow(data, "9:50-10:35", "103", "Finanzamt", "Ausbildung Finanzwirt/-in", "1", "Doe, Jane", "ASS221");
+        addRow(data, "10:35-11:20", "102", "Aachener Sparkasse", "Bankkaufleute", "5", "Doe, Jane", "ASS221");
+        addRow(data, "11:40-12:25", "102", "Justizvollzugsanstalt", "Beamter im allgemeinen Vollzugsdienst, Dipl-Verwaltungswirt (FH)", "4", "Doe, Jane", "ASS221");
+        addRow(data, "12:25-13:10", "107", "Debeka", "Kaufleute für Versicherungen und Finanzen", "2", "Doe, Jane", "ASS221");
 
-        // Beispiel 2: Max Mustermann
-        addRow(data, headers, "08:45-9:30", "106", "Soziale Arbeit", "6", "Max Mustermann", "ASS221");
-        addRow(data, headers, "9:50-10:35", "008", "FH Aachen - Studienberatung", "3", "Max Mustermann", "ASS221");
-        addRow(data, headers, "10:35-11:20", "112", "Rechtsanwaltsberufe", "1", "Max Mustermann", "ASS221");
-        addRow(data, headers, "11:40-12:25", "113", "Zoll Aachen", "-", "Max Mustermann", "ASS221");
-        addRow(data, headers, "12:25-13:10", "Aula", "Polizei", "2", "Max Mustermann", "ASS221");
+        TimetableService exportService = new TimetableService();
 
-        // ExcelService und ChoiceExcelExportService instanziieren
-        ExcelService excelService = new ExcelService(); // Angenommen, ExcelService ist bereits implementiert
-        ChoiceExcelExportService exportService = new ChoiceExcelExportService(excelService);
-
-        // Daten exportieren
+        // Export data
         try {
-            exportService.exportChoiceData("Choice_Export.xlsx", data, headers);
+            exportService.exportChoiceData("EXPORT_BOT6_Laufzettel.xlsx", data);
             System.out.println("Daten erfolgreich exportiert.");
         } catch (IOException e) {
             System.err.println("Fehler beim Export der Daten: " + e.getMessage());
         }
     }
 
-    public static void addRow(List<Map<String, Object>> data, List<String> headers, String... values) {
+    /**
+     * Adds a new row to the data list representing a participant's choice.
+     *
+     * @param data          The list to which the new row will be added.
+     * @param zeit          The time slot for the event.
+     * @param raum          The room where the event takes place.
+     * @param veranstaltung         The organization hosting the event.
+     * @param beschreibung   The description of the event.
+     * @param wunsch    The priority ranking of the choice.
+     * @param name          The participant's name.
+     * @param klasse     The class the participant belongs to.
+     *
+     * @author leon
+     */
+    public static void addRow(List<Map<String, Object>> data, String zeit, String raum, String veranstaltung, String beschreibung, String wunsch, String name, String klasse) {
         Map<String, Object> row = new LinkedHashMap<>();
-        for (int i = 0; i < headers.size(); i++) {
-            row.put(headers.get(i), i < values.length ? values[i] : "");
-        }
-        row.put("Name", values[values.length - 2]);
-        row.put("Klasse", values[values.length - 1]);
+        row.put("Zeit", zeit);
+        row.put("Raum", raum);
+        row.put("Veranstaltung", veranstaltung);
+        row.put("Beschreibung", beschreibung);
+        row.put("Wunsch", wunsch);
+        row.put("Name", name);
+        row.put("Klasse", klasse);
         data.add(row);
     }
 }

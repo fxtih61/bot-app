@@ -270,7 +270,7 @@ public class StudentAssignment {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(eventId, firstName, lastName, classRef, companyName, subject);
+    return Objects.hash(eventId, firstName, lastName, classRef, companyName, subject, timeSlot, choiceNo);
   }
 
   /**
@@ -288,6 +288,9 @@ public class StudentAssignment {
         ", classRef='" + classRef + '\'' +
         ", companyName='" + companyName + '\'' +
         ", subject='" + subject + '\'' +
+        ", timeSlot='" + timeSlot + '\'' +
+        ", choice='" + choiceNo + '\'' +
+        ", roomId='" + roomId + '\'' +
         '}';
   }
 }
