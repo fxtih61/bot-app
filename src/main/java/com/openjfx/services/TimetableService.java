@@ -554,11 +554,11 @@ public class TimetableService {
 
 
   /**
-   * Prepares student assignment data for Excel export by time slots.
+   * Prepares data for export in attendance list format, grouping participants by time slots
+   * and sorting them in chronological order (A → B → C → D → E).
    *
-   * @param dataToExport List of student assignments to process.
-   * @return Structured data map for export, or empty map if invalid input.
-   * @throws IllegalArgumentException If input contains invalid time slot codes.
+   * @param dataToExport List of objects to be exported (expected to contain StudentAssignment instances)
+   * @return Map containing the prepared export data with sorted time slots
    *
    * @author leon
    */
@@ -567,16 +567,20 @@ public class TimetableService {
       return Collections.emptyMap();
     }
 
+    // Define time slot mapping with proper chronological order
+    Map<String, String> timeSlotMapping = new LinkedHashMap<>(); // Maintains insertion order
+    timeSlotMapping.put("A", "08:45-09:30");
+    timeSlotMapping.put("B", "09:50-10:35");
+    timeSlotMapping.put("C", "10:35-11:20");
+    timeSlotMapping.put("D", "11:40-12:25");
+    timeSlotMapping.put("E", "12:25-13:10");
+
+    // Create a reverse mapping from time range to slot for sorting
+    Map<String, String> timeRangeToSlot = new HashMap<>();
+    timeSlotMapping.forEach((slot, range) -> timeRangeToSlot.put(range, slot));
+
     Map<String, Object> eventData = new HashMap<>();
     Map<String, List<Map<String, String>>> timeSlotMap = new HashMap<>();
-
-    Map<String, String> timeSlotMapping = Map.of(
-            "A", "8:45-9:30",
-            "B", "9:50-10:35",
-            "C", "10:35-11:20",
-            "D", "11:40-12:25",
-            "E", "12:25-13:10"
-    );
 
     String companyName = null;
 
@@ -592,7 +596,10 @@ public class TimetableService {
         eventData.put("Veranstaltung", companyName);
       }
 
-      String timeSlotValue = timeSlotMapping.getOrDefault(assignment.getTimeSlot(), assignment.getTimeSlot());
+      String timeSlotValue = timeSlotMapping.getOrDefault(
+              assignment.getTimeSlot(),
+              assignment.getTimeSlot()
+      );
 
       Map<String, String> participant = new HashMap<>();
       participant.put("Klasse", assignment.getClassRef());
@@ -607,8 +614,15 @@ public class TimetableService {
       return Collections.emptyMap();
     }
 
+    // Sort time slots chronologically using the predefined order
     List<Map<String, Object>> timeSlots = timeSlotMap.entrySet().stream()
-            .sorted(Map.Entry.comparingByKey())
+            .sorted((e1, e2) -> {
+              // Get the original slot letters for comparison
+              String slot1 = timeRangeToSlot.getOrDefault(e1.getKey(), e1.getKey());
+              String slot2 = timeRangeToSlot.getOrDefault(e2.getKey(), e2.getKey());
+              // Compare based on natural order of slot letters (A, B, C, D, E)
+              return slot1.compareTo(slot2);
+            })
             .map(entry -> {
               Map<String, Object> timeSlot = new HashMap<>();
               timeSlot.put("Uhrzeit", entry.getKey());
