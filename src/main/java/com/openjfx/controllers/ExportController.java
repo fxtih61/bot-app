@@ -25,7 +25,6 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -325,30 +324,31 @@ public class ExportController {
     // Room time plan button - only switch view
     RoomTimePlanButton.setOnAction(e -> switchHandler(roomPlanHandler, RoomTimePlanButton));
 
-    exportToExcelMenuItem.setOnAction(e -> exportData("excel"));
-    exportToPdfMenuItem.setOnAction(e -> exportData("pdf"));
+    exportToExcelMenuItem.setOnAction(e -> exportData("excel", ""));
+    exportToPdfMenuItem.setOnAction(e -> exportData("pdf",""));
 
-    exportToExcelMenuItemAttendanceList.setOnAction(e -> exportData("excelAttendanceList"));
-    exportToPdfMenuItemAttendanceList.setOnAction(e -> exportData("pdfAttendanceList"));
+    exportToExcelMenuItemAttendanceList.setOnAction(e -> exportData("excelAttendanceList",""));
+    exportToPdfMenuItemAttendanceList.setOnAction(e -> exportData("pdfAttendanceList",""));
 
-    exportToExcelMenuItemRoutingSlip.setOnAction(e -> exportData("excelRoutingSlip"));
-    exportToPdfMenuItemRoutingSlip.setOnAction(e -> exportData("pdfRoutingSlip"));
+    exportToExcelMenuItemRoutingSlip.setOnAction(e -> exportData("excelRoutingSlip",searchField.getText()));
+    exportToPdfMenuItemRoutingSlip.setOnAction(e -> exportData("pdfRoutingSlip",searchField.getText()));
   }
 
   /**
    * Exports the table data in the specified format.
    *
-   * @param format the export format ("excel" or "pdf")
+   * @param format The export format ("excel", "pdf", "excelAttendanceList", "excelRoutingSlip")
+   * @param searchField the value of the search fields
    * @author mian
    */
-  private void exportData(String format) {
+  private void exportData(String format,String searchField) {
     String filterName = eventFilterComboBox.getValue();
 
     if (currentHandler != null) {
       List<?> dataToExport;
 
       if (tableView.getItems().isEmpty()
-          || tableView.getItems().size() != currentHandler.loadData().size()) {
+              || tableView.getItems().size() != currentHandler.loadData().size()) {
         // If the table is filtered, export only the visible data
         dataToExport = new ArrayList<>(tableView.getItems());
       } else {
@@ -357,52 +357,19 @@ public class ExportController {
 
       }
 
-      if (format.equals("excel")) {
-        //System.out.println("Excel");
-        if (currentHandler instanceof RoomPlanHandler) {
-          List<Map<String, Object>> data = roomService.prepareDataForExport((List<Object>) dataToExport);
-
-          try {
-            // Export the data to an Excel file
-            roomPlanHandler.exportRooms(data,filterName);
-            showInfoAlert("Export Successful", "Data has been successfully exported to file: '" + roomService.getFilePath() + "_" + filterName + ".xlsx'");
-          } catch (IOException e) {
-            // Error handling if the export fails
-            showErrorAlert("File Error", "Could not export to the the file : " + roomService.getFilePath() + "_" + filterName  + ".xlsx, " + e.getMessage());
-          }
-        }
-      } else if (format.equals("pdf")) {
-           //exportToPdf(dataToExport);
-        }
-
-      if (format.equals("excelAttendanceList")) {
-        if (filterName.equals("All Events")) {
-          showErrorAlert("Choice Error", "Please select a specific event and not All Events.");
-        }
-        Map<String, Object> data = timetableService.prepareDataForExportForAttendanceList((List<Object>) dataToExport);
-
-        String filePath = null;
-        try {
-          // Export the data to an Excel file
-          assignmentHandler.exportEvents(data,filterName);
-          showInfoAlert("Export Successful", "Data has been successfully exported to file: '" + timetableService.getFilePathEvent() + "_" + filterName + ".xlsx'");
-        } catch (IOException e) {
-          // Error handling if the export fails
-          showErrorAlert("File Error", "Could not export to the the file : " + timetableService.getFilePathEvent() + "_" + filterName + ".xlsx'" + e.getMessage());
-        }
-      }
-
-      if (format.equals("excelRoutingSlip")) {
-        Map<String, Object> preparedData = timetableService.prepareDataForExportForRoutingSlip((List<Object>) dataToExport);
-        String filePath = null;
-        try {
-          // Export the data to an Excel file
-          assignmentHandler.exportChoices(preparedData,filterName);
-          showInfoAlert("Export Successful", "Data has been successfully exported to file: '" + timetableService.getFilePathChoices() + "_" + filterName + ".xlsx'");
-        } catch (IOException e) {
-          // Error handling if the export fails
-          showErrorAlert("File Error", "Could not export to the the file : " + timetableService.getFilePathChoices() + "_" + filterName + ".xlsx'" + e.getMessage());
-        }
+      switch (format) {
+        case "excel":
+          handleExcelExport(dataToExport, filterName, currentHandler);
+          break;
+        case "pdf":
+          // exportToPdf(dataToExport);
+          break;
+        case "excelAttendanceList":
+          handleAttendanceListExport(dataToExport, filterName);
+          break;
+        case "excelRoutingSlip":
+          handleRoutingSlipExport(dataToExport, searchField);
+          break;
       }
     }
   }
@@ -636,6 +603,79 @@ public class ExportController {
     // Hide Export Button for the Assignment view
     ExportButton.setVisible(!isAssignmentView);
     ExportButton.setManaged(!isAssignmentView);
+  }
+  /**
+   * Handles the export of room data to Excel format
+   *
+   * @param dataToExport The room data to export
+   * @param filterName The filter name to include in the filename
+   * @param currentHandler The RoomPlanHandler instance for processing
+   *
+   * @author leon
+   */
+  private void handleExcelExport(Object dataToExport, String filterName, Object currentHandler) {
+    if (!(currentHandler instanceof RoomPlanHandler)) return;
+
+    List<Map<String, Object>> data = roomService.prepareDataForExport((List<Object>) dataToExport);
+    String filePath = roomService.getFilePath() + "_" + filterName + ".xlsx";
+
+    try {
+      ((RoomPlanHandler) currentHandler).exportRooms(data, filterName);
+      showInfoAlert("Export Successful",
+              "Data has been successfully exported to file: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("File Error",
+              "Could not export to the file: " + filePath + ", " + e.getMessage());
+    }
+  }
+
+  /**
+   * Handles the export of attendance list data to Excel format
+   *
+   * @param dataToExport The attendance data to export
+   * @param filterName The filter name (must not be "All Events")
+   *
+   * @author leon
+   */
+  private void handleAttendanceListExport(Object dataToExport, String filterName) {
+    if (filterName.equals("All Events")) {
+      showErrorAlert("Choice Error", "Please select a specific event and not All Events.");
+      return;
+    }
+
+    Map<String, Object> data = (Map<String, Object>) timetableService.prepareDataForExportForAttendanceList((List<Object>) dataToExport);
+    String filePath = timetableService.getFilePathEvent() + "_" + filterName + ".xlsx";
+
+    try {
+      assignmentHandler.exportEvents(data, filterName);
+      showInfoAlert("Export Successful",
+              "Data has been successfully exported to file: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("File Error",
+              "Could not export to the file: " + filePath + e.getMessage());
+    }
+  }
+  /**
+   * Handles the export of routing slip data to Excel format
+   *
+   * @param dataToExport The routing slip data to export
+   * @param searchField The search field to include in the filename
+   *
+   * @author leon
+   */
+  private void handleRoutingSlipExport(Object dataToExport,String searchField) {
+    Map<String, Object> preparedData = timetableService.prepareDataForExportForRoutingSlip((List<Object>) dataToExport);
+    String filePath = timetableService.getFilePathChoices() +
+            (searchField.isEmpty() ? ".xlsx" : "_" + searchField + ".xlsx");
+
+    try {
+      assignmentHandler.exportChoices(preparedData, searchField);
+      showInfoAlert("Export Successful",
+              "Data has been successfully exported to file: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("File Error",
+              "Could not export to the file: " + filePath + "'" + e.getMessage());
+    }
   }
 
 }
