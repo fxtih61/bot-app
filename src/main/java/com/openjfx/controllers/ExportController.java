@@ -1,6 +1,8 @@
 package com.openjfx.controllers;
 
+import com.openjfx.dao.FulfillmentScoreDAO;
 import com.openjfx.handlers.Export.AssignmentHandler;
+import com.openjfx.handlers.Export.FulfillmentScoreHandler;
 import com.openjfx.handlers.Export.RoomPlanHandler;
 import com.openjfx.handlers.Export.WorkshopDemandHandler;
 import com.openjfx.handlers.Import.Handler;
@@ -8,11 +10,13 @@ import com.openjfx.models.Event;
 import com.openjfx.models.StudentAssignment;
 import com.openjfx.models.WorkshopDemand;
 import com.openjfx.services.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -80,17 +84,21 @@ public class ExportController {
   private final TimetableService timetableService;
   private final ExcelService excelService;
   private final StudentTimetableMappingService studentTimetableMappingService;
+  private final StudentAssignmentService studentAssignmentService;
+  private final FulfillmentScoreService fulfillmentScoreService;
   private WorkshopDemandHandler workshopDemandHandler;
   private Handler<?> currentHandler;
   private AssignmentHandler assignmentHandler;
   private RoomPlanHandler roomPlanHandler;
   private RoomService roomService;
+  private FulfillmentScoreHandler fulfillmentScoreHandler;
 
   // Track whether each step has been executed
   private boolean assignmentsGenerated = false;
   private boolean workshopDemandGenerated = false;
   private boolean timetableGenerated = false;
   private boolean studentTimetableMappingGenerated = false;
+  private boolean fulfillmentScoreGenerated = false;
 
   /**
    * Constructor that initializes the required services for the controller.
@@ -115,11 +123,15 @@ public class ExportController {
         choiceService, eventService, roomService, timeSlotService,
         studentAssignmentService, this.timetableService, this.workshopDemandService);
 
-    this.assignmentHandler = new AssignmentHandler(this.excelService,this.timetableService);
-    this.roomPlanHandler = new RoomPlanHandler(this.timetableService, this.excelService, this.roomService);
+    this.assignmentHandler = new AssignmentHandler(this.excelService, this.timetableService);
+    this.roomPlanHandler = new RoomPlanHandler(this.timetableService, this.excelService,
+        this.roomService);
     this.workshopDemandHandler = new WorkshopDemandHandler(this.assignmentService,
         this.excelService);
     this.studentTimetableMappingService = new StudentTimetableMappingService();
+    this.studentAssignmentService = new StudentAssignmentService();
+    this.fulfillmentScoreService = new FulfillmentScoreService(this.studentAssignmentService);
+    this.fulfillmentScoreHandler = new FulfillmentScoreHandler(this.excelService);
   }
 
   /**
@@ -145,7 +157,8 @@ public class ExportController {
     // Begin data generation once only if needed
     Platform.runLater(() -> {
       if (!assignmentsGenerated || !workshopDemandGenerated ||
-          !timetableGenerated || !studentTimetableMappingGenerated) {
+          !timetableGenerated || !studentTimetableMappingGenerated ||
+          !fulfillmentScoreGenerated) {
         initializeData();
       }
     });
@@ -159,7 +172,8 @@ public class ExportController {
   private void initializeData() {
     // Skip processing if already verified and all data is present
     if (dataVerified && assignmentsGenerated && workshopDemandGenerated &&
-        timetableGenerated && studentTimetableMappingGenerated) {
+        timetableGenerated && studentTimetableMappingGenerated &&
+        fulfillmentScoreGenerated) {
       return;
     }
 
@@ -210,6 +224,19 @@ public class ExportController {
         showErrorAlert("Error mapping students to timetable", ex.getMessage());
         ex.printStackTrace();
         return;
+      }
+    }
+
+    if (!fulfillmentScoreGenerated) {
+      try {
+        showGeneratingAlert("Calculating fulfillment scores, please wait...");
+        double fulfillmentScore = fulfillmentScoreService.calculateFulfillmentScore();
+        fulfillmentScoreGenerated = true;
+        showInfoAlert("Fulfillment Score",
+            String.format("Overall fulfillment score: %.2f%%", fulfillmentScore));
+      } catch (Exception ex) {
+        showErrorAlert("Error calculating fulfillment scores", ex.getMessage());
+        ex.printStackTrace();
       }
     }
 
@@ -325,9 +352,19 @@ public class ExportController {
     workshopDemandGenerated = workshopDemandHandler.hasWorkshopDemandData();
     timetableGenerated = roomPlanHandler.hasTimetableData();
 
+    try {
+      FulfillmentScoreDAO fulfillmentScoreDAO = new FulfillmentScoreDAO();
+      fulfillmentScoreGenerated = fulfillmentScoreDAO.hasFulfillmentScores();
+      if (fulfillmentScoreGenerated) {
+        System.out.println("Fulfillment scores already exist in database");
+      }
+    } catch (SQLException e) {
+      System.err.println("Error checking fulfillment scores: " + e.getMessage());
+      fulfillmentScoreGenerated = false;
+    }
+
     // Check if students are already mapped to timetables
     if (assignmentsGenerated && timetableGenerated) {
-      // Check if student assignments have time slots and room assignments
       List<StudentAssignment> assignments = studentTimetableMappingService.getAllStudentAssignments();
       studentTimetableMappingGenerated = !assignments.isEmpty() &&
           assignments.stream()
@@ -357,7 +394,7 @@ public class ExportController {
   /**
    * Sets up the button actions.
    *
-   * @author mian
+   * @author mian | leon
    */
   private void setupButtons() {
     // Assignment button - only switch view
@@ -366,31 +403,37 @@ public class ExportController {
     // Room time plan button - only switch view
     RoomTimePlanButton.setOnAction(e -> switchHandler(roomPlanHandler, RoomTimePlanButton));
 
+    // Fulfillment score button - only switch view
+    FulfillmentScore.setOnAction(e -> switchHandler(fulfillmentScoreHandler, FulfillmentScore));
+
     exportToExcelMenuItem.setOnAction(e -> exportData("excel", ""));
-    exportToPdfMenuItem.setOnAction(e -> exportData("pdf",""));
+    exportToPdfMenuItem.setOnAction(e -> exportData("pdf", ""));
 
-    exportToExcelMenuItemAttendanceList.setOnAction(e -> exportData("excelAttendanceList",""));
-    exportToPdfMenuItemAttendanceList.setOnAction(e -> exportData("pdfAttendanceList",""));
+    exportToExcelMenuItemAttendanceList.setOnAction(e -> exportData("excelAttendanceList", ""));
+    exportToPdfMenuItemAttendanceList.setOnAction(e -> exportData("pdfAttendanceList", ""));
 
-    exportToExcelMenuItemRoutingSlip.setOnAction(e -> exportData("excelRoutingSlip",searchField.getText()));
-    exportToPdfMenuItemRoutingSlip.setOnAction(e -> exportData("pdfRoutingSlip",searchField.getText()));
+    exportToExcelMenuItemRoutingSlip.setOnAction(
+        e -> exportData("excelRoutingSlip", searchField.getText()));
+    exportToPdfMenuItemRoutingSlip.setOnAction(
+        e -> exportData("pdfRoutingSlip", searchField.getText()));
   }
 
   /**
    * Exports the table data in the specified format.
    *
-   * @param format The export format ("excel", "pdf", "excelAttendanceList", "excelRoutingSlip")
+   * @param format      The export format ("excel", "pdf", "excelAttendanceList",
+   *                    "excelRoutingSlip")
    * @param searchField the value of the search fields
-   * @author mian
+   * @author mian | leon
    */
-  private void exportData(String format,String searchField) {
+  private void exportData(String format, String searchField) {
     String filterName = eventFilterComboBox.getValue();
 
     if (currentHandler != null) {
       List<?> dataToExport;
 
       if (tableView.getItems().isEmpty()
-              || tableView.getItems().size() != currentHandler.loadData().size()) {
+          || tableView.getItems().size() != currentHandler.loadData().size()) {
         // If the table is filtered, export only the visible data
         dataToExport = new ArrayList<>(tableView.getItems());
       } else {
@@ -528,17 +571,47 @@ public class ExportController {
     tableView.getColumns().clear();
     tableView.getItems().clear();
 
-    // See if we're dealing with maps (like in RoomPlanHandler) or regular objects
     boolean isMapData = !items.isEmpty() && items.get(0) instanceof Map;
-
-    // Calculate column width based on table width
     double columnWidth = tableView.getWidth() / columns.size();
+
+    TableView<Object> table = (TableView<Object>) tableView;
+    TableColumn<Object, Object> overallColumn = null;
 
     for (Pair<String, String> column : columns) {
       TableColumn<Object, Object> tableColumn = new TableColumn<>(column.getKey());
 
+      if (column.getValue().equals("overallFulfillmentPercentage")) {
+        // Format percentage with 2 decimal places
+        tableColumn.setCellFactory(tc -> new TableCell<Object, Object>() {
+          @Override
+          protected void updateItem(Object item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+              setText(null);
+            } else {
+              setText(String.format("%.2f%%", (Double) item));
+            }
+          }
+        });
+
+        // Add sort comparator for percentage values
+        tableColumn.setComparator((o1, o2) -> {
+          if (o1 == null && o2 == null) {
+            return 0;
+          }
+          if (o1 == null) {
+            return -1;
+          }
+          if (o2 == null) {
+            return 1;
+          }
+          return Double.compare((Double) o2, (Double) o1); // Reverse order for descending sort
+        });
+
+        overallColumn = tableColumn;
+      }
+
       if (isMapData) {
-        // For Map data, use a custom cell value factory
         tableColumn.setCellValueFactory(cellData -> {
           Map<String, Object> rowMap = (Map<String, Object>) cellData.getValue();
           Object cellValue = rowMap.get(column.getValue());
@@ -546,20 +619,24 @@ public class ExportController {
               cellValue != null ? cellValue : "");
         });
       } else {
-        // For regular objects, use PropertyValueFactory
         tableColumn.setCellValueFactory(new PropertyValueFactory<>(column.getValue()));
       }
 
       tableColumn.setPrefWidth(columnWidth);
       tableColumn.setResizable(true);
-      ((TableView<Object>) tableView).getColumns().add(tableColumn);
+      table.getColumns().add(tableColumn);
     }
 
-    // Add items to the table
-    TableView<Object> typedTableView = (TableView<Object>) tableView;
-    typedTableView.getItems().addAll((List<Object>) items);
+    table.getItems().addAll((List<Object>) items);
 
-    // Add a listener to adjust column widths when the table is resized
+    // Apply sorting if it's the FulfillmentScoreHandler and we found the overall column
+    if (currentHandler instanceof FulfillmentScoreHandler && overallColumn != null) {
+      table.getSortOrder().clear();
+      overallColumn.setSortType(TableColumn.SortType.DESCENDING);
+      table.getSortOrder().add(overallColumn);
+      table.sort();
+    }
+
     tableView.widthProperty().addListener((obs, oldVal, newVal) -> {
       double newWidth = newVal.doubleValue() / columns.size();
       tableView.getColumns().forEach(column -> column.setPrefWidth(newWidth));
@@ -622,14 +699,15 @@ public class ExportController {
       filterTableByEvent(selectedEvent);
     }
   }
+
   /**
    * Updates the visibility of the export buttons based on the current view.
    *
    * <p>If the view is an assignment view, the export buttons will be visible and managed.
    * Otherwise, they will be hidden and unmanaged.</p>
    *
-   * @param isAssignmentView {@code true} if the view is an assignment view; {@code false} otherwise.
-   *
+   * @param isAssignmentView {@code true} if the view is an assignment view; {@code false}
+   *                         otherwise.
    * @author leon
    */
   private void updateExportButtonsVisibility(boolean isAssignmentView) {
@@ -643,17 +721,19 @@ public class ExportController {
     ExportButton.setVisible(!isAssignmentView);
     ExportButton.setManaged(!isAssignmentView);
   }
+
   /**
    * Handles the export of room data to Excel format
    *
-   * @param dataToExport The room data to export
-   * @param filterName The filter name to include in the filename
+   * @param dataToExport   The room data to export
+   * @param filterName     The filter name to include in the filename
    * @param currentHandler The RoomPlanHandler instance for processing
-   *
    * @author leon
    */
   private void handleExcelExport(Object dataToExport, String filterName, Object currentHandler) {
-    if (!(currentHandler instanceof RoomPlanHandler)) return;
+    if (!(currentHandler instanceof RoomPlanHandler)) {
+      return;
+    }
 
     List<Map<String, Object>> data = roomService.prepareDataForExport((List<Object>) dataToExport);
     String filePath = roomService.getFilePath() + "_" + filterName + ".xlsx";
@@ -661,10 +741,10 @@ public class ExportController {
     try {
       ((RoomPlanHandler) currentHandler).exportRooms(data, filterName);
       showInfoAlert("Export Successful",
-              "Data has been successfully exported to file: '" + filePath + "'");
+          "Data has been successfully exported to file: '" + filePath + "'");
     } catch (IOException e) {
       showErrorAlert("File Error",
-              "Could not export to the file: " + filePath + ", " + e.getMessage());
+          "Could not export to the file: " + filePath + ", " + e.getMessage());
     }
   }
 
@@ -672,8 +752,7 @@ public class ExportController {
    * Handles the export of attendance list data to Excel format
    *
    * @param dataToExport The attendance data to export
-   * @param filterName The filter name (must not be "All Events")
-   *
+   * @param filterName   The filter name (must not be "All Events")
    * @author leon
    */
   private void handleAttendanceListExport(Object dataToExport, String filterName) {
@@ -682,38 +761,40 @@ public class ExportController {
       return;
     }
 
-    Map<String, Object> data = (Map<String, Object>) timetableService.prepareDataForExportForAttendanceList((List<Object>) dataToExport);
+    Map<String, Object> data = (Map<String, Object>) timetableService.prepareDataForExportForAttendanceList(
+        (List<Object>) dataToExport);
     String filePath = timetableService.getFilePathEvent() + "_" + filterName + ".xlsx";
 
     try {
       assignmentHandler.exportEvents(data, filterName);
       showInfoAlert("Export Successful",
-              "Data has been successfully exported to file: '" + filePath + "'");
+          "Data has been successfully exported to file: '" + filePath + "'");
     } catch (IOException e) {
       showErrorAlert("File Error",
-              "Could not export to the file: " + filePath + e.getMessage());
+          "Could not export to the file: " + filePath + e.getMessage());
     }
   }
+
   /**
    * Handles the export of routing slip data to Excel format
    *
    * @param dataToExport The routing slip data to export
-   * @param searchField The search field to include in the filename
-   *
+   * @param searchField  The search field to include in the filename
    * @author leon
    */
-  private void handleRoutingSlipExport(Object dataToExport,String searchField) {
-    Map<String, Object> preparedData = timetableService.prepareDataForExportForRoutingSlip((List<Object>) dataToExport);
+  private void handleRoutingSlipExport(Object dataToExport, String searchField) {
+    Map<String, Object> preparedData = timetableService.prepareDataForExportForRoutingSlip(
+        (List<Object>) dataToExport);
     String filePath = timetableService.getFilePathChoices() +
-            (searchField.isEmpty() ? ".xlsx" : "_" + searchField + ".xlsx");
+        (searchField.isEmpty() ? ".xlsx" : "_" + searchField + ".xlsx");
 
     try {
       assignmentHandler.exportChoices(preparedData, searchField);
       showInfoAlert("Export Successful",
-              "Data has been successfully exported to file: '" + filePath + "'");
+          "Data has been successfully exported to file: '" + filePath + "'");
     } catch (IOException e) {
       showErrorAlert("File Error",
-              "Could not export to the file: " + filePath + "'" + e.getMessage());
+          "Could not export to the file: " + filePath + "'" + e.getMessage());
     }
   }
 
