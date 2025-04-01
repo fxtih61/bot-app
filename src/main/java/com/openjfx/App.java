@@ -38,6 +38,7 @@ public class App extends Application {
 
   /**
    * Initializes the database configuration.
+   *
    * @author mian
    */
   @Override
@@ -60,15 +61,12 @@ public class App extends Application {
 
   /**
    * Displays the main scene of the application.
+   * <p>
+   * This method loads application settings from a properties file, including the theme (dark mode
+   * or light mode) and the language for localization. It then sets up the main scene with the
+   * appropriate styles and language resources, and displays it in full screen and maximized mode.
    *
-   * This method loads application settings from a properties file, including
-   * the theme (dark mode or light mode) and the language for localization.
-   * It then sets up the main scene with the appropriate styles and language
-   * resources, and displays it in full screen and maximized mode.
-   *
-   * @throws Exception if there is an error loading the FXML file or other
-   *                   resources.
-   * 
+   * @throws Exception if there is an error loading the FXML file or other resources.
    * @author Fatih Tolip
    */
   public void showMainScene() throws Exception {
@@ -105,14 +103,12 @@ public class App extends Application {
    * @author mian
    */
   public static void main(String[] args) throws IOException {
-     StudentAssignmentService studentAssignmentService = new StudentAssignmentService();
-     FulfillmentScoreService scoreService = new FulfillmentScoreService(studentAssignmentService);
-     double fulfillmentScore = scoreService.calculateFulfillmentScore();
-    //launch();
+    launch();
   }
 
   /**
    * Closes the database connection when the application stops.
+   *
    * @author mian
    */
   @Override
