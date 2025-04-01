@@ -144,7 +144,6 @@
                 </executions>
             </plugin>
 
-            <!-- jpackage Plugin für eine EXE -->
             <plugin>
                 <groupId>org.panteleyev</groupId>
                 <artifactId>maven-jpackage-plugin</artifactId>
