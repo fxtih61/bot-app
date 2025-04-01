@@ -1,5 +1,7 @@
 package com.openjfx;
 
+import com.openjfx.services.FulfillmentScoreService;
+import com.openjfx.services.StudentAssignmentService;
 import com.openjfx.services.StudentTimetableMappingService;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -103,7 +105,10 @@ public class App extends Application {
    * @author mian
    */
   public static void main(String[] args) throws IOException {
-     launch();
+     StudentAssignmentService studentAssignmentService = new StudentAssignmentService();
+     FulfillmentScoreService scoreService = new FulfillmentScoreService(studentAssignmentService);
+     double fulfillmentScore = scoreService.calculateFulfillmentScore();
+    //launch();
   }
 
   /**

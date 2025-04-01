@@ -91,6 +91,7 @@ public class ExportController {
   private boolean workshopDemandGenerated = false;
   private boolean timetableGenerated = false;
   private boolean studentTimetableMappingGenerated = false;
+  private boolean fulfillmentScoreGenerated = false;
 
   /**
    * Constructor that initializes the required services for the controller.
@@ -145,7 +146,8 @@ public class ExportController {
     // Begin data generation once only if needed
     Platform.runLater(() -> {
       if (!assignmentsGenerated || !workshopDemandGenerated ||
-          !timetableGenerated || !studentTimetableMappingGenerated) {
+          !timetableGenerated || !studentTimetableMappingGenerated ||
+          !fulfillmentScoreGenerated) {
         initializeData();
       }
     });
@@ -159,7 +161,8 @@ public class ExportController {
   private void initializeData() {
     // Skip processing if already verified and all data is present
     if (dataVerified && assignmentsGenerated && workshopDemandGenerated &&
-        timetableGenerated && studentTimetableMappingGenerated) {
+        timetableGenerated && studentTimetableMappingGenerated &&
+        fulfillmentScoreGenerated) {
       return;
     }
 
@@ -211,6 +214,11 @@ public class ExportController {
         ex.printStackTrace();
         return;
       }
+    }
+
+    if (!fulfillmentScoreGenerated) {
+      // assignmentService.calculateFulfillmentScore();
+      fulfillmentScoreGenerated = true;
     }
 
     // Refresh the table to show the generated data
@@ -324,6 +332,7 @@ public class ExportController {
     assignmentsGenerated = assignmentHandler.hasAssignmentData();
     workshopDemandGenerated = workshopDemandHandler.hasWorkshopDemandData();
     timetableGenerated = roomPlanHandler.hasTimetableData();
+    // fulfillmentScoreGenerated = assignmentHandler.hasFulfillmentScoreData();
 
     // Check if students are already mapped to timetables
     if (assignmentsGenerated && timetableGenerated) {
