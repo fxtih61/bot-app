@@ -411,7 +411,7 @@ public class ExportController {
           handleExcelExport(dataToExport, filterName, currentHandler);
           break;
         case "pdf":
-          // exportToPdf(dataToExport);
+          handlePdfExport(dataToExport, filterName, currentHandler);
           break;
         case "excelAttendanceList":
           handleAttendanceListExport(dataToExport, filterName);
@@ -419,7 +419,29 @@ public class ExportController {
         case "excelRoutingSlip":
           handleRoutingSlipExport(dataToExport, searchField);
           break;
+        case "pdfAttendanceList":
+          //handleAttendanceListExportPDF(dataToExport, filterName);
+          break;
+        case "pdfRoutingSlip":
+          //handleRoutingSlipExportPDF(dataToExport, searchField);
+          break;
       }
+    }
+  }
+
+  private void handlePdfExport(Object dataToExport, String filterName, Object currentHandler) {
+    if (!(currentHandler instanceof RoomPlanHandler)) return;
+
+    List<Map<String, Object>> data = roomService.prepareDataForExport((List<Object>) dataToExport);
+    String filePath = roomService.getFilePath() + "_" + filterName + ".pdf";
+
+    try {
+      ((RoomPlanHandler) currentHandler).exportRoomsPDF(data, filterName);
+      showInfoAlert("PDF-Export erfolgreich",
+              "Daten wurden erfolgreich als PDF exportiert: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("PDF-Export Fehler",
+              "Konnte PDF nicht erstellen: " + filePath + ", " + e.getMessage());
     }
   }
 

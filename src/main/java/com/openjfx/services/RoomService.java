@@ -651,6 +651,7 @@ public class RoomService extends AbstractExcelService<Room> {
 
   /**
    * Berechnet die Breiten der Spalten basierend auf den Überschriften und den Daten.
+   * Limitiert die Unternehmen-Spalte auf maximal 50 Zeichen.
    *
    * @param contentStream Der PDPageContentStream, der verwendet wird, um die Schriftart zu setzen.
    * @param headers       Die Überschriften der Tabelle.
@@ -663,25 +664,69 @@ public class RoomService extends AbstractExcelService<Room> {
     float[] colWidths = new float[headers.length];
     contentStream.setFont(PDType1Font.HELVETICA, 10);
 
-    float maxUnternehmenWidth = 0;
-    for (Map<String, Object> row : data) {
-      String unternehmen = (String) row.get("Unternehmen");
-      float width = PDType1Font.HELVETICA.getStringWidth(unternehmen) / 1000f * 10 + 10;
-      if (width > maxUnternehmenWidth) {
-        maxUnternehmenWidth = width;
-      }
-    }
+    // Feste Breite für Unternehmen-Spalte setzen
+    float maxUnternehmenWidth = PDType1Font.HELVETICA.getStringWidth("Unternehmen mit 50 Zeichen") / 1000f * 10 + 10;
+    colWidths[0] = maxUnternehmenWidth;
 
-    colWidths[0] = Math.max(maxUnternehmenWidth, PDType1Font.HELVETICA.getStringWidth(headers[0]) / 1000f * 10 + 10);
+    // Gleichmäßige Verteilung der verbleibenden Breite auf die Zeitslot-Spalten
+    float remainingWidth = 700 - maxUnternehmenWidth; // 700 ist die Gesamtbreite der Tabelle
+    float timeSlotWidth = remainingWidth / (headers.length - 1);
+
     for (int i = 1; i < headers.length; i++) {
-      colWidths[i] = PDType1Font.HELVETICA.getStringWidth(headers[i]) / 1000f * 10 + 10;
+      colWidths[i] = timeSlotWidth;
     }
 
     return colWidths;
   }
 
   /**
+   * Zeichnet eine Zeile in die Tabelle.
+   * Kürzt die Unternehmen-Namen auf maximal 50 Zeichen.
+   *
+   * @param contentStream Der PDPageContentStream, der verwendet wird, um die Zeile zu zeichnen.
+   * @param x             Die X-Koordinate, an der die Zeile beginnt.
+   * @param y             Die Y-Koordinate, an der die Zeile beginnt.
+   * @param colWidths     Die Breiten der Spalten.
+   * @param columns       Die Daten, die in der Zeile angezeigt werden sollen.
+   * @throws IOException Wenn ein Fehler beim Zeichnen der Zeile auftritt.
+   * @author batuhan
+   */
+  public void drawRow(PDPageContentStream contentStream, float x, float y, float[] colWidths, String[] columns) throws IOException {
+    contentStream.setFont(PDType1Font.HELVETICA, 10); // Schriftart auf normal setzen
+    float currentX = x;
+
+    for (int i = 0; i < columns.length; i++) {
+      String text = columns[i] != null ? columns[i] : "";
+
+      // Unternehmen-Namen auf 25 Zeichen begrenzen
+      if (i == 0 && text.length() > 28) {
+        text = text.substring(0, 25) + "...";
+      }
+
+      float textX;
+      float textY = y - 10;
+
+      if (i == 0) {
+        // Erste Spalte (Unternehmen) linksbündig
+        textX = currentX + 5;
+      } else {
+        // Numerische Werte zentrieren
+        float textWidth = PDType1Font.HELVETICA.getStringWidth(text) / 1000f * 10;
+        textX = currentX + (colWidths[i] - textWidth) / 2;
+      }
+
+      contentStream.beginText();
+      contentStream.newLineAtOffset(textX, textY);
+      contentStream.showText(text);
+      contentStream.endText();
+
+      currentX += colWidths[i]; // Update der aktuellen X-Position für die nächste Spalte
+    }
+  }
+
+  /**
    * Zeichnet die Tabelle in die PDF-Datei.
+   * Verwendet die aktualisierten Funktionen zum Zeichnen von Zeilen mit begrenzter Unternehmen-Spalte.
    *
    * @param contentStream Der PDPageContentStream, der verwendet wird, um die Tabelle zu zeichnen.
    * @param x             Die X-Koordinate, an der die Tabelle beginnt.
@@ -698,14 +743,20 @@ public class RoomService extends AbstractExcelService<Room> {
   public void drawTable(PDPageContentStream contentStream, float x, float y, float tableWidth, float rowHeight, float[] colWidths, String[] headers, List<Map<String, Object>> data, PDDocument document) throws IOException {
     float currentY = y;
 
+    // Calculate total table width based on column widths
+    float totalTableWidth = 0;
+    for (float width : colWidths) {
+      totalTableWidth += width;
+    }
+
     // **Header zeichnen (Dunkelgrau)**
     contentStream.setNonStrokingColor(0.8f); // Dunkelgrau
-    contentStream.fillRect(x, currentY - rowHeight, tableWidth, rowHeight);
+    contentStream.fillRect(x, currentY - rowHeight, totalTableWidth, rowHeight);
     contentStream.setNonStrokingColor(0); // Zurück zu Schwarz
 
     contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
     drawRow(contentStream, x, currentY, colWidths, headers);
-    drawTableBorders(contentStream, x, currentY, rowHeight, tableWidth, colWidths);
+    drawTableBorders(contentStream, x, currentY, rowHeight, totalTableWidth, colWidths);
     currentY -= rowHeight;
 
     // **Datenreihen zeichnen (abwechselnd Hellgrau/Weiß)**
@@ -720,74 +771,35 @@ public class RoomService extends AbstractExcelService<Room> {
 
         currentY = 750;
         contentStream.setNonStrokingColor(0.8f);
-        contentStream.fillRect(x, currentY - rowHeight, tableWidth, rowHeight);
+        contentStream.fillRect(x, currentY - rowHeight, totalTableWidth, rowHeight);
         contentStream.setNonStrokingColor(0);
 
         contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
         drawRow(contentStream, x, currentY, colWidths, headers);
-        drawTableBorders(contentStream, x, currentY, rowHeight, tableWidth, colWidths);
+        drawTableBorders(contentStream, x, currentY, rowHeight, totalTableWidth, colWidths);
         currentY -= rowHeight;
         contentStream.setFont(PDType1Font.HELVETICA, 10);
       }
 
       if (alternate) {
         contentStream.setNonStrokingColor(0.9f); // Hellgrau
-        contentStream.fillRect(x, currentY - rowHeight, tableWidth, rowHeight);
+        contentStream.fillRect(x, currentY - rowHeight, totalTableWidth, rowHeight);
         contentStream.setNonStrokingColor(0);
       }
 
-      String[] rowData = {
-              (String) row.get("Unternehmen"),
-              (String) row.getOrDefault("Zeit 1", ""),
-              (String) row.getOrDefault("Zeit 2", ""),
-              (String) row.getOrDefault("Zeit 3", ""),
-              (String) row.getOrDefault("Zeit 4", ""),
-              (String) row.getOrDefault("Zeit 5", "")
-      };
+      // Here's the fix - use the correct key for the company name
+      String[] rowData = new String[headers.length];
+      rowData[0] = (String) row.get("Unternehmen");
+      rowData[1] = (String) row.getOrDefault("Zeit 1", "");
+      rowData[2] = (String) row.getOrDefault("Zeit 2", "");
+      rowData[3] = (String) row.getOrDefault("Zeit 3", "");
+      rowData[4] = (String) row.getOrDefault("Zeit 4", "");
+      rowData[5] = (String) row.getOrDefault("Zeit 5", "");
 
       drawRow(contentStream, x, currentY, colWidths, rowData);
-      drawTableBorders(contentStream, x, currentY, rowHeight, tableWidth, colWidths);
+      drawTableBorders(contentStream, x, currentY, rowHeight, totalTableWidth, colWidths);
       currentY -= rowHeight;
       alternate = !alternate;
-    }
-
-    contentStream.close();
-  }
-
-  /**
-   * Zeichnet eine Zeile in die Tabelle.
-   *
-   * @param contentStream Der PDPageContentStream, der verwendet wird, um die Zeile zu zeichnen.
-   * @param x             Die X-Koordinate, an der die Zeile beginnt.
-   * @param y             Die Y-Koordinate, an der die Zeile beginnt.
-   * @param colWidths     Die Breiten der Spalten.
-   * @param columns       Die Daten, die in der Zeile angezeigt werden sollen.
-   * @throws IOException Wenn ein Fehler beim Zeichnen der Zeile auftritt.
-   * @author batuhan
-   */
-  public void drawRow(PDPageContentStream contentStream, float x, float y, float[] colWidths, String[] columns) throws IOException {
-    contentStream.setFont(PDType1Font.HELVETICA, 10); // Schriftart auf normal setzen
-    float currentX = x;
-
-    for (int i = 0; i < columns.length; i++) {
-      float textX;
-      float textY = y - 10;
-
-      if (i == 0) {
-        // Erste Spalte (Unternehmen) linksbündig
-        textX = currentX + 5;
-      } else {
-        // Numerische Werte zentrieren
-        float textWidth = PDType1Font.HELVETICA.getStringWidth(columns[i]) / 1000f * 10;
-        textX = currentX + (colWidths[i] - textWidth) / 2;
-      }
-
-      contentStream.beginText();
-      contentStream.newLineAtOffset(textX, textY);
-      contentStream.showText(columns[i] != null ? columns[i] : "");
-      contentStream.endText();
-
-      currentX += colWidths[i]; // Update der aktuellen X-Position für die nächste Spalte
     }
   }
 
