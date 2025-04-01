@@ -39,16 +39,13 @@ import java.util.stream.Collectors;
 
 public class ExportController {
 
+  public Button FulfillmentScore;
   @FXML
   private Button RoomTimePlanButton;
   @FXML
   private Button PresenceListButton;
   @FXML
-  private Button RouteSlipButton;
-  @FXML
   private Button AssignmentButton;
-  @FXML
-  private Button WorkshopDemandButton;
   @FXML
   private TextField searchField;
   @FXML
@@ -366,10 +363,6 @@ public class ExportController {
     // Assignment button - only switch view
     AssignmentButton.setOnAction(e -> switchHandler(assignmentHandler, AssignmentButton));
 
-    // Workshop demand button - only switch view
-    WorkshopDemandButton.setOnAction(
-        e -> switchHandler(workshopDemandHandler, WorkshopDemandButton));
-
     // Room time plan button - only switch view
     RoomTimePlanButton.setOnAction(e -> switchHandler(roomPlanHandler, RoomTimePlanButton));
 
@@ -587,14 +580,11 @@ public class ExportController {
     if (PresenceListButton != null) {
       PresenceListButton.getStyleClass().remove("button-active");
     }
-    if (RouteSlipButton != null) {
-      RouteSlipButton.getStyleClass().remove("button-active");
+    if (FulfillmentScore != null) {
+      FulfillmentScore.getStyleClass().remove("button-active");
     }
     if (AssignmentButton != null) {
       AssignmentButton.getStyleClass().remove("button-active");
-    }
-    if (WorkshopDemandButton != null) {
-      WorkshopDemandButton.getStyleClass().remove("button-active");
     }
 
     // Add active class to selected button
