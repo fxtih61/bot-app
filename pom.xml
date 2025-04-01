@@ -130,6 +130,30 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.2</version>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- jpackage Plugin für eine EXE -->
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>maven-jpackage-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <runtimeImage>${project.build.directory}/runtime</runtimeImage>
+                    <runtimeOptions>--strip-debug --compress 2 --no-header-files --no-man-pages</runtimeOptions>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
