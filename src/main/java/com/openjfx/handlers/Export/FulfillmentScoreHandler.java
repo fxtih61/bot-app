@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Handler class for managing fulfillment score data and display.
@@ -141,5 +142,20 @@ public class FulfillmentScoreHandler implements Handler<FulfillmentScore> {
   @Override
   public ExcelService getExcelService() {
     return this.excelService;
+  }
+
+  /**
+   * Exports Fulfillment Score data to an Excel file. This method calls the exportDataToExcel() function from the
+   * FulfillmentScoreService to generate and save the room data in Excel format.
+   *
+   * @param data       The room data to be exported as a list of maps.
+   * @param filterName The addition to the file path
+   * @throws IOException If an error occurs during export.
+   *
+   * @author leon
+   */
+  public void exportScore(Map<String, Object> data, String filterName) throws IOException {
+    String filePath = fulfillmentScoreService.getFilePathScore() + "_" + filterName + ".xlsx";
+    fulfillmentScoreService.exportScoreData(filePath, data);
   }
 }
