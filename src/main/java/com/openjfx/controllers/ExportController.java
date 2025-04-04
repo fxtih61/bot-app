@@ -59,11 +59,11 @@ public class ExportController {
   @FXML
   private ComboBox<String> eventFilterComboBox;
   @FXML
-  private MenuButton ExportButton;
+  private MenuButton ExportButtonRoom;
   @FXML
-  private MenuItem exportToExcelMenuItem;
+  private MenuItem exportToExcelMenuItemRoom;
   @FXML
-  private MenuItem exportToPdfMenuItem;
+  private MenuItem exportToPdfMenuItemRoom;
   @FXML
   private MenuButton ExportButtonRoutingSlip;
   @FXML
@@ -76,6 +76,12 @@ public class ExportController {
   private MenuItem exportToExcelMenuItemAttendanceList;
   @FXML
   private MenuItem exportToPdfMenuItemAttendanceList;
+  @FXML
+  private MenuButton ExportButtonFulfilmentScore;
+  @FXML
+  private MenuItem exportToExcelMenuItemFulfilmentScore;
+  @FXML
+  private MenuItem exportToPdfMenuItemFulfilmentScore;
 
   private boolean dataVerified = false;
   private final EventService eventService;
@@ -144,9 +150,6 @@ public class ExportController {
     setupButtons();
     setupSearchField();
     setupEventFilter();
-
-    // Initially hide assignment-specific export buttons
-    updateExportButtonsVisibility(false);
 
     // Check if data already exists and update status flags
     checkExistingData();
@@ -406,8 +409,8 @@ public class ExportController {
     // Fulfillment score button - only switch view
     FulfillmentScore.setOnAction(e -> switchHandler(fulfillmentScoreHandler, FulfillmentScore));
 
-    exportToExcelMenuItem.setOnAction(e -> exportData("excel", ""));
-    exportToPdfMenuItem.setOnAction(e -> exportData("pdf", ""));
+    exportToExcelMenuItemRoom.setOnAction(e -> exportData("excelRoom", ""));
+    exportToPdfMenuItemRoom.setOnAction(e -> exportData("pdfRoom", ""));
 
     exportToExcelMenuItemAttendanceList.setOnAction(e -> exportData("excelAttendanceList", ""));
     exportToPdfMenuItemAttendanceList.setOnAction(e -> exportData("pdfAttendanceList", ""));
@@ -416,13 +419,18 @@ public class ExportController {
         e -> exportData("excelRoutingSlip", searchField.getText()));
     exportToPdfMenuItemRoutingSlip.setOnAction(
         e -> exportData("pdfRoutingSlip", searchField.getText()));
+
+    exportToExcelMenuItemFulfilmentScore.setOnAction(
+            e -> exportData("excelFulfilmentScore", searchField.getText()));
+    exportToPdfMenuItemFulfilmentScore.setOnAction(
+            e -> exportData("pdfFulfilmentScore", searchField.getText()));
   }
 
   /**
    * Exports the table data in the specified format.
    *
-   * @param format      The export format ("excel", "pdf", "excelAttendanceList",
-   *                    "excelRoutingSlip")
+   * @param format      The export format ("excelRoom", "pdfRoom", "excelAttendanceList",
+   *                    "pdfAttendanceList", "excelRoutingSlip", "pdfRoutingSlip")
    * @param searchField the value of the search fields
    * @author mian | leon
    */
@@ -439,21 +447,32 @@ public class ExportController {
       } else {
         // If the table is not filtered, export all data
         dataToExport = currentHandler.loadData();
-
       }
 
       switch (format) {
-        case "excel":
+        case "excelRoom":
           handleExcelExport(dataToExport, filterName, currentHandler);
           break;
-        case "pdf":
+        case "pdfRoom":
           // exportToPdf(dataToExport);
           break;
         case "excelAttendanceList":
           handleAttendanceListExport(dataToExport, filterName);
           break;
+        case "pdfAttendanceList":
+          //handleAttendanceListExportPDF(dataToExport, filterName);
+          break;
         case "excelRoutingSlip":
           handleRoutingSlipExport(dataToExport, searchField);
+          break;
+        case "pdfRoutingSlip":
+          //handleRoutingSlipExportPDF(dataToExport, searchField);
+          break;
+        case "excelFulfilmentScore":
+          handleFulfilmentScoreExport(dataToExport, searchField);
+          break;
+        case "pdfFulfilmentScore":
+          //handleFulfilmentScoreExportPDF(dataToExport, searchField);
           break;
       }
     }
@@ -676,15 +695,25 @@ public class ExportController {
    *
    * @param handler      the new handler
    * @param activeButton the button associated with the new handler
-   * @author mian
+   * @author mian | leon
    */
   private void switchHandler(Handler<?> handler, Button activeButton) {
     currentHandler = handler;
     setActiveButton(activeButton);
 
-    // Show/hide assignment-specific export buttons
-    boolean isAssignmentView = handler instanceof AssignmentHandler;
-    updateExportButtonsVisibility(isAssignmentView);
+    // Reset all export buttons visibility first
+    resetAllExportButtons();
+
+    // Show only the relevant export buttons
+    if (handler instanceof AssignmentHandler) {
+      setupAssignmentExportButtons();
+    }
+    else if (handler instanceof RoomPlanHandler) {
+      setupRoomExportButtons();
+    }
+    else if (handler instanceof FulfillmentScoreHandler) {
+      setupFulfillmentExportButtons();
+    }
 
     // Get current event filter before refreshing
     String selectedEvent = eventFilterComboBox.getValue();
@@ -699,27 +728,56 @@ public class ExportController {
       filterTableByEvent(selectedEvent);
     }
   }
-
   /**
-   * Updates the visibility of the export buttons based on the current view.
+   * Resets the visibility of all export buttons by hiding them.
+   * This ensures a clean state before showing view-specific buttons.
    *
-   * <p>If the view is an assignment view, the export buttons will be visible and managed.
-   * Otherwise, they will be hidden and unmanaged.</p>
-   *
-   * @param isAssignmentView {@code true} if the view is an assignment view; {@code false}
-   *                         otherwise.
    * @author leon
    */
-  private void updateExportButtonsVisibility(boolean isAssignmentView) {
-    // Show Export Buttons for Routing Slip and Attendance List for the Assignment view
-    ExportButtonRoutingSlip.setVisible(isAssignmentView);
-    ExportButtonRoutingSlip.setManaged(isAssignmentView);
-    ExportButtonAttendanceList.setVisible(isAssignmentView);
-    ExportButtonAttendanceList.setManaged(isAssignmentView);
+  private void resetAllExportButtons() {
+    ExportButtonRoom.setVisible(false);
+    ExportButtonRoom.setManaged(false);
+    ExportButtonRoutingSlip.setVisible(false);
+    ExportButtonRoutingSlip.setManaged(false);
+    ExportButtonAttendanceList.setVisible(false);
+    ExportButtonAttendanceList.setManaged(false);
+    ExportButtonFulfilmentScore.setVisible(false);
+    ExportButtonFulfilmentScore.setManaged(false);
+  }
 
-    // Hide Export Button for the Assignment view
-    ExportButton.setVisible(!isAssignmentView);
-    ExportButton.setManaged(!isAssignmentView);
+  /**
+   * Configures and displays the export buttons specific to the Assignment view.
+   * Shows buttons for exporting routing slips and attendance lists.
+   *
+   * @author leon
+   */
+  private void setupAssignmentExportButtons() {
+    ExportButtonRoutingSlip.setVisible(true);
+    ExportButtonRoutingSlip.setManaged(true);
+    ExportButtonAttendanceList.setVisible(true);
+    ExportButtonAttendanceList.setManaged(true);
+  }
+
+  /**
+   * Configures and displays the export buttons specific to the Room view.
+   * Shows the button for exporting room plans.
+   *
+   * @author leon
+   */
+  private void setupRoomExportButtons() {
+    ExportButtonRoom.setVisible(true);
+    ExportButtonRoom.setManaged(true);
+  }
+
+  /**
+   * Configures and displays the export buttons specific to the Fulfillment Score view.
+   * Shows the button for exporting fulfillment score reports.
+   *
+   * @author leon
+   */
+  private void setupFulfillmentExportButtons() {
+    ExportButtonFulfilmentScore.setVisible(true);
+    ExportButtonFulfilmentScore.setManaged(true);
   }
 
   /**
@@ -795,6 +853,28 @@ public class ExportController {
     } catch (IOException e) {
       showErrorAlert("File Error",
           "Could not export to the file: " + filePath + "'" + e.getMessage());
+    }
+  }
+  /**
+   * Handles the export of fulfilment score data to Excel format
+   *
+   * @param dataToExport The fulfilment score data to export
+   * @param searchField  The search field to include in the filename
+   * @author leon
+   */
+  private void handleFulfilmentScoreExport(Object dataToExport, String searchField) {
+    Map<String, Object> preparedData = fulfillmentScoreService.prepareDataForExportForFulfillmentScore(
+            (List<Object>) dataToExport);
+    String filePath = fulfillmentScoreService.getFilePathScore() +
+            (searchField.isEmpty() ? ".xlsx" : "_" + searchField + ".xlsx");
+
+    try {
+      fulfillmentScoreHandler.exportScore(preparedData, searchField);
+      showInfoAlert("Export Successful",
+              "Data has been successfully exported to file: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("File Error",
+              "Could not export to the file: " + filePath + "'" + e.getMessage());
     }
   }
 
