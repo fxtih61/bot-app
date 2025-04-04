@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Configuration class for database connection and schema initialization. Uses H2 database with
  * HikariCP connection pooling.
+ *
  * @author mian
  */
 public class DatabaseConfig {
@@ -166,6 +167,28 @@ public class DatabaseConfig {
             "demand INTEGER NOT NULL," +
             "FOREIGN KEY (event_id) REFERENCES events(id)" +
             ")");
+
+    // Fulfillment scores table for tracking student fulfillment scores
+    stmt.execute(
+    "CREATE TABLE IF NOT EXISTS fulfillment_scores (" +
+        "id INTEGER PRIMARY KEY AUTO_INCREMENT," +
+        "student_id VARCHAR(255)," +
+        "class_ref VARCHAR(50)," +
+        "first_name VARCHAR(255)," +
+        "last_name VARCHAR(255)," +
+        "choice1_score INTEGER DEFAULT 0," +
+        "choice2_score INTEGER DEFAULT 0," +
+        "choice3_score INTEGER DEFAULT 0," +
+        "choice4_score INTEGER DEFAULT 0," +
+        "choice5_score INTEGER DEFAULT 0," +
+        "choice6_score INTEGER DEFAULT 0," +
+        "student_total_score INTEGER DEFAULT 0," +
+        "calculation_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+        "overall_fulfillment_percentage DOUBLE DEFAULT 0.0," +
+        "total_students INTEGER DEFAULT 0," +
+        "total_score INTEGER DEFAULT 0," +
+        "max_possible_score DOUBLE DEFAULT 0.0" +
+        ")");
   }
 
   /**
@@ -173,31 +196,27 @@ public class DatabaseConfig {
    *
    * @return Configured HikariConfig instance
    * @throws RuntimeException if configuration creation fails
-   *
-   * Configuration details:
-   * - Database connection:
-   *   - jdbcUrl: H2 database URL
-   *   - username: Database user
-   *   - password: Database password
-   *
-   * - Connection pool settings:
-   *   - maximumPoolSize: Maximum number of connections in the pool (10)
-   *   - minimumIdle: Minimum number of idle connections (5)
-   *   - idleTimeout: Maximum time a connection can remain idle (300000ms / 5 minutes)
-   *   - connectionTimeout: Maximum time to wait for connection (20000ms / 20 seconds)
-   *   - autoCommit: Enable automatic transaction commit
-   *
-   * - Performance optimizations:
-   *   - cachePrepStmts: Enable prepared statement caching
-   *   - prepStmtCacheSize: Number of prepared statements to cache (250)
-   *   - prepStmtCacheSqlLimit: Maximum length of SQL string to cache (2048)
-   *   - useServerPrepStmts: Use server-side prepared statements
-   *   - useLocalSessionState: Avoid unnecessary round trips to server
-   *   - rewriteBatchedStatements: Optimize batch operations
-   *   - cacheResultSetMetadata: Cache ResultSet metadata
-   *   - elideSetAutoCommits: Optimize autocommit calls
-   *   - maintainTimeStats: Disable time statistics tracking
-   *   @author mian
+   *                          <p>
+   *                          Configuration details: - Database connection: - jdbcUrl: H2 database
+   *                          URL - username: Database user - password: Database password
+   *                          <p>
+   *                          - Connection pool settings: - maximumPoolSize: Maximum number of
+   *                          connections in the pool (10) - minimumIdle: Minimum number of idle
+   *                          connections (5) - idleTimeout: Maximum time a connection can remain
+   *                          idle (300000ms / 5 minutes) - connectionTimeout: Maximum time to wait
+   *                          for connection (20000ms / 20 seconds) - autoCommit: Enable automatic
+   *                          transaction commit
+   *                          <p>
+   *                          - Performance optimizations: - cachePrepStmts: Enable prepared
+   *                          statement caching - prepStmtCacheSize: Number of prepared statements
+   *                          to cache (250) - prepStmtCacheSqlLimit: Maximum length of SQL string
+   *                          to cache (2048) - useServerPrepStmts: Use server-side prepared
+   *                          statements - useLocalSessionState: Avoid unnecessary round trips to
+   *                          server - rewriteBatchedStatements: Optimize batch operations -
+   *                          cacheResultSetMetadata: Cache ResultSet metadata -
+   *                          elideSetAutoCommits: Optimize autocommit calls - maintainTimeStats:
+   *                          Disable time statistics tracking
+   * @author mian
    */
   private static @NotNull HikariConfig getHikariConfig() {
     HikariConfig config = new HikariConfig();
@@ -235,6 +254,7 @@ public class DatabaseConfig {
   /**
    * Closes the datasource and releases all resources. Should be called when shutting down the
    * application.
+   *
    * @author mian
    */
   public static void closeDataSource() {

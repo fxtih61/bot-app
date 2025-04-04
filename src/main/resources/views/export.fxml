@@ -22,10 +22,10 @@
       <bottom>
         <ToolBar fx:id="export_toolbar" nodeOrientation="RIGHT_TO_LEFT" prefHeight="40.0"
           prefWidth="200.0" BorderPane.alignment="CENTER">
-          <MenuButton fx:id="ExportButton" mnemonicParsing="false" text="Export">
+          <MenuButton fx:id="ExportButtonRoom" mnemonicParsing="false" text="%exportRooms">
             <items>
-              <MenuItem fx:id="exportToExcelMenuItem" text="%toExcel" />
-              <MenuItem fx:id="exportToPdfMenuItem" text="%toPdf" />
+              <MenuItem fx:id="exportToExcelMenuItemRoom" text="%toExcel" />
+              <MenuItem fx:id="exportToPdfMenuItemRoom" text="%toPdf" />
             </items>
           </MenuButton>
           <MenuButton fx:id="ExportButtonRoutingSlip" mnemonicParsing="false" text="%exportRoutingSlip">
@@ -38,6 +38,12 @@
             <items>
               <MenuItem fx:id="exportToExcelMenuItemAttendanceList" text="%toExcel" />
               <MenuItem fx:id="exportToPdfMenuItemAttendanceList" text="%toPdf" />
+            </items>
+          </MenuButton>
+          <MenuButton fx:id="ExportButtonFulfilmentScore" mnemonicParsing="false" text="%exportFulfilmentScore">
+            <items>
+              <MenuItem fx:id="exportToExcelMenuItemFulfilmentScore" text="%toExcel" />
+              <MenuItem fx:id="exportToPdfMenuItemFulfilmentScore" text="%toPdf" />
             </items>
           </MenuButton>
           <BorderPane.margin>
@@ -54,9 +60,8 @@
               </HBox>
               <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                 <Button fx:id="AssignmentButton" text="%assignment"/>
-                <Button fx:id="WorkshopDemandButton" text="%workshopDemand"/>
                 <Button fx:id="RoomTimePlanButton" text="%room_timeplan"/>
-                <Button fx:id="RouteSlipButton" text="%route_slip"/>
+                <Button fx:id="FulfillmentScore" text="%FulfillmentScore"/>
               </HBox>
               <TextField fx:id="searchField" promptText="Search"/>
             </items>
