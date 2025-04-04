@@ -27,6 +27,12 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.util.Pair;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import java.io.IOException;
 import java.util.List;
@@ -453,14 +459,14 @@ public class ExportController {
         case "excelRoom":
           handleExcelExport(dataToExport, filterName, currentHandler);
           break;
-        case "pdf":
+        case "pdfRoom":
           handlePdfExport(dataToExport, filterName, currentHandler);
           break;
         case "excelAttendanceList":
           handleAttendanceListExport(dataToExport, filterName);
           break;
         case "pdfAttendanceList":
-          //handleAttendanceListExportPDF(dataToExport, filterName);
+          handleAttendanceListExportPDF(dataToExport, filterName);
           break;
         case "excelRoutingSlip":
           handleRoutingSlipExport(dataToExport, searchField);
@@ -849,6 +855,139 @@ public class ExportController {
     }
   }
 
+  /**
+   * Handles the export of attendance list data to PDF format
+   *
+   * @param dataToExport The attendance data to export
+   * @param filterName   The filter name (must not be "All Events")
+   * @author batuhan
+   */
+  private void handleAttendanceListExportPDF(Object dataToExport, String filterName) {
+    if (filterName.equals("All Events")) {
+      showErrorAlert("Choice Error", "Please select a specific event and not All Events.");
+      return;
+    }
+
+    Map<String, Object> data = (Map<String, Object>) timetableService.prepareDataForExportForAttendanceList(
+            (List<Object>) dataToExport);
+    String filePath = timetableService.getFilePathEvent() + "_" + filterName + "_Attendance.pdf";
+
+    try (PDDocument document = new PDDocument()) {
+      PDPage page = new PDPage(PDRectangle.A4);
+      document.addPage(page);
+      PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+      // Font configuration
+      PDFont font = PDType1Font.HELVETICA_BOLD;
+      PDFont regularFont = PDType1Font.HELVETICA;
+      float fontSize = 12;
+      float margin = 50;
+      float yPosition = page.getMediaBox().getHeight() - margin;
+      float tableWidth = page.getMediaBox().getWidth() - 2 * margin;
+      float rowHeight = 20;
+      float colWidth = tableWidth / 4; // 4 columns
+
+      // Event header
+      String eventName = (String) data.get("Veranstaltung");
+      contentStream.setFont(font, 14);
+      contentStream.beginText();
+      contentStream.newLineAtOffset(margin, yPosition);
+      contentStream.showText("Veranstaltung: " + eventName);
+      contentStream.endText();
+      yPosition -= 30;
+
+      // Process time slots
+      List<Map<String, Object>> timeSlots = (List<Map<String, Object>>) data.get("Zeitfenster");
+
+      for (Map<String, Object> slot : timeSlots) {
+        // Time slot header
+        contentStream.setFont(font, fontSize);
+        contentStream.beginText();
+        contentStream.newLineAtOffset(margin, yPosition);
+        contentStream.showText("Uhrzeit: " + slot.get("Uhrzeit"));
+        contentStream.endText();
+        yPosition -= rowHeight;
+
+        // Draw table headers
+        drawTableRow(contentStream, margin, yPosition, colWidth, rowHeight,
+                new String[]{"Klasse", "Name", "Vorname", "Anwesend"}, font);
+        yPosition -= rowHeight;
+
+        // Draw horizontal line
+        contentStream.moveTo(margin, yPosition);
+        contentStream.lineTo(margin + tableWidth, yPosition);
+        contentStream.stroke();
+        yPosition -= 5;
+
+        // Participants
+        List<Map<String, String>> participants = (List<Map<String, String>>) slot.get("Teilnehmer");
+        contentStream.setFont(regularFont, fontSize);
+
+        for (Map<String, String> participant : participants) {
+          if (yPosition < margin + rowHeight) {
+            // New page
+            contentStream.close();
+            page = new PDPage(PDRectangle.A4);
+            document.addPage(page);
+            contentStream = new PDPageContentStream(document, page);
+            yPosition = page.getMediaBox().getHeight() - margin;
+          }
+
+          drawTableRow(contentStream, margin, yPosition, colWidth, rowHeight,
+                  new String[]{
+                          participant.get("Klasse"),
+                          participant.get("Name"),
+                          participant.get("Vorname"),
+                          "" // Empty for "Anwesend"
+                  },
+                  regularFont);
+
+          yPosition -= rowHeight;
+        }
+        yPosition -= 10; // Space between time slots
+      }
+
+      contentStream.close();
+      document.save(filePath);
+      showInfoAlert("Export Successful",
+              "Data has been successfully exported to file: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("File Error",
+              "Could not export to the file: " + filePath + " - " + e.getMessage());
+    }
+  }
+
+  /**
+   * Helper method to draw a table row
+   * @author batuhan
+   */
+  private void drawTableRow(PDPageContentStream contentStream, float x, float y,
+                            float colWidth, float rowHeight, String[] texts, PDFont font)
+          throws IOException {
+    float currentX = x;
+
+    for (int i = 0; i < texts.length; i++) {
+      contentStream.beginText();
+      contentStream.setFont(font, 12);
+      contentStream.newLineAtOffset(currentX + 5, y - 15); // Slight vertical adjustment
+      contentStream.showText(texts[i] != null ? texts[i] : "");
+      contentStream.endText();
+
+      // Draw vertical line
+      if (i < texts.length - 1) {
+        contentStream.moveTo(currentX + colWidth, y);
+        contentStream.lineTo(currentX + colWidth, y - rowHeight);
+        contentStream.stroke();
+      }
+
+      currentX += colWidth;
+    }
+
+    // Draw horizontal line at bottom
+    contentStream.moveTo(x, y - rowHeight);
+    contentStream.lineTo(x + colWidth * texts.length, y - rowHeight);
+    contentStream.stroke();
+  }
   /**
    * Handles the export of routing slip data to Excel format
    *
