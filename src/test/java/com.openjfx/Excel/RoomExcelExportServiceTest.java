@@ -26,6 +26,11 @@ class RoomExcelExportServiceTest {
     private RoomService exportService;
     private List<Map<String, Object>> testData;
 
+    /**
+     * Sets up the test environment before each test.
+     *
+     * @author leon
+     */
     @BeforeEach
     void setUp() {
         // Initialize the export service and test data
@@ -44,6 +49,8 @@ class RoomExcelExportServiceTest {
      * @param data       The list to which the row is added
      * @param company    The name of the company
      * @param roomTimes  The room and schedule information for the company (can be empty)
+     *
+     * @author leon
      */
     private void addRow(List<Map<String, Object>> data, String company, String... roomTimes) {
         Map<String, Object> row = new LinkedHashMap<>();
@@ -54,6 +61,14 @@ class RoomExcelExportServiceTest {
         data.add(row);
     }
 
+    /**
+     * Tests exporting data to an Excel file.
+     *
+     * @param tempDir temporary directory for test files
+     * @throws IOException if there's an error during file operations
+     *
+     * @author leon
+     */
     @Test
     void testExportDataToExcel(@TempDir Path tempDir) throws IOException {
         // Create a temporary file path for the Excel file
@@ -70,6 +85,13 @@ class RoomExcelExportServiceTest {
         assertTrue(excelFile.length() > 0, "The Excel file should not be empty.");
     }
 
+    /**
+     * Tests exporting empty data to Excel, expecting an exception.
+     *
+     * @param tempDir temporary directory for test files
+     *
+     * @author leon
+     */
     @Test
     void testExportDataToExcelWithEmptyData(@TempDir Path tempDir) {
         // Create a temporary file path for the Excel file
@@ -84,9 +106,17 @@ class RoomExcelExportServiceTest {
         // Verify the exception message
         String expectedMessage = "Data list must not be null or empty";
         String actualMessage = exception.getMessage();
-        assertTrue(actualMessage.contains(expectedMessage), "The exception message should indicate that the data list cannot be empty.");
+        assertTrue(actualMessage.contains(expectedMessage),
+                "The exception message should indicate that the data list cannot be empty.");
     }
 
+    /**
+     * Tests exporting null data to Excel, expecting an exception.
+     *
+     * @param tempDir temporary directory for test files
+     *
+     * @author leon
+     */
     @Test
     void testExportDataToExcelWithNullData(@TempDir Path tempDir) {
         // Create a temporary file path for the Excel file
@@ -101,6 +131,7 @@ class RoomExcelExportServiceTest {
         // Verify the exception message
         String expectedMessage = "Data list must not be null or empty";
         String actualMessage = exception.getMessage();
-        assertTrue(actualMessage.contains(expectedMessage), "The exception message should indicate that the data list cannot be null.");
+        assertTrue(actualMessage.contains(expectedMessage),
+                "The exception message should indicate that the data list cannot be null.");
     }
 }
