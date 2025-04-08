@@ -67,7 +67,7 @@ public class FulfillmentScoreDAO {
    */
   public List<FulfillmentScore> getAllFulfillmentScores() throws SQLException {
     List<FulfillmentScore> scores = new ArrayList<>();
-    String sql = "SELECT * FROM fulfillment_scores ORDER BY class_ref, last_name, first_name";
+    String sql = "SELECT * FROM fulfillment_scores";
 
     try (Connection conn = DatabaseConfig.getConnection();
         PreparedStatement stmt = conn.prepareStatement(sql);
