@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.openjfx.controllers.ImportController">
+  <children>
+    <BorderPane>
+      <bottom>
+        <ToolBar fx:id="import_toolbar" nodeOrientation="RIGHT_TO_LEFT" prefHeight="40.0"
+          prefWidth="200.0" BorderPane.alignment="CENTER">
+          <items>
+            <Button fx:id="importButton" mnemonicParsing="false" text="%importButton"/>
+          </items>
+          <BorderPane.margin>
+            <Insets right="15.0"/>
+          </BorderPane.margin>
+        </ToolBar>
+      </bottom>
+      <top>
+        <VBox spacing="10">
+          <ToolBar fx:id="import_toolbar_top">
+            <items>
+              <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                <Button fx:id="eventsButton" text="%eventsButtoninImport"/>
+                <Button fx:id="choicesButton" text="%choicesButtoninImport"/>
+                <Button fx:id="roomsButton" text="%roomsButtoninImport"/>
+              </HBox>
+              <TextField fx:id="searchField" promptText="%search"/>
+            </items>
+          </ToolBar>
+        </VBox>
+      </top>
+      <center>
+        <TableView fx:id="tableView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+          <columns>
+            <TableColumn prefWidth="75.0" text="C1"/>
+            <TableColumn prefWidth="75.0" text="C2"/>
+          </columns>
+        </TableView>
+      </center>
+    </BorderPane>
+  </children>
+</StackPane>

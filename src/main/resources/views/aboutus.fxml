@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Text?>
+
+<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.openjfx.controllers.AboutUsController">
+   <children>
+      <BorderPane>
+         <top>
+            <Label alignment="CENTER" text="%aboutustitle" BorderPane.alignment="CENTER" />
+         </top>
+         <bottom>
+            <VBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <children>
+                  <HBox alignment="CENTER">
+                     <children>
+                        <Text fill="#f6f5f5" strokeType="OUTSIDE" strokeWidth="0.0" text="GitHub Links: " />
+                        <Button fx:id="fatihButton" text="Fatih" onAction="#openFatihGitHub" />
+                        <Button fx:id="mianButton" text="Mian" onAction="#openMianGitHub" />
+                        <Button fx:id="leonButton" text="Leon" onAction="#openLeonGitHub" />
+                        <Button fx:id="batuhanButton" text="Batuhan" onAction="#openBatuhanGitHub" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER">
+                     <children>
+                        <Text fill="#f6f5f5" strokeType="OUTSIDE" strokeWidth="0.0" text="LinkedIn Links: " />
+                        <Button fx:id="fatihLinkedInButton" text="Fatih" onAction="#openFatihLinkedIn" />
+                        <Button fx:id="mianLinkedInButton" text="Mian" onAction="#openMianLinkedIn" />
+                        <Button fx:id="leonLinkedInButton" text="Leon" onAction="#openLeonLinkedIn" />
+                        <Button fx:id="batuhanLinkedInButton" text="Batuhan" onAction="#openBatuhanLinkedIn" />
+                     </children>
+                  </HBox>
+               </children>
+               <BorderPane.margin>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </BorderPane.margin>
+            </VBox>
+         </bottom>
+         <center>
+            <Label fx:id="aboutUsTextArea" wrapText="true" text="%aboutustext" BorderPane.alignment="CENTER" maxWidth="900"/>
+            <!--<TextArea fx:id="aboutUsTextArea" wrapText="true" text="%aboutustext" editable="false" BorderPane.alignment="CENTER"/> -->
+         </center>
+      </BorderPane>
+   </children>
+</StackPane>

@@ -1,0 +1,17 @@
+target/
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+*.class
+*.log
+hs_err_pid*
+
+# H2 Database files
+data/*.db
+data/*.db.trace.db
+data/*.lock.db
+
+settings.properties

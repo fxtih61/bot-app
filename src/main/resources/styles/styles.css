@@ -1,0 +1,416 @@
+/* This is the CSS Style class for Dark Mode
+    @author: Fatih Tolip, Mian 
+*/
+
+.root {
+  background-color: #030712;
+  -fx-background-color: #030712;
+}
+
+.button {
+  background-color: #030712;
+  -fx-background-color: #030712;
+  -fx-text-fill: #d1d5dc;
+  font-size: 14px;
+  -fx-font-size: 14px;
+  font-weight: bold;
+  -fx-font-weight: bold;
+}
+
+.button:hover {
+  background-color: #1f2a38;
+  -fx-background-color: #1f2a38;
+}
+
+#themeToggle {
+  background-color: #030712;
+  -fx-background-color: #030712;
+  -fx-text-fill: #d1d5dc;
+  font-size: 14px;
+  -fx-font-size: 14px;
+  font-weight: bold;
+  -fx-font-weight: bold;
+}
+
+#themeToggle:hover {
+  background-color: #1f2a38;
+  -fx-background-color: #1f2a38;
+}
+
+#contentPane {
+  background-color: #030712;
+  -fx-background-color: #030712;
+  -fx-border-style: solid;
+  -fx-border-color: #1f2a38;
+  -fx-border-width: 1px;
+}
+
+.label {
+  -fx-text-fill: #ffffff;
+  font-size: 24px;
+  -fx-font-size: 24px;
+  font-weight: bold;
+  -fx-font-weight: bold;
+}
+
+#import_toolbar,
+#export_toolbar {
+  background-color: #030712;
+  -fx-background-color: #030712;
+}
+
+#import_toolbar .button,
+#export_toolbar .button {
+  -fx-min-width: 80;
+  -fx-max-width: 160;
+}
+
+#import_toolbar_top,
+#export_toolbar_top {
+  background-color: #030712;
+  -fx-background-color: #030712;
+  -fx-alignment: CENTER;
+  -fx-spacing: 5;
+}
+
+#import_toolbar_top .button,
+#export_toolbar_top .button {
+  -fx-min-width: 80;
+  -fx-max-width: 80;
+}
+
+.border-pane {
+  -fx-background-color: #030712;
+  -fx-border-color: #1f2a38;
+  -fx-border-width: 1px;
+}
+
+.table-view {
+  -fx-background-color: #030712;
+  -fx-border-color: #1f2a38;
+  -fx-border-width: 1px;
+}
+
+.table-view .column-header-background {
+  -fx-background-color: #1f2a38;
+}
+
+.table-view .column-header,
+.table-view .column-header .label {
+  -fx-alignment: CENTER_LEFT;
+  -fx-background-color: transparent;
+  -fx-text-fill: #d1d5dc;
+  -fx-border-width: 0;
+}
+
+.table-view .table-cell {
+  -fx-text-fill: #d1d5dc;
+  -fx-background-color: #1f2a38;
+  -fx-border-width: 0;
+}
+
+.table-row-cell {
+  -fx-background-color: #1f2a38;
+  -fx-border-color: #2d3a4f;
+  -fx-border-width: 0 0 1px 0;
+}
+
+.table-row-cell:odd {
+  -fx-background-color: #1a2330;
+}
+
+.table-row-cell:selected {
+  -fx-background-color: #2d3a4f;
+}
+
+.table-view .column-header-background {
+  -fx-background-color: #1f2a38;
+  -fx-border-color: #374151;
+  -fx-border-width: 0 0 2px 0;
+}
+
+.table-view>.virtual-flow>.clipped-container>.sheet>.empty-table {
+  -fx-background-color: #030712;
+}
+
+.table-view:focused {
+  -fx-background-color: #030712;
+}
+
+.button:pressed,
+.button-active {
+  -fx-background-color: #615FFF;
+  -fx-text-fill: #ffffff;
+}
+
+.settings-row {
+  -fx-padding: 15px 0;
+  -fx-border-color: transparent transparent #1f2a38 transparent;
+  -fx-border-width: 0 0 1px 0;
+}
+
+.settings-row .label {
+  -fx-font-size: 16px;
+  -fx-text-fill: #d1d5dc;
+}
+
+.settings-button {
+  -fx-min-width: 80px;
+  -fx-max-width: 80px;
+  -fx-padding: 8px 16px;
+  -fx-background-radius: 4px;
+}
+
+.settings-combo {
+  -fx-min-width: 120px;
+  -fx-max-width: 120px;
+  -fx-background-color: #030712;
+  -fx-text-fill: #d1d5dc;
+  -fx-font-size: 14px;
+}
+
+.settings-combo .list-cell {
+  -fx-text-fill: #d1d5dc;
+  -fx-background-color: #030712;
+}
+
+.settings-combo .list-view {
+  -fx-background-color: #1f2a38;
+}
+
+.settings-combo .list-cell:hover {
+  -fx-background-color: #2d3a4f;
+}
+
+#searchField {
+  -fx-background-color: #1f2a38;
+  -fx-text-fill: #d1d5dc;
+  -fx-prompt-text-fill: #6b7280;
+  -fx-min-width: 200px;
+  -fx-max-width: 200px;
+  -fx-padding: 5px 10px;
+  -fx-font-size: 14px;
+  -fx-border-color: #374151;
+  -fx-border-width: 1px;
+  -fx-border-radius: 4px;
+  -fx-background-radius: 4px;
+}
+
+#searchField:focused {
+  -fx-border-color: #3b82f6;
+  -fx-background-color: #1a2330;
+}
+
+.table-view .virtual-flow .clipped-container {
+  -fx-padding: 0;
+}
+
+.table-view .virtual-flow .clipped-container .sheet {
+  -fx-padding: 0;
+}
+
+.table-view .virtual-flow .scroll-bar:horizontal {
+  -fx-opacity: 0;
+  -fx-max-height: 0;
+  -fx-pref-height: 0;
+}
+
+.table-view .virtual-flow .clipped-container .sheet .scroll-bar:horizontal {
+  -fx-opacity: 0;
+  -fx-max-height: 0;
+}
+
+#aboutUsTextArea {
+  background-color: #030712;
+  -fx-background-color: #030712;
+  -fx-text-fill: white;
+  font-size: 14px;
+  -fx-font-size: 14px;
+  padding: 10px;
+  -fx-padding: 10px;
+  -fx-text-alignment: center;
+}
+
+.generate-button {
+  -fx-font-size: 16px;
+  -fx-padding: 10px 20px;
+  -fx-background-color: #615FFF;
+  -fx-text-fill: white;
+  -fx-background-radius: 4px;
+  -fx-cursor: hand;
+  -fx-min-width: -1;
+  /* Use preferred size */
+  -fx-max-width: -1;
+  /* Use preferred size */
+  -fx-pref-width: -1;
+  /* Use preferred size */
+}
+
+.generate-button:hover {
+  -fx-background-color: #4c49cc;
+}
+
+.generate-button:pressed {
+  -fx-background-color: #3a38a0;
+}
+
+.export-button {
+  -fx-min-width: -1;
+  -fx-max-width: -1;
+  -fx-pref-width: -1;
+  -fx-padding: 5px 10px;
+}
+
+#export_toolbar_top .button {
+  -fx-min-width: -1;
+  -fx-max-width: -1;
+  -fx-pref-width: -1;
+}
+
+/* ComboBox styles for dark mode */
+.combo-box {
+  -fx-background-color: #1f2a38;
+  -fx-border-color: #374151;
+  -fx-border-width: 1px;
+  -fx-border-radius: 4px;
+  -fx-background-radius: 4px;
+  -fx-padding: 3px;
+}
+
+.combo-box .list-cell {
+  -fx-text-fill: #d1d5dc;
+  -fx-background-color: transparent;
+  -fx-padding: 3px 10px;
+}
+
+.combo-box .list-view {
+  -fx-background-color: #1f2a38;
+  -fx-border-color: #374151;
+  -fx-border-width: 1px;
+  -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 8, 0, 0, 0);
+}
+
+.combo-box .list-view .list-cell {
+  -fx-background-color: #1f2a38;
+  -fx-text-fill: #d1d5dc;
+}
+
+.combo-box .list-view .list-cell:filled:hover {
+  -fx-background-color: #2d3a4f;
+}
+
+.combo-box .list-view .list-cell:filled:selected {
+  -fx-background-color: #615FFF;
+}
+
+.combo-box .arrow-button {
+  -fx-background-color: transparent;
+}
+
+.combo-box .arrow {
+  -fx-background-color: #d1d5dc;
+}
+
+/* Specific styling for the event filter combo box */
+#eventFilterComboBox {
+  -fx-min-width: 150px;
+  -fx-max-width: 150px;
+  -fx-text-fill: #d1d5dc;
+  -fx-font-size: 14px;
+  -fx-background-color: #1f2a38;
+}
+
+
+/* Label style for event label */
+#export_toolbar_top Label {
+  -fx-font-size: 14px;
+  -fx-text-fill: #d1d5dc;
+  -fx-background-color: transparent;
+  -fx-padding: 3px 5px;
+}
+
+.combo-box .list-cell {
+  -fx-text-fill: #d1d5dc;
+  -fx-background-color: transparent;
+  -fx-padding: 3px 10px;
+}
+
+/* MenuButton styles to match ComboBox */
+.menu-button {
+  -fx-background-color: #1f2a38;
+  -fx-border-color: #374151;
+  -fx-border-width: 1px;
+  -fx-border-radius: 4px;
+  -fx-background-radius: 4px;
+  -fx-padding: 3px;
+  -fx-text-fill: #d1d5dc;
+  -fx-alignment: CENTER-LEFT;
+}
+
+.menu-button>.label {
+  -fx-text-fill: #d1d5dc;
+  -fx-font-size: 14px;
+  -fx-font-weight: normal;
+  -fx-alignment: CENTER-LEFT;
+  -fx-padding: 0 0 0 5px;
+  -fx-content-display: LEFT;
+}
+
+.menu-button>.arrow-button {
+  -fx-background-color: transparent;
+  -fx-padding: 0 5px 0 0;
+}
+
+.menu-button .arrow {
+  -fx-background-color: #d1d5dc;
+}
+
+.menu-button .context-menu {
+  -fx-background-color: #1f2a38;
+  -fx-border-color: #374151;
+  -fx-border-width: 1px;
+  -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 8, 0, 0, 0);
+  -fx-content-display: LEFT;
+}
+
+.context-menu {
+  -fx-padding: 2px;
+}
+
+.menu-item {
+  -fx-background-color: #1f2a38;
+  -fx-padding: 3px 10px;
+  -fx-alignment: CENTER-LEFT;
+}
+
+.menu-item>.label {
+  -fx-text-fill: #d1d5dc;
+  -fx-font-size: 14px;
+  -fx-font-weight: normal;
+  -fx-alignment: CENTER-LEFT;
+  -fx-padding: 0 0 0 5px;
+  -fx-content-display: LEFT;
+}
+
+.menu-item:hover {
+  -fx-background-color: #2d3a4f;
+}
+
+.menu-item:focused {
+  -fx-background-color: #615FFF;
+}
+
+#ExportButton {
+  -fx-min-width: 80px;
+  -fx-max-width: 160px;
+}
+
+.menu-button:pressed,
+.menu-button.button-active {
+  -fx-background-color: #1f2a38;
+  -fx-text-fill: #d1d5dc;
+}
+
+.menu-button:hover {
+  -fx-background-color: #2d3a4f;
+}
