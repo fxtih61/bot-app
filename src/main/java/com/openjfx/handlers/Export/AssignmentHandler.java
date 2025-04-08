@@ -167,8 +167,8 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
   }
 
   /**
-   * Exports Event data to an Excel file. This method calls the exportDataToExcel() function from the
-   * TimetableService to generate and save the room data in Excel format.
+   * Exports Event data to an Excel file. This method calls the exportEventData() function from the
+   * TimetableService to generate and save the event data in Excel format.
    *
    * @param data       The room data to be exported as a list of maps.
    * @param filterName The addition to the file path
@@ -182,8 +182,23 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
   }
 
   /**
-   * Exports Event data to an Excel file. This method calls the exportDataToExcel() function from the
-   * TimetableService to generate and save the room data in Excel format.
+   * Exports Event data to an PDF file. This method calls the exportAttendanceListPDF() function from the
+   * TimetableService to generate and save the event data in PDF format.
+   *
+   * @param data       The room data to be exported as a list of maps.
+   * @param filterName The addition to the file path
+   * @throws IOException If an error occurs during export.
+   *
+   * @author leon
+   */
+  public void exportEventsPDF(Map<String, Object> data, String filterName) throws IOException {
+    String filePath = timetableService.getFilePathEvent() + "_" + filterName + ".pdf";
+    timetableService.exportEventDataPDF(filePath,data);
+  }
+
+  /**
+   * Exports Event data to an Excel file. This method calls the exportChoiceData() function from the
+   * TimetableService to generate and save the choice data in Excel format.
    *
    * @param data       The room data to be exported as a list of maps.
    * @param filterName The addition to the file path
@@ -195,6 +210,22 @@ public class AssignmentHandler implements Handler<StudentAssignment> {
     String filePath = timetableService.getFilePathChoices() + "_" + filterName + ".xlsx";
     List<Map<String, Object>> exportData = (List<Map<String, Object>>) data.get("data");
     timetableService.exportChoiceData(filePath, exportData);
+  }
+
+  /**
+   * Exports Event data to a PDF file. This method calls the exportChoiceDataPDF() function from the
+   * TimetableService to generate and save the choice data in PDF format.
+   *
+   * @param data       The room data to be exported as a list of maps.
+   * @param filterName The addition to the file path
+   * @throws IOException If an error occurs during export.
+   *
+   * @author leon
+   */
+  public void exportChoicesPDF(Map<String, Object> data, String filterName) throws IOException {
+    String filePath = timetableService.getFilePathChoices() + "_" + filterName + ".pdf";
+    List<Map<String, Object>> exportData = (List<Map<String, Object>>) data.get("data");
+    timetableService.exportChoiceDataPDF(filePath, exportData);
   }
 
 

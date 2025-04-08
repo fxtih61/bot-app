@@ -472,31 +472,15 @@ public class ExportController {
           handleRoutingSlipExport(dataToExport, searchField);
           break;
         case "pdfRoutingSlip":
-          //handleRoutingSlipExportPDF(dataToExport, searchField);
+          handleRoutingSlipExportPDF(dataToExport, searchField);
           break;
         case "excelFulfilmentScore":
           handleFulfilmentScoreExport(dataToExport, searchField);
           break;
         case "pdfFulfilmentScore":
-          //handleFulfilmentScoreExportPDF(dataToExport, searchField);
+          handleFulfilmentScoreExportPDF(dataToExport, searchField);
           break;
       }
-    }
-  }
-
-  private void handlePdfExport(Object dataToExport, String filterName, Object currentHandler) {
-    if (!(currentHandler instanceof RoomPlanHandler)) return;
-
-    List<Map<String, Object>> data = roomService.prepareDataForExport((List<Object>) dataToExport);
-    String filePath = roomService.getFilePath() + "_" + filterName + ".pdf";
-
-    try {
-      ((RoomPlanHandler) currentHandler).exportRoomsPDF(data, filterName);
-      showInfoAlert("PDF-Export erfolgreich",
-              "Daten wurden erfolgreich als PDF exportiert: '" + filePath + "'");
-    } catch (IOException e) {
-      showErrorAlert("PDF-Export Fehler",
-              "Konnte PDF nicht erstellen: " + filePath + ", " + e.getMessage());
     }
   }
 
@@ -808,6 +792,7 @@ public class ExportController {
    * @param dataToExport   The room data to export
    * @param filterName     The filter name to include in the filename
    * @param currentHandler The RoomPlanHandler instance for processing
+   *
    * @author leon
    */
   private void handleExcelExport(Object dataToExport, String filterName, Object currentHandler) {
@@ -829,10 +814,37 @@ public class ExportController {
   }
 
   /**
+   * Handles the export of room data to PDF format
+   *
+   * @param dataToExport   The room data to export
+   * @param filterName     The filter name to include in the filename
+   * @param currentHandler The RoomPlanHandler instance for processing
+   *
+   * @author leon
+   */
+  private void handlePdfExport(Object dataToExport, String filterName, Object currentHandler) {
+    if (!(currentHandler instanceof RoomPlanHandler)) return;
+
+    List<Map<String, Object>> data = roomService.prepareDataForExport((List<Object>) dataToExport);
+    String filePath = roomService.getFilePath() + "_" + filterName + ".pdf";
+
+    try {
+      ((RoomPlanHandler) currentHandler).exportRoomsPDF(data, filterName);
+      showInfoAlert("Export Successful",
+              "Data has been successfully exported to file: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("File Error",
+              "Could not export to the file: " + filePath + ", " + e.getMessage());
+    }
+  }
+
+
+  /**
    * Handles the export of attendance list data to Excel format
    *
    * @param dataToExport The attendance data to export
    * @param filterName   The filter name (must not be "All Events")
+   *
    * @author leon
    */
   private void handleAttendanceListExport(Object dataToExport, String filterName) {
@@ -860,7 +872,8 @@ public class ExportController {
    *
    * @param dataToExport The attendance data to export
    * @param filterName   The filter name (must not be "All Events")
-   * @author batuhan
+   *
+   * @author leon
    */
   private void handleAttendanceListExportPDF(Object dataToExport, String filterName) {
     if (filterName.equals("All Events")) {
@@ -870,124 +883,18 @@ public class ExportController {
 
     Map<String, Object> data = (Map<String, Object>) timetableService.prepareDataForExportForAttendanceList(
             (List<Object>) dataToExport);
-    String filePath = timetableService.getFilePathEvent() + "_" + filterName + "_Attendance.pdf";
+    String filePath = timetableService.getFilePathEvent() + "_" + filterName + ".pdf";
 
-    try (PDDocument document = new PDDocument()) {
-      PDPage page = new PDPage(PDRectangle.A4);
-      document.addPage(page);
-      PDPageContentStream contentStream = new PDPageContentStream(document, page);
-
-      // Font configuration
-      PDFont font = PDType1Font.HELVETICA_BOLD;
-      PDFont regularFont = PDType1Font.HELVETICA;
-      float fontSize = 12;
-      float margin = 50;
-      float yPosition = page.getMediaBox().getHeight() - margin;
-      float tableWidth = page.getMediaBox().getWidth() - 2 * margin;
-      float rowHeight = 20;
-      float colWidth = tableWidth / 4; // 4 columns
-
-      // Event header
-      String eventName = (String) data.get("Veranstaltung");
-      contentStream.setFont(font, 14);
-      contentStream.beginText();
-      contentStream.newLineAtOffset(margin, yPosition);
-      contentStream.showText("Veranstaltung: " + eventName);
-      contentStream.endText();
-      yPosition -= 30;
-
-      // Process time slots
-      List<Map<String, Object>> timeSlots = (List<Map<String, Object>>) data.get("Zeitfenster");
-
-      for (Map<String, Object> slot : timeSlots) {
-        // Time slot header
-        contentStream.setFont(font, fontSize);
-        contentStream.beginText();
-        contentStream.newLineAtOffset(margin, yPosition);
-        contentStream.showText("Uhrzeit: " + slot.get("Uhrzeit"));
-        contentStream.endText();
-        yPosition -= rowHeight;
-
-        // Draw table headers
-        drawTableRow(contentStream, margin, yPosition, colWidth, rowHeight,
-                new String[]{"Klasse", "Name", "Vorname", "Anwesend"}, font);
-        yPosition -= rowHeight;
-
-        // Draw horizontal line
-        contentStream.moveTo(margin, yPosition);
-        contentStream.lineTo(margin + tableWidth, yPosition);
-        contentStream.stroke();
-        yPosition -= 5;
-
-        // Participants
-        List<Map<String, String>> participants = (List<Map<String, String>>) slot.get("Teilnehmer");
-        contentStream.setFont(regularFont, fontSize);
-
-        for (Map<String, String> participant : participants) {
-          if (yPosition < margin + rowHeight) {
-            // New page
-            contentStream.close();
-            page = new PDPage(PDRectangle.A4);
-            document.addPage(page);
-            contentStream = new PDPageContentStream(document, page);
-            yPosition = page.getMediaBox().getHeight() - margin;
-          }
-
-          drawTableRow(contentStream, margin, yPosition, colWidth, rowHeight,
-                  new String[]{
-                          participant.get("Klasse"),
-                          participant.get("Name"),
-                          participant.get("Vorname"),
-                          "" // Empty for "Anwesend"
-                  },
-                  regularFont);
-
-          yPosition -= rowHeight;
-        }
-        yPosition -= 10; // Space between time slots
-      }
-
-      contentStream.close();
-      document.save(filePath);
+    try {
+      assignmentHandler.exportEventsPDF(data, filterName);
       showInfoAlert("Export Successful",
               "Data has been successfully exported to file: '" + filePath + "'");
     } catch (IOException e) {
       showErrorAlert("File Error",
-              "Could not export to the file: " + filePath + " - " + e.getMessage());
+              "Could not export to the file: " + filePath + e.getMessage());
     }
   }
 
-  /**
-   * Helper method to draw a table row
-   * @author batuhan
-   */
-  private void drawTableRow(PDPageContentStream contentStream, float x, float y,
-                            float colWidth, float rowHeight, String[] texts, PDFont font)
-          throws IOException {
-    float currentX = x;
-
-    for (int i = 0; i < texts.length; i++) {
-      contentStream.beginText();
-      contentStream.setFont(font, 12);
-      contentStream.newLineAtOffset(currentX + 5, y - 15); // Slight vertical adjustment
-      contentStream.showText(texts[i] != null ? texts[i] : "");
-      contentStream.endText();
-
-      // Draw vertical line
-      if (i < texts.length - 1) {
-        contentStream.moveTo(currentX + colWidth, y);
-        contentStream.lineTo(currentX + colWidth, y - rowHeight);
-        contentStream.stroke();
-      }
-
-      currentX += colWidth;
-    }
-
-    // Draw horizontal line at bottom
-    contentStream.moveTo(x, y - rowHeight);
-    contentStream.lineTo(x + colWidth * texts.length, y - rowHeight);
-    contentStream.stroke();
-  }
   /**
    * Handles the export of routing slip data to Excel format
    *
@@ -1011,6 +918,29 @@ public class ExportController {
     }
   }
   /**
+   * Handles the export of routing slip data to Pdf format
+   *
+   * @param dataToExport The routing slip data to export
+   * @param searchField  The search field to include in the filename
+   * @author leon
+   */
+  private void handleRoutingSlipExportPDF(Object dataToExport, String searchField) {
+    Map<String, Object> preparedData = timetableService.prepareDataForExportForRoutingSlip(
+            (List<Object>) dataToExport);
+    String filePath = timetableService.getFilePathChoices() +
+            (searchField.isEmpty() ? ".pdf" : "_" + searchField + ".pdf");
+
+    try {
+      assignmentHandler.exportChoicesPDF(preparedData, searchField);
+      showInfoAlert("Export Successful",
+              "Data has been successfully exported to file: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("File Error",
+              "Could not export to the file: " + filePath + "'" + e.getMessage());
+    }
+  }
+
+  /**
    * Handles the export of fulfilment score data to Excel format
    *
    * @param dataToExport The fulfilment score data to export
@@ -1025,6 +955,29 @@ public class ExportController {
 
     try {
       fulfillmentScoreHandler.exportScore(preparedData, searchField);
+      showInfoAlert("Export Successful",
+              "Data has been successfully exported to file: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("File Error",
+              "Could not export to the file: " + filePath + "'" + e.getMessage());
+    }
+  }
+
+  /**
+   * Handles the export of fulfilment score data to PDF format
+   *
+   * @param dataToExport The fulfilment score data to export
+   * @param searchField  The search field to include in the filename
+   * @author leon
+   */
+  private void handleFulfilmentScoreExportPDF(Object dataToExport, String searchField) {
+    Map<String, Object> preparedData = fulfillmentScoreService.prepareDataForExportForFulfillmentScore(
+            (List<Object>) dataToExport);
+    String filePath = fulfillmentScoreService.getFilePathScore() +
+            (searchField.isEmpty() ? ".pdf" : "_" + searchField + ".pdf");
+
+    try {
+      fulfillmentScoreHandler.exportScorePDF(preparedData, searchField);
       showInfoAlert("Export Successful",
               "Data has been successfully exported to file: '" + filePath + "'");
     } catch (IOException e) {
