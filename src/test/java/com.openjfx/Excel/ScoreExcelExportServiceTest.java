@@ -17,6 +17,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ScoreExcelExportServiceTest {
 
+    /**
+     * Tests that the service creates an Excel file with the correct structure,
+     * including headers, data, and styling.
+     *
+     * @param tempDir temporary directory provided by JUnit for test files
+     * @throws IOException if there's an error creating or reading the Excel file
+     *
+     * @author leon
+     */
     @Test
     void shouldCreateExcelFileWithCorrectStructure(@TempDir Path tempDir) throws IOException {
         // Given
@@ -57,6 +66,15 @@ class ScoreExcelExportServiceTest {
         }
     }
 
+    /**
+     * Tests that the service correctly handles empty data input by creating
+     * a file with only headers.
+     *
+     * @param tempDir temporary directory provided by JUnit for test files
+     * @throws IOException if there's an error creating or reading the Excel file
+     *
+     * @author leon
+     */
     @Test
     void shouldHandleEmptyData(@TempDir Path tempDir) throws IOException {
         // Given
@@ -79,6 +97,13 @@ class ScoreExcelExportServiceTest {
         }
     }
 
+    /**
+     * Creates test data for the Excel export tests.
+     *
+     * @return a Map containing sample headers and student data
+     *
+     * @author leon
+     */
     private Map<String, Object> createTestData() {
         Map<String, Object> testData = new HashMap<>();
 
@@ -97,6 +122,17 @@ class ScoreExcelExportServiceTest {
         return testData;
     }
 
+    /**
+     * Creates a sample student record for testing.
+     *
+     * @param className the class name for the student
+     * @param firstName the first name of the student
+     * @param lastName the last name of the student
+     * @param score the score of the student
+     * @return a Map representing a student record
+     *
+     * @author leon
+     */
     private Map<String, Object> createStudent(String className, String firstName,
                                               String lastName, int score) {
         Map<String, Object> student = new HashMap<>();

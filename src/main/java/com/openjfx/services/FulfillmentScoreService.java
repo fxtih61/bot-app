@@ -3,6 +3,12 @@ package com.openjfx.services;
 import com.openjfx.dao.FulfillmentScoreDAO;
 import com.openjfx.models.FulfillmentScore;
 import com.openjfx.models.StudentAssignment;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -339,5 +345,242 @@ public class FulfillmentScoreService {
     try (FileOutputStream outputStream = new FileOutputStream(filename)) {
       workbook.write(outputStream);
     }
+  }
+
+  /**
+   * Exports score data to an PDF file
+   * @param filename The name of the output PDF file
+   * @param scoreData The data to export containing headers and student records
+   * @throws IOException If an error occurs during file writing
+   *
+   * @author leon
+   */
+  public void exportScoreDataToPDF(String filename, Map<String, Object> scoreData) throws IOException {
+    try (PDDocument document = new PDDocument()) {
+      // Create landscape page with extra width
+      PDPage page = new PDPage(new PDRectangle(PDRectangle.A4.getHeight() + 100, PDRectangle.A4.getWidth()));
+      document.addPage(page);
+
+      PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+      // Font configuration for better readability
+      PDFont fontBold = PDType1Font.HELVETICA_BOLD;
+      PDFont fontRegular = PDType1Font.HELVETICA;
+      float fontSize = 9;  // Slightly smaller for better fit
+      float margin = 30;   // Smaller margin for more content space
+      float startY = page.getMediaBox().getHeight() - margin;
+
+      // Add report title with dynamic underline
+      String title = "Erfüllungsscore";
+      contentStream.setFont(fontBold, 14);
+
+      // Calculate exact title width
+      float titleWidth = fontBold.getStringWidth(title) / 1000 * 14;
+
+      // Draw title text
+      contentStream.beginText();
+      contentStream.newLineAtOffset(margin, startY);
+      contentStream.showText(title);
+      contentStream.endText();
+
+      // Draw underline exactly matching text width
+      contentStream.moveTo(margin, startY - 5);
+      contentStream.lineTo(margin + titleWidth, startY - 5);
+      contentStream.stroke();
+
+      startY -= 30; // Move down for table
+
+      // Prepare data from input map
+      @SuppressWarnings("unchecked")
+      List<Map<String, String>> headers = (List<Map<String, String>>) scoreData.get("Headers");
+      @SuppressWarnings("unchecked")
+      List<Map<String, Object>> students = (List<Map<String, Object>>) scoreData.get("Students");
+
+      // Optimized column widths based on content
+      float[] colWidths = {
+              60,  // Class
+              70,  // First Name
+              80,  // Last Name
+              50,  // Choice 1
+              50,  // Choice 2
+              50,  // Choice 3
+              50,  // Choice 4
+              50,  // Choice 5
+              50,  // Choice 6
+              60,  // Total Score
+              60,  // Overall %
+              70,  // Class Total
+              60   // Max Possible
+      };
+
+      // Draw table header with two-line column titles
+      float tableHeight = drawMultiLineTableHeader(contentStream, margin, startY, colWidths, headers, fontBold);
+      startY -= tableHeight;
+
+      // Draw all student rows
+      for (Map<String, Object> student : students) {
+        if (startY < margin + 20) { // Page break check
+          contentStream.close();
+          page = new PDPage(new PDRectangle(PDRectangle.A4.getHeight() + 100, PDRectangle.A4.getWidth()));
+          document.addPage(page);
+          contentStream = new PDPageContentStream(document, page);
+          startY = page.getMediaBox().getHeight() - margin;
+          tableHeight = drawMultiLineTableHeader(contentStream, margin, startY, colWidths, headers, fontBold);
+          startY -= tableHeight;
+        }
+
+        drawStudentRow(contentStream, margin, startY, colWidths, headers, student, fontRegular);
+        startY -= 18; // Compact row height
+      }
+
+      contentStream.close();
+      document.save(filename);
+    }
+  }
+
+  /**
+   * Draws a single student data row
+   *
+   * @param contentStream PDF content stream to draw on
+   * @param x Starting X position
+   * @param y Starting Y position
+   * @param colWidths Array of column widths
+   * @param headers List of header definitions
+   * @param student Student data to display
+   * @param font Font to use for data
+   * @throws IOException If there's an error writing to the content stream
+   *
+   * @author batuhan
+   */
+  private void drawStudentRow(PDPageContentStream contentStream, float x, float y,
+                              float[] colWidths, List<Map<String, String>> headers,
+                              Map<String, Object> student, PDFont font) throws IOException {
+    float fontSize = 9;
+
+    // Draw row border
+    contentStream.setLineWidth(0.5f);
+    contentStream.moveTo(x, y);
+    contentStream.lineTo(x + getTotalWidth(colWidths), y);
+    contentStream.lineTo(x + getTotalWidth(colWidths), y - 18);
+    contentStream.lineTo(x, y - 18);
+    contentStream.lineTo(x, y);
+    contentStream.stroke();
+
+    // Draw cell content
+    contentStream.setFont(font, fontSize);
+    float currentX = x;
+
+    for (int i = 0; i < headers.size(); i++) {
+      String key = headers.get(i).keySet().iterator().next();
+      Object value = student.get(key);
+      String text = (value != null) ? value.toString() : "";
+
+      // Center text in cell
+      float textWidth = font.getStringWidth(text) / 1000 * fontSize;
+      float textX = currentX + (colWidths[i] - textWidth) / 2;
+
+      contentStream.beginText();
+      contentStream.newLineAtOffset(textX, y - 14);
+      contentStream.showText(text);
+      contentStream.endText();
+
+      // Draw vertical separator
+      if (i < headers.size() - 1) {
+        contentStream.moveTo(currentX + colWidths[i], y);
+        contentStream.lineTo(currentX + colWidths[i], y - 18);
+        contentStream.stroke();
+      }
+      currentX += colWidths[i];
+    }
+  }
+
+  /**
+   * Draws a multi-line table header with column titles
+   *
+   * @param contentStream PDF content stream to draw on
+   * @param x Starting X position
+   * @param y Starting Y position
+   * @param colWidths Array of column widths
+   * @param headers List of header definitions
+   * @param font Font to use for headers
+   * @return The height of the drawn header
+   * @throws IOException If there's an error writing to the content stream
+   *
+   * @author bathan
+   */
+  private float drawMultiLineTableHeader(PDPageContentStream contentStream, float x, float y,
+                                         float[] colWidths, List<Map<String, String>> headers,
+                                         PDFont font) throws IOException {
+    float fontSize = 9;
+
+    // Draw table border
+    contentStream.setLineWidth(1f);
+    contentStream.moveTo(x, y);
+    contentStream.lineTo(x + getTotalWidth(colWidths), y);
+    contentStream.lineTo(x + getTotalWidth(colWidths), y - 30); // Taller header
+    contentStream.lineTo(x, y - 30);
+    contentStream.lineTo(x, y);
+    contentStream.stroke();
+
+    // Header content with two-line titles
+    contentStream.setFont(font, fontSize);
+    float currentX = x;
+
+    // Main header texts (top line)
+    String[] headerTexts = {
+            "Class", "First", "Last", "Choice 1", "Choice 2", "Choice 3",
+            "Choice 4", "Choice 5", "Choice 6", "Total", "Overall", "Class", "Max"
+    };
+
+    // Sub-header texts (bottom line)
+    String[] subHeaderTexts = {
+            "", "Name", "Name", "Score", "Score", "Score", "Score", "Score", "Score", "Score", "%", "Total", "Possible"
+    };
+
+    for (int i = 0; i < headers.size(); i++) {
+      // Draw main header text (centered)
+      float textWidth = font.getStringWidth(headerTexts[i]) / 1000 * fontSize;
+      float textX = currentX + (colWidths[i] - textWidth) / 2;
+
+      contentStream.beginText();
+      contentStream.newLineAtOffset(textX, y - 12);
+      contentStream.showText(headerTexts[i]);
+      contentStream.endText();
+
+      // Draw sub-header text if exists (centered)
+      if (!subHeaderTexts[i].isEmpty()) {
+        textWidth = font.getStringWidth(subHeaderTexts[i]) / 1000 * fontSize;
+        textX = currentX + (colWidths[i] - textWidth) / 2;
+
+        contentStream.beginText();
+        contentStream.newLineAtOffset(textX, y - 24);
+        contentStream.showText(subHeaderTexts[i]);
+        contentStream.endText();
+      }
+
+      // Draw vertical separator
+      if (i < headers.size() - 1) {
+        contentStream.moveTo(currentX + colWidths[i], y);
+        contentStream.lineTo(currentX + colWidths[i], y - 30);
+        contentStream.stroke();
+      }
+      currentX += colWidths[i];
+    }
+
+    return 30; // Return header height
+  }
+
+  /**
+   * Calculates total width of all columns
+   *
+   * @param colWidths Array of column widths
+   * @return Sum of all column widths
+   *
+   * @author batuhan
+   */
+  private float getTotalWidth(float[] colWidths) {
+    float total = 0;
+    for (float width : colWidths) total += width;
+    return total;
   }
 }

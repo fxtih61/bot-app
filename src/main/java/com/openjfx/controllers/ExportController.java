@@ -27,6 +27,12 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.util.Pair;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import java.io.IOException;
 import java.util.List;
@@ -454,25 +460,25 @@ public class ExportController {
           handleExcelExport(dataToExport, filterName, currentHandler);
           break;
         case "pdfRoom":
-          // exportToPdf(dataToExport);
+          handlePdfExport(dataToExport, filterName, currentHandler);
           break;
         case "excelAttendanceList":
           handleAttendanceListExport(dataToExport, filterName);
           break;
         case "pdfAttendanceList":
-          //handleAttendanceListExportPDF(dataToExport, filterName);
+          handleAttendanceListExportPDF(dataToExport, filterName);
           break;
         case "excelRoutingSlip":
           handleRoutingSlipExport(dataToExport, searchField);
           break;
         case "pdfRoutingSlip":
-          //handleRoutingSlipExportPDF(dataToExport, searchField);
+          handleRoutingSlipExportPDF(dataToExport, searchField);
           break;
         case "excelFulfilmentScore":
           handleFulfilmentScoreExport(dataToExport, searchField);
           break;
         case "pdfFulfilmentScore":
-          //handleFulfilmentScoreExportPDF(dataToExport, searchField);
+          handleFulfilmentScoreExportPDF(dataToExport, searchField);
           break;
       }
     }
@@ -786,6 +792,7 @@ public class ExportController {
    * @param dataToExport   The room data to export
    * @param filterName     The filter name to include in the filename
    * @param currentHandler The RoomPlanHandler instance for processing
+   *
    * @author leon
    */
   private void handleExcelExport(Object dataToExport, String filterName, Object currentHandler) {
@@ -807,10 +814,37 @@ public class ExportController {
   }
 
   /**
+   * Handles the export of room data to PDF format
+   *
+   * @param dataToExport   The room data to export
+   * @param filterName     The filter name to include in the filename
+   * @param currentHandler The RoomPlanHandler instance for processing
+   *
+   * @author leon
+   */
+  private void handlePdfExport(Object dataToExport, String filterName, Object currentHandler) {
+    if (!(currentHandler instanceof RoomPlanHandler)) return;
+
+    List<Map<String, Object>> data = roomService.prepareDataForExport((List<Object>) dataToExport);
+    String filePath = roomService.getFilePath() + "_" + filterName + ".pdf";
+
+    try {
+      ((RoomPlanHandler) currentHandler).exportRoomsPDF(data, filterName);
+      showInfoAlert("Export Successful",
+              "Data has been successfully exported to file: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("File Error",
+              "Could not export to the file: " + filePath + ", " + e.getMessage());
+    }
+  }
+
+
+  /**
    * Handles the export of attendance list data to Excel format
    *
    * @param dataToExport The attendance data to export
    * @param filterName   The filter name (must not be "All Events")
+   *
    * @author leon
    */
   private void handleAttendanceListExport(Object dataToExport, String filterName) {
@@ -830,6 +864,34 @@ public class ExportController {
     } catch (IOException e) {
       showErrorAlert("File Error",
           "Could not export to the file: " + filePath + e.getMessage());
+    }
+  }
+
+  /**
+   * Handles the export of attendance list data to PDF format
+   *
+   * @param dataToExport The attendance data to export
+   * @param filterName   The filter name (must not be "All Events")
+   *
+   * @author leon
+   */
+  private void handleAttendanceListExportPDF(Object dataToExport, String filterName) {
+    if (filterName.equals("All Events")) {
+      showErrorAlert("Choice Error", "Please select a specific event and not All Events.");
+      return;
+    }
+
+    Map<String, Object> data = (Map<String, Object>) timetableService.prepareDataForExportForAttendanceList(
+            (List<Object>) dataToExport);
+    String filePath = timetableService.getFilePathEvent() + "_" + filterName + ".pdf";
+
+    try {
+      assignmentHandler.exportEventsPDF(data, filterName);
+      showInfoAlert("Export Successful",
+              "Data has been successfully exported to file: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("File Error",
+              "Could not export to the file: " + filePath + e.getMessage());
     }
   }
 
@@ -856,6 +918,29 @@ public class ExportController {
     }
   }
   /**
+   * Handles the export of routing slip data to Pdf format
+   *
+   * @param dataToExport The routing slip data to export
+   * @param searchField  The search field to include in the filename
+   * @author leon
+   */
+  private void handleRoutingSlipExportPDF(Object dataToExport, String searchField) {
+    Map<String, Object> preparedData = timetableService.prepareDataForExportForRoutingSlip(
+            (List<Object>) dataToExport);
+    String filePath = timetableService.getFilePathChoices() +
+            (searchField.isEmpty() ? ".pdf" : "_" + searchField + ".pdf");
+
+    try {
+      assignmentHandler.exportChoicesPDF(preparedData, searchField);
+      showInfoAlert("Export Successful",
+              "Data has been successfully exported to file: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("File Error",
+              "Could not export to the file: " + filePath + "'" + e.getMessage());
+    }
+  }
+
+  /**
    * Handles the export of fulfilment score data to Excel format
    *
    * @param dataToExport The fulfilment score data to export
@@ -870,6 +955,29 @@ public class ExportController {
 
     try {
       fulfillmentScoreHandler.exportScore(preparedData, searchField);
+      showInfoAlert("Export Successful",
+              "Data has been successfully exported to file: '" + filePath + "'");
+    } catch (IOException e) {
+      showErrorAlert("File Error",
+              "Could not export to the file: " + filePath + "'" + e.getMessage());
+    }
+  }
+
+  /**
+   * Handles the export of fulfilment score data to PDF format
+   *
+   * @param dataToExport The fulfilment score data to export
+   * @param searchField  The search field to include in the filename
+   * @author leon
+   */
+  private void handleFulfilmentScoreExportPDF(Object dataToExport, String searchField) {
+    Map<String, Object> preparedData = fulfillmentScoreService.prepareDataForExportForFulfillmentScore(
+            (List<Object>) dataToExport);
+    String filePath = fulfillmentScoreService.getFilePathScore() +
+            (searchField.isEmpty() ? ".pdf" : "_" + searchField + ".pdf");
+
+    try {
+      fulfillmentScoreHandler.exportScorePDF(preparedData, searchField);
       showInfoAlert("Export Successful",
               "Data has been successfully exported to file: '" + filePath + "'");
     } catch (IOException e) {

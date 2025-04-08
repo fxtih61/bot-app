@@ -2,6 +2,12 @@ package com.openjfx.services;
 
 import com.openjfx.config.DatabaseConfig;
 import com.openjfx.models.*;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -1029,5 +1035,457 @@ public class TimetableService {
     return result;
   }
 
+  /**
+   * Exports choice data to PDF format in landscape orientation
+   *
+   * @param filename The path where to save the PDF file
+   * @param data     The choice data to export
+   * @throws IOException If there's an error during file operations
+   * @author batuhan
+   */
+  public void exportChoiceDataPDF(String filename, List<Map<String, Object>> data) throws IOException {
+    try (PDDocument document = new PDDocument()) {
+      // Create landscape page
+      PDPage page = new PDPage(new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
+      document.addPage(page);
+      PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
+      // Font configuration
+      PDFont font = PDType1Font.HELVETICA_BOLD;
+      PDFont regularFont = PDType1Font.HELVETICA;
+      float titleFontSize = 14;
+      float headerFontSize = 12;
+      float regularFontSize = 10;
+      float margin = 50;
+      float yPosition = page.getMediaBox().getHeight() - margin;
+      float tableWidth = page.getMediaBox().getWidth() - 2 * margin;
+
+      // Column widths (adjusted for landscape)
+      float[] colWidths = {
+              tableWidth * 0.15f, // Zeit
+              tableWidth * 0.10f, // Raum
+              tableWidth * 0.20f, // Veranstaltung
+              tableWidth * 0.45f, // Beschreibung
+              tableWidth * 0.10f  // Wunsch
+      };
+      float rowHeight = 20;
+
+      // Group data by class and name
+      Map<String, Map<String, List<Map<String, Object>>>> groupedData = groupDataByClassAndNameChoice(data);
+
+      for (Map.Entry<String, Map<String, List<Map<String, Object>>>> classEntry : groupedData.entrySet()) {
+        String className = classEntry.getKey();
+        Map<String, List<Map<String, Object>>> nameMap = classEntry.getValue();
+
+        // Class header
+        contentStream.setFont(font, titleFontSize);
+        contentStream.beginText();
+        contentStream.newLineAtOffset(margin, yPosition);
+        contentStream.showText("Klasse: " + className);
+        contentStream.endText();
+        yPosition -= 30;
+
+        for (Map.Entry<String, List<Map<String, Object>>> nameEntry : nameMap.entrySet()) {
+          String studentName = nameEntry.getKey();
+          List<Map<String, Object>> choices = nameEntry.getValue();
+
+          // Student name header
+          contentStream.setFont(font, headerFontSize);
+          contentStream.beginText();
+          contentStream.newLineAtOffset(margin, yPosition);
+          contentStream.showText("Name: " + studentName);
+          contentStream.endText();
+          yPosition -= 25;
+
+          // Draw table headers
+          drawTableHeader(contentStream, margin, yPosition, colWidths, rowHeight,
+                  new String[]{"Zeit", "Raum", "Veranstaltung", "Beschreibung", "Wunsch"}, font);
+          yPosition -= rowHeight;
+
+          // Draw choices
+          for (Map<String, Object> choice : choices) {
+            // Check for page break
+            if (yPosition < margin + rowHeight) {
+              contentStream.close();
+              page = new PDPage(new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
+              document.addPage(page);
+              contentStream = new PDPageContentStream(document, page);
+              yPosition = page.getMediaBox().getHeight() - margin;
+
+              // Redraw headers
+              contentStream.setFont(font, titleFontSize);
+              contentStream.beginText();
+              contentStream.newLineAtOffset(margin, yPosition);
+              contentStream.showText("Klasse: " + className);
+              contentStream.endText();
+              yPosition -= 30;
+
+              contentStream.setFont(font, headerFontSize);
+              contentStream.beginText();
+              contentStream.newLineAtOffset(margin, yPosition);
+              contentStream.showText("Name: " + studentName);
+              contentStream.endText();
+              yPosition -= 25;
+
+              drawTableHeader(contentStream, margin, yPosition, colWidths, rowHeight,
+                      new String[]{"Zeit", "Raum", "Veranstaltung", "Beschreibung", "Wunsch"}, font);
+              yPosition -= rowHeight;
+            }
+
+            // Draw choice row
+            drawTableRowChoice(contentStream, margin, yPosition, colWidths, rowHeight,
+                    new String[]{
+                            String.valueOf(choice.get("Zeit")),
+                            String.valueOf(choice.get("Raum")),
+                            String.valueOf(choice.get("Veranstaltung")),
+                            String.valueOf(choice.get("Beschreibung")),
+                            String.valueOf(choice.get("Wunsch"))
+                    },
+                    regularFont, regularFontSize);
+            yPosition -= rowHeight;
+          }
+
+          // Add space between students
+          yPosition -= 15;
+        }
+      }
+
+      contentStream.close();
+      document.save(filename);
+    }
+  }
+
+  /**
+   * Helper method to draw table headers with gray background and borders.
+   *
+   * @param contentStream The PDPageContentStream to draw on
+   * @param x The starting x-coordinate for the table header
+   * @param y The starting y-coordinate for the table header
+   * @param colWidths Array of column widths
+   * @param rowHeight Height of the header row
+   * @param headers Array of header texts
+   * @param font The font to use for header text
+   * @throws IOException If there's an error writing to the content stream
+   * @author batuhan
+   */
+  private void drawTableHeader(PDPageContentStream contentStream, float x, float y,
+                               float[] colWidths, float rowHeight, String[] headers, PDFont font)
+          throws IOException {
+    float currentX = x;
+
+    // Gray background for header
+    contentStream.setNonStrokingColor(230, 230, 230);
+    contentStream.addRect(x, y - rowHeight, getTotalWidth(colWidths), rowHeight);
+    contentStream.fill();
+    contentStream.setNonStrokingColor(0, 0, 0);
+
+    // Draw header texts
+    for (int i = 0; i < headers.length; i++) {
+      contentStream.beginText();
+      contentStream.setFont(font, 12);
+      contentStream.newLineAtOffset(currentX + 5, y - 15);
+      contentStream.showText(headers[i]);
+      contentStream.endText();
+
+      // Draw vertical line
+      if (i < headers.length - 1) {
+        contentStream.moveTo(currentX + colWidths[i], y);
+        contentStream.lineTo(currentX + colWidths[i], y - rowHeight);
+        contentStream.stroke();
+      }
+
+      currentX += colWidths[i];
+    }
+
+    // Draw horizontal lines
+    contentStream.moveTo(x, y);
+    contentStream.lineTo(x + getTotalWidth(colWidths), y);
+    contentStream.stroke();
+    contentStream.moveTo(x, y - rowHeight);
+    contentStream.lineTo(x + getTotalWidth(colWidths), y - rowHeight);
+    contentStream.stroke();
+  }
+
+  /**
+   * Draws a table row with text content and proper formatting.
+   * Handles multi-line text wrapping for specific columns and draws cell borders.
+   *
+   * @param contentStream The PDF content stream to draw on
+   * @param x The starting x-coordinate of the row
+   * @param y The starting y-coordinate of the row
+   * @param colWidths Array of column widths
+   * @param rowHeight Height of the table row
+   * @param texts Array of text content for each cell
+   * @param font The font to use for text rendering
+   * @param fontSize The font size to use for text rendering
+   * @throws IOException If there's an error during content stream operations
+   *
+   * @author batuhan
+   */
+  private void drawTableRowChoice(PDPageContentStream contentStream, float x, float y,
+                            float[] colWidths, float rowHeight, String[] texts,
+                            PDFont font, float fontSize) throws IOException {
+    float currentX = x;
+
+    for (int i = 0; i < texts.length; i++) {
+      String text = texts[i] != null ? texts[i] : "";
+
+      // Handle multi-line text for description column
+      if (i == 3 && text.length() > 30) {
+        List<String> lines = wrapText(text, font, fontSize, colWidths[i] - 10);
+        float textY = y - 15;
+
+        for (String line : lines) {
+          contentStream.beginText();
+          contentStream.setFont(font, fontSize);
+          contentStream.newLineAtOffset(currentX + 5, textY);
+          contentStream.showText(line);
+          contentStream.endText();
+          textY -= 15;
+        }
+      } else {
+        contentStream.beginText();
+        contentStream.setFont(font, fontSize);
+        contentStream.newLineAtOffset(currentX + 5, y - 15);
+        contentStream.showText(text);
+        contentStream.endText();
+      }
+
+      // Draw vertical line
+      if (i < texts.length - 1) {
+        contentStream.moveTo(currentX + colWidths[i], y);
+        contentStream.lineTo(currentX + colWidths[i], y - rowHeight);
+        contentStream.stroke();
+      }
+
+      currentX += colWidths[i];
+    }
+
+    // Draw horizontal line at bottom
+    contentStream.moveTo(x, y - rowHeight);
+    contentStream.lineTo(x + getTotalWidth(colWidths), y - rowHeight);
+    contentStream.stroke();
+  }
+
+  /**
+   * Wraps long text into multiple lines based on the available width constraints.
+   * Handles both regular word wrapping and forced character splitting for overly long words.
+   *
+   * @param text The text content to be wrapped
+   * @param font The PDF font used for width calculation
+   * @param fontSize The font size used for width calculation
+   * @param maxWidth The maximum allowed width for each line (in points)
+   * @return List of strings where each element represents a wrapped line
+   * @throws IOException If there's an error during text width calculation
+   *
+   * @author batuhan
+   */
+  private List<String> wrapText(String text, PDFont font, float fontSize, float maxWidth)
+          throws IOException {
+    List<String> lines = new ArrayList<>();
+    if (text == null || text.isEmpty()) {
+      lines.add("");
+      return lines;
+    }
+
+    String[] words = text.split(" ");
+    StringBuilder currentLine = new StringBuilder();
+
+    for (String word : words) {
+      String testLine = currentLine.length() > 0 ? currentLine + " " + word : word;
+      float width = font.getStringWidth(testLine) / 1000 * fontSize;
+
+      if (width <= maxWidth) {
+        currentLine.append(currentLine.length() > 0 ? " " + word : word);
+      } else {
+        if (currentLine.length() > 0) {
+          lines.add(currentLine.toString());
+          currentLine = new StringBuilder(word);
+        } else {
+          // Word is too long, split it
+          for (char c : word.toCharArray()) {
+            if (font.getStringWidth(currentLine.toString() + c) / 1000 * fontSize > maxWidth) {
+              lines.add(currentLine.toString());
+              currentLine = new StringBuilder();
+            }
+            currentLine.append(c);
+          }
+        }
+      }
+    }
+
+    if (currentLine.length() > 0) {
+      lines.add(currentLine.toString());
+    }
+
+    return lines;
+  }
+
+  /**
+   * Calculates the total width by summing up all column widths.
+   *
+   * @param colWidths Array of column widths to be summed
+   * @return The sum of all column widths
+   * @throws IllegalArgumentException If colWidths array is empty
+   *
+   * @author batuhan
+   */
+  private float getTotalWidth(float[] colWidths) {
+    float total = 0;
+    for (float width : colWidths) {
+      total += width;
+    }
+    return total;
+  }
+
+  /**
+   * Groups choice data by class and student name in a nested map structure.
+   *
+   * @param data The choice data to group, containing "Klasse" and "Name" entries
+   * @return Nested map structure organized by class → student → list of entries
+   * @throws NullPointerException If data contains null values for class or name
+   *
+   * @author batuhan
+   */
+  private Map<String, Map<String, List<Map<String, Object>>>> groupDataByClassAndNameChoice(
+          List<Map<String, Object>> data) {
+    Map<String, Map<String, List<Map<String, Object>>>> groupedData = new LinkedHashMap<>();
+
+    for (Map<String, Object> row : data) {
+      String className = (String) row.get("Klasse");
+      String studentName = (String) row.get("Name");
+
+      groupedData.computeIfAbsent(className, k -> new LinkedHashMap<>())
+              .computeIfAbsent(studentName, k -> new ArrayList<>())
+              .add(row);
+    }
+
+    return groupedData;
+  }
+
+  /**
+   * Generates a PDF attendance list for an event with time slots and participants.
+   * The PDF includes event information, time slots, and participant lists in a table format.
+   *
+   * @param filePath The full path where the PDF file should be saved
+   * @param data A map containing the event data with keys:
+   *             - "Veranstaltung" (String): Event name
+   *             - "Zeitfenster" (List<Map<String, Object>>): List of time slots
+   * @throws IOException if there's an error during PDF generation or file saving
+   *
+   * @author batuhan
+   */
+  public void exportEventDataPDF(String filePath, Map<String, Object> data) throws IOException {
+    try (PDDocument document = new PDDocument()) {
+      PDPage page = new PDPage(PDRectangle.A4);
+      document.addPage(page);
+      PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+      // Font configuration
+      PDFont font = PDType1Font.HELVETICA_BOLD;
+      PDFont regularFont = PDType1Font.HELVETICA;
+      float fontSize = 12;
+      float margin = 50;
+      float yPosition = page.getMediaBox().getHeight() - margin;
+      float tableWidth = page.getMediaBox().getWidth() - 2 * margin;
+      float rowHeight = 20;
+      float colWidth = tableWidth / 4; // 4 columns
+
+      // Event header
+      String eventName = (String) data.get("Veranstaltung");
+      contentStream.setFont(font, 14);
+      contentStream.beginText();
+      contentStream.newLineAtOffset(margin, yPosition);
+      contentStream.showText("Veranstaltung: " + eventName);
+      contentStream.endText();
+      yPosition -= 30;
+
+      // Process time slots
+      List<Map<String, Object>> timeSlots = (List<Map<String, Object>>) data.get("Zeitfenster");
+
+      for (Map<String, Object> slot : timeSlots) {
+        // Time slot header
+        contentStream.setFont(font, fontSize);
+        contentStream.beginText();
+        contentStream.newLineAtOffset(margin, yPosition);
+        contentStream.showText("Uhrzeit: " + slot.get("Uhrzeit"));
+        contentStream.endText();
+        yPosition -= rowHeight;
+
+        // Draw table headers
+        drawTableRow(contentStream, margin, yPosition, colWidth, rowHeight,
+                new String[]{"Klasse", "Name", "Vorname", "Anwesend"}, font);
+        yPosition -= rowHeight;
+
+        // Draw horizontal line
+        contentStream.moveTo(margin, yPosition);
+        contentStream.lineTo(margin + tableWidth, yPosition);
+        contentStream.stroke();
+        yPosition -= 5;
+
+        // Participants
+        List<Map<String, String>> participants = (List<Map<String, String>>) slot.get("Teilnehmer");
+        contentStream.setFont(regularFont, fontSize);
+
+        for (Map<String, String> participant : participants) {
+          if (yPosition < margin + rowHeight) {
+            // New page
+            contentStream.close();
+            page = new PDPage(PDRectangle.A4);
+            document.addPage(page);
+            contentStream = new PDPageContentStream(document, page);
+            yPosition = page.getMediaBox().getHeight() - margin;
+          }
+
+          drawTableRow(contentStream, margin, yPosition, colWidth, rowHeight,
+                  new String[]{
+                          participant.get("Klasse"),
+                          participant.get("Name"),
+                          participant.get("Vorname"),
+                          "" // Empty for "Anwesend"
+                  },
+                  regularFont);
+
+          yPosition -= rowHeight;
+        }
+        yPosition -= 10; // Space between time slots
+      }
+
+      contentStream.close();
+      document.save(filePath);
+    }
+  }
+
+
+  /**
+   * Helper method to draw a table row
+   * @author batuhan
+   */
+  private void drawTableRow(PDPageContentStream contentStream, float x, float y,
+                            float colWidth, float rowHeight, String[] texts, PDFont font)
+          throws IOException {
+    float currentX = x;
+
+    for (int i = 0; i < texts.length; i++) {
+      contentStream.beginText();
+      contentStream.setFont(font, 12);
+      contentStream.newLineAtOffset(currentX + 5, y - 15); // Slight vertical adjustment
+      contentStream.showText(texts[i] != null ? texts[i] : "");
+      contentStream.endText();
+
+      // Draw vertical line
+      if (i < texts.length - 1) {
+        contentStream.moveTo(currentX + colWidth, y);
+        contentStream.lineTo(currentX + colWidth, y - rowHeight);
+        contentStream.stroke();
+      }
+
+      currentX += colWidth;
+    }
+
+    // Draw horizontal line at bottom
+    contentStream.moveTo(x, y - rowHeight);
+    contentStream.lineTo(x + colWidth * texts.length, y - rowHeight);
+    contentStream.stroke();
+  }
 }

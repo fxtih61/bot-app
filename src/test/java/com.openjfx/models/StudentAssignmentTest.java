@@ -80,7 +80,7 @@ public class StudentAssignmentTest {
   void toString_returnsCorrectStringRepresentation() {
     StudentAssignment assignment = new StudentAssignment(1, "John", "Doe", "ClassA", "CompanyX",
         "SubjectX");
-    String expected = "StudentAssignment{eventId=1, firstName='John', lastName='Doe', classRef='ClassA', companyName='CompanyX', subject='SubjectX'}";
+    String expected = "StudentAssignment{eventId=1, firstName='John', lastName='Doe', classRef='ClassA', companyName='CompanyX', subject='SubjectX', timeSlot='null', choice='null', roomId='null'}";
     assertEquals(expected, assignment.toString());
   }
 }

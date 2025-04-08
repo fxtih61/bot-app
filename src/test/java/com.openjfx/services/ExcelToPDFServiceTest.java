@@ -1,65 +1,91 @@
 package com.openjfx.services;
 
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.junit.jupiter.api.Test;
-import java.io.File;
-import java.io.FileWriter;
+
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-class ExcelToPDFServiceTest {
-    private final ExcelToPDFService service = new ExcelToPDFService();
+/**
+ * Testklasse für RoomExcelToPDFService.
+ * Diese Klasse enthält Unit-Tests für verschiedene Methoden des Service,
+ * die die Konvertierung von Excel-Daten in PDF-Dokumente durchführen.
+ *
+ * @author Batuhan
+ */
+class RoomExcelToPDFServiceTest {
 
+    /**
+     * Testet die Erstellung einer neuen PDF-Seite.
+     * @throws IOException Falls ein Fehler beim Erstellen des Dokuments auftritt.
+     */
     @Test
-    void testReadExcel() throws IOException {
-        String testExcelPath = "test.xlsx";
-        createTestExcelFile(testExcelPath);
+    void testCreateNewPage() throws IOException {
+        RoomService service = new RoomService(new ExcelService());
+        PDDocument document = new PDDocument();
+        PDPage page = service.createNewPage(document);
 
-        List<String[]> data = service.readExcel(testExcelPath);
+        assertNotNull(page);
+        assertEquals(1, document.getNumberOfPages());
+        assertEquals(PDRectangle.A4.getHeight(), page.getMediaBox().getWidth());
+        assertEquals(PDRectangle.A4.getWidth(), page.getMediaBox().getHeight());
 
-        assertNotNull(data);
-        assertFalse(data.isEmpty());
-        assertArrayEquals(new String[]{"Name", "Age"}, data.get(0));
-        assertArrayEquals(new String[]{"Alice", "30"}, data.get(1));
-
-        new File(testExcelPath).delete();
+        document.close();
     }
 
+    /**
+     * Testet das Hinzufügen eines Titels und einer Einführung zum PDF-Dokument.
+     * @throws IOException Falls ein Fehler beim Schreiben des Inhalts auftritt.
+     * @author batuhan
+     */
     @Test
-    void testCreatePDF() throws IOException {
-        String testPdfPath = "test.pdf";
-        List<String[]> data = Arrays.asList(
-                new String[]{"Name", "Age"},
-                new String[]{"Alice", "30"}
-        );
+    void testAddTitleAndIntro() throws IOException {
+        RoomService service = new RoomService(new ExcelService());
+        PDDocument document = new PDDocument();
+        PDPage page = new PDPage(PDRectangle.A4);
+        document.addPage(page);
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
-        service.createPDF(testPdfPath, data);
+        service.addTitleAndIntro(contentStream);
+        assertNotNull(contentStream);
 
-        File pdfFile = new File(testPdfPath);
-        assertTrue(pdfFile.exists());
-        assertTrue(pdfFile.length() > 0);
-
-        pdfFile.delete();
+        contentStream.close();
+        document.close();
     }
 
-    private void createTestExcelFile(String filePath) throws IOException {
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet();
-        Row headerRow = sheet.createRow(0);
-        headerRow.createCell(0).setCellValue("Name");
-        headerRow.createCell(1).setCellValue("Age");
-        Row dataRow = sheet.createRow(1);
-        dataRow.createCell(0).setCellValue("Alice");
-        dataRow.createCell(1).setCellValue("30");
+    /**
+     * Testet die Berechnung der Spaltenbreiten für eine Tabelle.
+     * @throws IOException Falls ein Fehler beim Erstellen des Inhaltsstroms auftritt.
+     * @author batuhan
+     */
+    @Test
+    void testCalculateColumnWidths() throws IOException {
+        RoomService service = new RoomService(new ExcelService());
+        PDDocument document = new PDDocument();
+        PDPage page = new PDPage(PDRectangle.A4);
+        document.addPage(page);
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
-        try (var fos = new java.io.FileOutputStream(filePath)) {
-            workbook.write(fos);
-        }
-        workbook.close();
+        String[] headers = {"Unternehmen", "8:45 – 9:30 (A)", "9:50 – 10:35 (B)", "10:35 – 11:20 (C)", "11:40 – 12:25 (D)", "12:25 – 13:10 (E)"};
+        List<Map<String, Object>> data = new ArrayList<>();
+        Map<String, Object> row = new HashMap<>();
+        row.put("Unternehmen", "Test Unternehmen");
+        data.add(row);
+
+        float[] colWidths = service.calculateColumnWidths(contentStream, headers, data);
+        assertNotNull(colWidths);
+        assertEquals(headers.length, colWidths.length);
+        assertTrue(colWidths[0] > 0);
+
+        contentStream.close();
+        document.close();
     }
 }
