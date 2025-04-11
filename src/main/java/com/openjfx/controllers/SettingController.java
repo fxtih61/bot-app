@@ -31,6 +31,8 @@ import java.util.Properties;
 public class SettingController {
 
   @FXML
+  private Button docsButton;
+  @FXML
   private Button h2ConsoleButton;
 
   private static final int H2_PORT = 8082;
@@ -53,6 +55,7 @@ public class SettingController {
   @FXML
   public void initialize() {
     loadSettings();
+    docsButton.setOnAction(event -> openDocs());
     h2ConsoleButton.setOnAction(event -> openH2Console());
     themeToggle.setSelected(isDarkMode);
     themeToggle.setText(isDarkMode ? "Dark Mode" : "Light Mode");
@@ -232,6 +235,52 @@ public class SettingController {
     } catch (IOException e) {
       isDarkMode = true; // Standardwert für DarkMode
       e.printStackTrace();
+    }
+  }
+
+  /**
+   * Opens the documentation in the default web browser. If the default browser cannot be opened,
+   * it tries to open it using different options on Linux. If all attempts fail, it shows an alert
+   * with the documentation URL.
+   *
+   * @author mian
+   */
+  private void openDocs() {
+    try {
+      String docUrl = "https://docs.google.com/document/d/1ORkgtmaymn2wac9gj1fX_38GON4L5VK2aELffv47Xvk/edit?usp=sharing";
+      String os = System.getProperty("os.name").toLowerCase();
+
+      // Linux-specific handling
+      if (os.contains("linux")) {
+        // Try different browser options on Linux
+        String[] browsers = {"xdg-open", "google-chrome", "firefox", "mozilla", "konqueror",
+            "netscape", "opera"};
+        boolean browserOpened = false;
+
+        for (String browser : browsers) {
+          try {
+            Runtime.getRuntime().exec(new String[]{browser, docUrl});
+            browserOpened = true;
+            break;
+          } catch (Exception e) {
+            // Try next browser
+          }
+        }
+
+        if (!browserOpened) {
+          showAlert("Information",
+              "Could not open browser automatically.\nPlease manually navigate to: " + docUrl);
+        }
+      }
+      // Windows and Mac handling
+      else if (Desktop.isDesktopSupported()) {
+        Desktop.getDesktop().browse(new URI(docUrl));
+      } else {
+        showAlert("Information",
+            "Desktop operations not supported.\nPlease manually navigate to: " + docUrl);
+      }
+    } catch (Exception e) {
+      showAlert("Error", "Cannot open documentation: " + e.getMessage());
     }
   }
 
