@@ -28,6 +28,15 @@
           <children>
             <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="settings-row">
               <children>
+                <Label text="%settingsopendocs"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="docsButton" text="%openbuttonsettings" styleClass="settings-button"/>
+              </children>
+            </HBox>
+          </children>
+          <children>
+            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="settings-row">
+              <children>
                 <Label text="%settingsopenh2console"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button fx:id="h2ConsoleButton" text="%openbuttonsettings" styleClass="settings-button"/>
