@@ -3,6 +3,14 @@
 ## 📌 Project Overview
 The Berufsorientierungstag App is a Spring Boot application developed using Maven, Java 23, and JavaFX. It aims to fully automate the scheduling process for the annual Berufsorientierungstag, which is organized for students in different educational programs. The application simplifies student event preferences, assigns them to appropriate sessions, generates timetables, and produces printable attendance lists and itineraries.
 
+## 💾 Downloads & Executables
+Ready-to-run versions of the application (JAR and Windows EXE) are available for download from our GitHub Releases page. You can find the latest release, including `BotApp.exe` and the executable JAR, here:
+
+- **[Download Version 1.0 (JAR & EXE)](https://github.com/fxtih61/bot-app/releases/tag/v1.0)**
+
+This allows you to run the application without needing to build it from the source code.
+
+
 ## 📚 Documentation
 For detailed instructions on how to use the application, including step-by-step guides and feature explanations, please refer to our comprehensive documentation:
 
